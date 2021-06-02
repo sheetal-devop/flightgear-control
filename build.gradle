@@ -1,0 +1,22 @@
+apply plugin: 'java'
+
+repositories { 
+    mavenCentral() 
+}
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    implementation 'commons-net:commons-net:3.8.0'
+    implementation group: 'org.json', name: 'json', version: '20210307'
+	implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src/main/java'
+		}
+	}
+}
