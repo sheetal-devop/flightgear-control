@@ -106,7 +106,7 @@ public class C172P_Waypoints {
 			//check altitude first, if we're in a nose dive that needs to be corrected first
 			plane.altitudeCheck(500, targetAltitude);
 			
-			plane.yawCheck(2, 0);
+			//plane.yawCheck(2, 0);
 			
 			plane.pitchCheck(4, 3.0);
 			

@@ -249,8 +249,8 @@ public class C172P extends FlightGearPlane{
         return Double.parseDouble(getTelemetry().get("/orientation/roll-deg"));
     }
     
-    public double getYaw() {
-        return Double.parseDouble(getTelemetry().get("/orientation/yaw-deg"));
+    public double getYawRate() {
+        return Double.parseDouble(getTelemetry().get("/orientation/yaw-rate-degps"));
     }
     
     public void rollCheck(int maxDifference, double targetRoll) {
@@ -276,28 +276,29 @@ public class C172P extends FlightGearPlane{
         }
     }
     
-    public void yawCheck(int maxDifference, double targetYaw) {
-        double currentYaw = getYaw();
-        
-        //yaw is +180 to -180
-        
-        logger.info("Yaw check. Current {} vs target {}", currentYaw, targetYaw);
-        
-        if( Math.abs(currentYaw) - Math.abs(targetYaw) > maxDifference) {
-            logger.info("Correcting yaw to target: {}", targetYaw);
-            
-            setPause(true);
-            setYaw(targetYaw);
-            setPause(false);
-            
-            //trailing sleep only if we made a change
-            try {
-                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
-            } catch (InterruptedException e) {
-                logger.warn("Trailing sleep interrupted", e);
-            }
-        }
-    }
+    //Turns out this is not mutable
+//    public void yawRateCheck(int maxDifference, double targetYawRate) {
+//        double currentYaw = getYawRate();
+//        
+//        //yaw is +180 to -180
+//        
+//        logger.info("Yaw rate check. Current {} vs target {}", currentYaw, targetYawRate);
+//        
+//        if( Math.abs(currentYaw) - Math.abs(targetYawRate) > maxDifference) {
+//            logger.info("Correcting yaw to target: {}", targetYawRate);
+//            
+//            setPause(true);
+//            setYaw(targetYawRate);
+//            setPause(false);
+//            
+//            //trailing sleep only if we made a change
+//            try {
+//                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
+//            } catch (InterruptedException e) {
+//                logger.warn("Trailing sleep interrupted", e);
+//            }
+//        }
+//    }
     
     public double getHeading() {
         return Double.parseDouble(getTelemetry().get("/orientation/heading-deg"));

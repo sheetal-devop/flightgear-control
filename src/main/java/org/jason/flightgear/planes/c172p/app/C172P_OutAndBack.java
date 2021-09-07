@@ -71,7 +71,7 @@ public class C172P_OutAndBack {
 			plane.altitudeCheck(500, targetAltitude);
 			
 			
-			plane.yawCheck(2, 0);
+			//plane.yawRateCheck(2, 0);
 			plane.pitchCheck(4, 3.0);
 			plane.rollCheck(4, 0.0);
 			
