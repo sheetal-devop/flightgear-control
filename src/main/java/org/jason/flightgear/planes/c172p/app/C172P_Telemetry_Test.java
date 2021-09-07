@@ -29,13 +29,15 @@ public class C172P_Telemetry_Test {
 	
 	public void shutdown() {
 		//plane shutdown
-		
+
+		//no io resources in the socket manager to shutdown
+		//
 		//FGM shutdown
-		if(fgSocketsClient != null) {
-			//end simulator - needs streams to write commands
-			fgSocketsClient.shutdown();
-			
-		}
+//		if(fgSocketsClient != null) {
+//			//end simulator - needs streams to write commands
+//			fgSocketsClient.shutdown();
+//			
+//		}
 	}
 	
 

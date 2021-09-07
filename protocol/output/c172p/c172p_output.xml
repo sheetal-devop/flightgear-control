@@ -499,6 +499,12 @@
          </chunk>
          <!-- sim -->
          <chunk>
+            <node>/sim/model/c172p/brake-parking</node>
+            <name>brake-parking</name>
+            <type>float</type>
+            <format>"/sim/model/c172p/brake-parking": %f,</format>
+         </chunk>
+         <chunk>
             <node>/sim/speed-up</node>
             <name>speed-up</name>
             <type>float</type>

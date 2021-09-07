@@ -78,6 +78,10 @@ public class C172P extends FlightGearPlane{
         "/position/longitude-deg"
     };
     
+    private final String[] SIM_FIELDS = {
+    	"/sim/model/c172p/brake-parking"	
+    };
+    
     private final String[] CONTROL_FIELDS = 
     {
         "/controls/electric/battery-switch",
@@ -211,7 +215,10 @@ public class C172P extends FlightGearPlane{
     }
     
     public int getParkingBrakeEnabled() {
-        return Integer.parseInt( getTelemetry().get("/controls/gear/brake-parking") ) ;
+    	//TODO: this and other fields can be missing if the protocol files are incorrect- safeguard against.
+    	
+    	//returned as a double like 0.000000, just look at the first character
+        return Character.getNumericValue( getTelemetry().get("/sim/model/c172p/brake-parking").charAt(0));
     }
     
     public boolean isParkingBrakeEnabled() {
@@ -406,7 +413,6 @@ public class C172P extends FlightGearPlane{
         orientationFields.put("/orientation/heading-deg", "" + heading);
         orientationFields.put("/orientation/pitch-deg", "" + pitch);
         orientationFields.put("/orientation/roll-deg", "" + roll);
-        //orientationFields.put("/orientation/yaw-deg", "" + yaw);
         
         writeSocketInput(orientationFields, SOCKETS_INPUT_ORIENTATION_PORT);
         
@@ -514,8 +520,7 @@ public class C172P extends FlightGearPlane{
             try {
                 Thread.sleep(250);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            	logger.warn("setPause trailing sleep interrupted", e);
             }
     }
     
@@ -640,23 +645,23 @@ public class C172P extends FlightGearPlane{
     }
     
     public synchronized void setParkingBrake(boolean brakeEnabled) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(CONTROL_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(SIM_FIELDS);
             
         //visual: in the cockpit, if the brake arm is:
         //pushed in => brake is not engaged (disabled => 0)
         //pulled out => brake is engaged (enabled => 1)
         
         //requires an int value for the bool
-        if(!brakeEnabled) {
-            inputHash.put("/controls/gear/brake-parking","0");
+        if(brakeEnabled) {
+            inputHash.put("/sim/model/c172p/brake-parking", "" + (double)1);
         }
         else {
-            inputHash.put("/controls/gear/brake-parking","1");
+            inputHash.put("/sim/model/c172p/brake-parking", "" + (double)0);
         }
         
         logger.info("Setting parking brake to {}", brakeEnabled);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeSocketInput(inputHash, SOCKETS_INPUT_SIM_PORT);
     }
     
 ///////////////
@@ -690,16 +695,17 @@ public class C172P extends FlightGearPlane{
         }
         
         logger.debug("Telemetry thread terminated");
-        
+
+        //no io resources in the socket manager to shutdown
         //sockets shutdown
-        if(fgSockets != null) {
-            fgSockets.shutdown();
-            
-            logger.debug("FlightGear sockets connection shut down");
-        }
-        else {
-            logger.warn("FlightGear sockets connection was null at shutdown");
-        }
+//        if(fgSockets != null) {
+//            fgSockets.shutdown();
+//            
+//            logger.debug("FlightGear sockets connection shut down");
+//        }
+//        else {
+//            logger.warn("FlightGear sockets connection was null at shutdown");
+//        }
         
         
         

@@ -43,6 +43,9 @@ public class FlightGearManagerSockets {
 	private final static String FG_SOCKET_PROTOCOL_VAR_SEP = ",";
 	private final static String FG_SOCKET_PROTOCOL_LINE_SEP = "\n";
 	
+	//cache this so we don't have to constantly perform lookups when receiving data
+	private Charset UTF8_CHARSET = Charset.forName("UTF-8");
+	
 	private HashMap<String, FlightGearInput> controlInputs;
 
 	private Pattern telemetryLinePattern;
@@ -71,15 +74,22 @@ public class FlightGearManagerSockets {
 	 */
 	public void registerInput(String key, FlightGearInput input) {
 		
-		logger.info("Registering control input: {}, on port: ", key, input.getPort());
+		logger.info("Registering control input: {}, on port: {}", key, input.getPort());
 		
 		controlInputs.put(key, input);
 	}
 	
-	//json string
+	
+	/**
+	 * Read output fields from the flightgear output socket.
+	 * 
+	 * @return	A JSON string of telemetry data.
+	 * 
+	 * @throws IOException
+	 */
 	public String readTelemetry() throws IOException {
 		
-		logger.trace("Telemetry called for " + host + ":" + telemetryPort);
+		logger.trace("Telemetry called for {}:{}", host, telemetryPort);
 		
 		String output = "";
 		
@@ -96,13 +106,14 @@ public class FlightGearManagerSockets {
 			
 			output = new String(fgTelemetryPacket.getData()).trim();  
 			
-			logger.trace("Raw telemetry received from socket.");
+			logger.trace("Raw telemetry was received from socket.");
 			
 		} catch (IOException e) {
 			//comms errors connecting to fg telemetry socket
 			
 			//e.printStackTrace();
-			
+			logger.warn("IOException reading raw telemetry from socket", e);
+
 			throw e;
 		}
 		finally {
@@ -131,9 +142,13 @@ public class FlightGearManagerSockets {
 		0}	
 		*/
 		
+		logger.trace("=========================\nRaw telemetry received:\n{}\n=========================\n", output);
+		
 		String[] lines = output.split(FG_SOCKET_PROTOCOL_LINE_SEP);
 		
 		//TODO: count accepted lines and compare against schema
+		
+		logger.trace("Cleaning up raw telemetry data");
 		
 		int telemetryLineCount = 0;
 		StringBuilder cleanOutput = new StringBuilder();
@@ -145,11 +160,11 @@ public class FlightGearManagerSockets {
 				cleanOutput.append(line);
 				telemetryLineCount++;
 			} else {
-				logger.warn("Dropping malformed telemetry line: " + line);
+				logger.warn("Dropping malformed telemetry line: {}", line);
 			}
 		}
 		
-		logger.trace("read telemetry returning. Read " + telemetryLineCount + " lines");
+		logger.debug("readTelemetry returning. Read {} lines", telemetryLineCount);
 				
 		
 		//return after adding json braces
@@ -197,11 +212,11 @@ public class FlightGearManagerSockets {
 	}
 	
 	public synchronized void writeControlInput(String input, int port) {
-		byte[] fgInputPayload = input.getBytes(Charset.forName("UTF-8"));
+		byte[] fgInputPayload = input.getBytes(UTF8_CHARSET);
 
 		DatagramSocket fgInputSocket = null;
 
-		logger.debug("Sending input to " + host + ":" + port);
+		logger.debug("Sending input to {}:{}", host, port);
 		
 		try {
 			DatagramPacket fgInputPacket = new DatagramPacket(
@@ -211,7 +226,7 @@ public class FlightGearManagerSockets {
 				port
 			);
 
-			fgInputPacket.setData(input.getBytes(Charset.forName("UTF-8")));
+			fgInputPacket.setData(input.getBytes(UTF8_CHARSET));
 
 			fgInputSocket = new DatagramSocket();
 			
@@ -219,7 +234,7 @@ public class FlightGearManagerSockets {
 
 			fgInputSocket.send(fgInputPacket);
 
-			logger.debug("Completed input write to " + host + ":" + port);
+			logger.debug("Completed input write to {}:{}", host, port);
 		} 
 		catch (SocketException e) {
 			//a subclass of IOException. timeouts are thrown here 
@@ -233,12 +248,13 @@ public class FlightGearManagerSockets {
 				fgInputSocket.close();
 			}
 			
-			logger.debug("writeControlInput for" + host + ":" + port + " returning");
+			logger.debug("writeControlInput for {}:{} returning", host, port);
 		}
 	}
 	
-	public void shutdown() {
-
-	}
+//no stream resources to close
+//	public void shutdown() {
+//		
+//	}
 }
 
