@@ -1,4 +1,4 @@
-package org.jason.flightgear.planes.c172p;
+package org.jason.flightgear.planes.c172p.app;
 
 import java.io.IOException;
 

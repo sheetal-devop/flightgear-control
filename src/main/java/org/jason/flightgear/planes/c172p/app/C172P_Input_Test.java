@@ -1,10 +1,11 @@
-package org.jason.flightgear.planes.c172p;
+package org.jason.flightgear.planes.c172p.app;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
+import org.jason.flightgear.planes.c172p.C172P;
 import org.jason.flightgear.sockets.FlightGearManagerSockets;
 import org.jason.flightgear.telnet.FlightGearManagerTelnet;
 import org.json.JSONException;

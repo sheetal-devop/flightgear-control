@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+ <PropertyList>
+ <generic>
+    <input>
+        <line_separator>newline</line_separator>
+        <var_separator>,</var_separator>
+ 
+         <chunk>
+            <node>/fdm/jsbsim/settings/damage</node>
+            <name>damage</name>
+            <type>bool</type>
+         </chunk>
+    </input>
+  </generic>
+ </PropertyList>

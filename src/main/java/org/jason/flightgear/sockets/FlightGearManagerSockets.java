@@ -10,6 +10,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import org.jason.flightgear.manager.FlightGearInput;
 import org.slf4j.Logger;
@@ -43,9 +44,14 @@ public class FlightGearManagerSockets {
 	private final static String FG_SOCKET_PROTOCOL_LINE_SEP = "\n";
 	
 	private HashMap<String, FlightGearInput> controlInputs;
+
+	private Pattern telemetryLinePattern;
 	
 	public FlightGearManagerSockets(String host,  int telemetryPort) 
 			throws SocketException, UnknownHostException {
+		
+		//set this here rather than before the match because we don't want to initialize it with every telemetry read
+		telemetryLinePattern = Pattern.compile("^[\"/]\\S+[\": ]\\S+[,]?$");
 		
 		this.host = host;
 		this.telemetryPort = telemetryPort;
@@ -73,7 +79,7 @@ public class FlightGearManagerSockets {
 	//json string
 	public String readTelemetry() throws IOException {
 		
-		logger.debug("Telemetry called for " + host + ":" + telemetryPort);
+		logger.trace("Telemetry called for " + host + ":" + telemetryPort);
 		
 		String output = "";
 		
@@ -90,26 +96,7 @@ public class FlightGearManagerSockets {
 			
 			output = new String(fgTelemetryPacket.getData()).trim();  
 			
-			//TODO: remove every line that doesn't look like a telemetry line
-			
-			/*
-			 occasionally see this. not sure where those extra digits are coming from
-			...
-			"/velocities/groundspeed-kt": 8.734266,
-			"/velocities/vertical-speed-fps": -303.683014
-			874}
-			
-			
-			...
-			"/velocities/vertical-speed-fps": -163.828430
-			8
-
-
-			0}
-			
-			race condition? protocol error?
-			
-			*/
+			logger.trace("Raw telemetry received from socket.");
 			
 		} catch (IOException e) {
 			//comms errors connecting to fg telemetry socket
@@ -122,11 +109,51 @@ public class FlightGearManagerSockets {
 			if( fgTelemetrySocket != null && !fgTelemetrySocket.isClosed() ) {
 				fgTelemetrySocket.close();
 			}
+			else
+			{
+				logger.warn("Attempted to close fgTelemetrySocket, but was already closed or null");
+			}
+		}
+				
+		/*
+		 occasionally see this. not sure where those extra digits are coming from
+		...
+		"/velocities/groundspeed-kt": 8.734266,
+		"/velocities/vertical-speed-fps": -303.683014
+		874}
+		
+		
+		...
+		"/velocities/vertical-speed-fps": -163.828430
+		8
+
+
+		0}	
+		*/
+		
+		String[] lines = output.split(FG_SOCKET_PROTOCOL_LINE_SEP);
+		
+		//TODO: count accepted lines and compare against schema
+		
+		int telemetryLineCount = 0;
+		StringBuilder cleanOutput = new StringBuilder();
+		for(String line : lines) {
+			
+			//only match lines that look like telemetry
+			if( telemetryLinePattern.matcher(line).matches() ) 
+			{
+				cleanOutput.append(line);
+				telemetryLineCount++;
+			} else {
+				logger.warn("Dropping malformed telemetry line: " + line);
+			}
 		}
 		
-		logger.debug("read telemetry returning");
+		logger.trace("read telemetry returning. Read " + telemetryLineCount + " lines");
+				
 		
-		return "{" + output + "}";
+		//return after adding json braces
+		return cleanOutput.insert(0, "{").append("}").toString();
 	}
 	
 	public synchronized void writeInput(LinkedHashMap<String, String> inputHash, int port) {
@@ -191,18 +218,24 @@ public class FlightGearManagerSockets {
 			fgInputSocket.setSoTimeout(SOCKET_TIMEOUT);
 
 			fgInputSocket.send(fgInputPacket);
-			
-		} catch (IOException e) {
+
+			logger.debug("Completed input write to " + host + ":" + port);
+		} 
+		catch (SocketException e) {
+			//a subclass of IOException. timeouts are thrown here 
+			logger.warn("SocketException writing control input", e);
+		}
+		catch (IOException e) {
+			//thrown on send()
 			logger.warn("IOException writing control input", e);
 		} finally {
 			if (fgInputSocket != null && !fgInputSocket.isClosed()) {
 				fgInputSocket.close();
 			}
+			
+			logger.debug("writeControlInput for" + host + ":" + port + " returning");
 		}
-
 	}
-	
-
 	
 	public void shutdown() {
 

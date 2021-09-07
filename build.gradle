@@ -1,22 +1,83 @@
 apply plugin: 'java'
+apply plugin: 'distribution'
+apply from: 'dependencies.gradle'
 
-repositories { 
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+
+
+
+
+
+
+
+repositories {
+    jcenter()
     mavenCentral() 
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
 dependencies {
-    implementation 'commons-net:commons-net:3.8.0'
-    implementation group: 'org.json', name: 'json', version: '20210307'
-	implementation group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+
+    compile libs
+}
+
+ext {
+    fgControlVersion = "1.0.0"
+    title = "flightgear-control"
 }
 
 sourceSets {
-	main {
-		java {
-			srcDir 'src/main/java'
-		}
-	}
+    main {
+        java {
+            srcDir 'src/main/java'
+        }
+    }
 }
+
+//just want zip
+distTar.enabled(false)
+distZip.dependsOn("jar")
+
+distributions {
+    //the jar, libs, protocol files
+    
+    main {
+        baseName = title
+        
+        contents {
+            into('') {
+                from( project.file("build/libs/"))
+            }
+            into('scripts') {
+                from( project.file("scripts"))
+            }
+            into('protocols') {
+                from( project.file("protocol"))
+            }
+            
+            
+        }
+    }
+}
+
+
+
+jar {
+
+    baseName title
+    version fgControlVersion
+
+    from(sourceSets.main.output)
+    manifest {
+    }
+}
+
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'src'
+    version fgControlVersion
+    
+    from sourceSets.main.allSource
+}
+

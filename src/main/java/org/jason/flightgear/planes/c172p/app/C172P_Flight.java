@@ -1,8 +1,9 @@
-package org.jason.flightgear.planes.c172p;
+package org.jason.flightgear.planes.c172p.app;
 
 import java.io.IOException;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
+import org.jason.flightgear.planes.c172p.C172P;
 
 public class C172P_Flight {
 	public static void main(String[] args) {
