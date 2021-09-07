@@ -454,6 +454,12 @@
             <type>float</type>
             <format>"/orientation/yaw-deg": %f,</format>
          </chunk>
+         <chunk>
+            <node>/orientation/yaw-rate-degps</node>
+            <name>yaw-rate-degps</name>
+            <type>float</type>
+            <format>"/orientation/yaw-rate-degps": %f,</format>
+         </chunk>
          <!-- position -->
          <chunk>
             <node>/position/altitude-ft</node>

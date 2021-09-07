@@ -66,7 +66,8 @@ public class C172P extends FlightGearPlane{
         "/orientation/pitch-deg",
         "/orientation/roll-deg",
         "/orientation/track-magnetic-deg",
-        "/orientation/yaw-deg"
+        "/orientation/yaw-deg",
+        "/orientation/yaw-rate-degps"
     };
     
     private final String[] POSITION_FIELDS = 
@@ -249,6 +250,10 @@ public class C172P extends FlightGearPlane{
         return Double.parseDouble(getTelemetry().get("/orientation/roll-deg"));
     }
     
+    public double getYaw() {
+        return Double.parseDouble(getTelemetry().get("/orientation/yaw-deg"));
+    }
+    
     public double getYawRate() {
         return Double.parseDouble(getTelemetry().get("/orientation/yaw-rate-degps"));
     }
@@ -401,7 +406,7 @@ public class C172P extends FlightGearPlane{
         orientationFields.put("/orientation/heading-deg", "" + heading);
         orientationFields.put("/orientation/pitch-deg", "" + pitch);
         orientationFields.put("/orientation/roll-deg", "" + roll);
-        orientationFields.put("/orientation/yaw-deg", "" + yaw);
+        //orientationFields.put("/orientation/yaw-deg", "" + yaw);
         
         writeSocketInput(orientationFields, SOCKETS_INPUT_ORIENTATION_PORT);
         
