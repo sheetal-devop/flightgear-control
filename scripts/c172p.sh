@@ -21,8 +21,9 @@ fgfs \
  --generic=socket,in,45,localhost,6604,udp,c172p_input_position\
  --generic=socket,in,45,localhost,6605,udp,c172p_input_sim\
  --generic=socket,in,45,localhost,6606,udp,c172p_input_sim_freeze\
- --generic=socket,in,45,localhost,6607,udp,c172p_input_velocities\
- --generic=socket,in,45,localhost,6608,udp,c172p_input_fdm\
+ --generic=socket,in,45,localhost,6607,udp,c172p_input_sim_speedup\
+ --generic=socket,in,45,localhost,6608,udp,c172p_input_velocities\
+ --generic=socket,in,45,localhost,6609,udp,c172p_input_fdm\
  --telnet=5501\
  --disable-ai-traffic\
  --disable-sound\

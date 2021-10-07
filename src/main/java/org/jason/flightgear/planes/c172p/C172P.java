@@ -16,7 +16,6 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class C172P extends FlightGearPlane{
     
     private Logger logger = LoggerFactory.getLogger(C172P.class);
@@ -34,13 +33,13 @@ public class C172P extends FlightGearPlane{
     private final static int SOCKETS_INPUT_POSITION_PORT = 6604;
     private final static int SOCKETS_INPUT_SIM_PORT = 6605;
     private final static int SOCKETS_INPUT_SIM_FREEZE_PORT = 6606;
-    private final static int SOCKETS_INPUT_VELOCITIES_PORT = 6607;
-    private final static int SOCKETS_INPUT_FDM_PORT = 6608;
+    private final static int SOCKETS_INPUT_SIM_SPEEDUP_PORT = 6607;
+    private final static int SOCKETS_INPUT_VELOCITIES_PORT = 6608;
+    private final static int SOCKETS_INPUT_FDM_PORT = 6609;
     
     private final static int TELEMETRY_READ_SLEEP = 250;
     private final static int AUTOSTART_COMPLETION_SLEEP = 5000;
-    private final static int ORIENTATION_CHANGE_SLEEP = 2500;
-
+    
     private FlightGearManagerTelnet fgTelnet;
     private FlightGearManagerSockets fgSockets;
     
@@ -55,59 +54,7 @@ public class C172P extends FlightGearPlane{
     
     //reading telemetry from socket
     private AtomicBoolean stateReading;
-    
-    //TODO: move all these into static fields in another class
-    private final String[] ORIENTATION_FIELDS = 
-    {
-        "/orientation/alpha-deg",
-        "/orientation/beta-deg",
-        "/orientation/heading-deg",
-        "/orientation/heading-magnetic-deg",
-        "/orientation/pitch-deg",
-        "/orientation/roll-deg",
-        "/orientation/track-magnetic-deg",
-        "/orientation/yaw-deg",
-        "/orientation/yaw-rate-degps"
-    };
-    
-    private final String[] POSITION_FIELDS = 
-    {
-        "/position/altitude-ft",
-        "/position/ground-elev-ft",
-        "/position/latitude-deg",
-        "/position/longitude-deg"
-    };
-    
-    private final String[] SIM_FIELDS = {
-    	"/sim/model/c172p/brake-parking"	
-    };
-    
-    private final String[] CONTROL_FIELDS = 
-    {
-        "/controls/electric/battery-switch",
-        "/controls/engines/current-engine/mixture",
-        "/controls/engines/current-engine/throttle",
-        "/controls/flight/aileron",
-        "/controls/flight/auto-coordination",
-        "/controls/flight/auto-coordination-factor",
-        "/controls/flight/elevator",
-        "/controls/flight/flaps",
-        "/controls/flight/rudder",
-        "/controls/flight/speedbrake",
-        "/controls/gear/brake-parking",
-        "/controls/gear/gear-down"
-    };
-    
-//    private final String[] FDM_FIELDS = {
-//        "/fdm/jsbsim/settings/damage"    
-//    };
-    
-    private final String[] VELOCITIES_FIELDS = {
-        "/velocities/airspeed-kt",
-        "/velocities/groundspeed-kt",
-        "/velocities/vertical-speed-fps"
-    };
-            
+             
     public C172P() throws InvalidTelnetOptionException, IOException {
         logger.info("Loading C172P...");
         
@@ -150,11 +97,11 @@ public class C172P extends FlightGearPlane{
         telemetryThread = new Thread() {
             @Override
             public void run() {
-                logger.debug("Telemetry thread started");
+                logger.trace("Telemetry thread started");
                 
                 readTelemetry();
                 
-                logger.debug("Telemetry thread returning");
+                logger.trace("Telemetry thread returning");
             }
         };
         telemetryThread.start();
@@ -182,11 +129,13 @@ public class C172P extends FlightGearPlane{
             //read from socket connection. retrieves json string. write state to map
             //TODO: make this not awful
             
+            //TODO: init outside the loop
             String telemetryRead = ""; 
             try {
                 telemetryRead = fgSockets.readTelemetry();
                 
                 //if for some reason telemetryRead is not proper json, the update is dropped
+                //TODO: move init outside the loop
                 JSONObject jsonTelemetry = new JSONObject(telemetryRead);
                 
                 jsonTelemetry.keySet().forEach( 
@@ -214,212 +163,6 @@ public class C172P extends FlightGearPlane{
         logger.info("readTelemetry returning");
     }
     
-    public int getParkingBrakeEnabled() {
-    	//TODO: this and other fields can be missing if the protocol files are incorrect- safeguard against.
-    	
-    	//returned as a double like 0.000000, just look at the first character
-        return Character.getNumericValue( getTelemetry().get("/sim/model/c172p/brake-parking").charAt(0));
-    }
-    
-    public boolean isParkingBrakeEnabled() {
-        return getParkingBrakeEnabled() == 1;
-    }
-    
-    public double getAltitude() {
-        return Double.parseDouble(getTelemetry().get("/position/altitude-ft"));
-    }
-    
-    public void altitudeCheck(int maxDifference, double targetAltitude) {
-        double currentAltitude = getAltitude();
-        
-        logger.info("Altitude check. Current {} vs target {}", currentAltitude, targetAltitude);
-        
-        //correct if too high or too low
-        if(targetAltitude - maxDifference > currentAltitude || 
-            targetAltitude + maxDifference < currentAltitude ) {
-            
-            logger.info("Correcting altitude to target: {}", targetAltitude);
-            
-            setPause(true);
-            setAltitude(targetAltitude);
-            setPause(false);
-            
-            //trailing sleep only if we made a change
-            try {
-                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
-            } catch (InterruptedException e) {
-                logger.warn("Trailing sleep interrupted", e);
-            }
-        }
-    }
-    
-    public double getRoll() {
-        return Double.parseDouble(getTelemetry().get("/orientation/roll-deg"));
-    }
-    
-    public double getYaw() {
-        return Double.parseDouble(getTelemetry().get("/orientation/yaw-deg"));
-    }
-    
-    public double getYawRate() {
-        return Double.parseDouble(getTelemetry().get("/orientation/yaw-rate-degps"));
-    }
-    
-    public void rollCheck(int maxDifference, double targetRoll) {
-        double currentRoll = getRoll();
-        
-        //roll is +180 to -180
-        
-        logger.info("Roll check. Current {} vs target {}", currentRoll, targetRoll);
-        
-        if( Math.abs(currentRoll) - Math.abs(targetRoll) > maxDifference) {
-            logger.info("Correcting roll to target: {}", targetRoll);
-            
-            setPause(true);
-            setRoll(targetRoll);
-            setPause(false);
-            
-            //trailing sleep only if we made a change
-            try {
-                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
-            } catch (InterruptedException e) {
-                logger.warn("Trailing sleep interrupted", e);
-            }
-        }
-    }
-    
-    //Turns out this is not mutable
-//    public void yawRateCheck(int maxDifference, double targetYawRate) {
-//        double currentYaw = getYawRate();
-//        
-//        //yaw is +180 to -180
-//        
-//        logger.info("Yaw rate check. Current {} vs target {}", currentYaw, targetYawRate);
-//        
-//        if( Math.abs(currentYaw) - Math.abs(targetYawRate) > maxDifference) {
-//            logger.info("Correcting yaw to target: {}", targetYawRate);
-//            
-//            setPause(true);
-//            setYaw(targetYawRate);
-//            setPause(false);
-//            
-//            //trailing sleep only if we made a change
-//            try {
-//                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
-//            } catch (InterruptedException e) {
-//                logger.warn("Trailing sleep interrupted", e);
-//            }
-//        }
-//    }
-    
-    public double getHeading() {
-        return Double.parseDouble(getTelemetry().get("/orientation/heading-deg"));
-    }
-    
-    public void headingCheck(int maxDifference, double targetHeading) {
-        
-        double currentHeading = getHeading();
-        double currentHeadingSin = Math.sin( Math.toRadians(currentHeading) );
-        
-        //heading is 0 to 360, both values are true/mag north
-        
-        logger.info("Heading check. Current {} vs target {}", currentHeading, targetHeading);
-        
-        double minHeadingSin = Math.sin( Math.toRadians(targetHeading - maxDifference) );
-//        if (minHeading < 0) {
-//            //-1 deg heading results in heading of 359
-//            minHeading += 360;
-//        }
-        
-        //target heading of 355 with a maxDifference of 10, is a min of 345 and a max of 5
-        double maxHeadingSin = Math.sin( Math.toRadians(targetHeading + maxDifference) );
-        
-        logger.info("Target heading sin range {} to {}, current: {}", minHeadingSin, maxHeadingSin, currentHeadingSin);
-        
-        /*
-         * Might be easier to normal 
-         * 
-         * target 0, maxDif 5, min 355, max 5
-         * 
-         * target 90, maxDif 10, min 80, max 100
-         * 
-         * target 355, maxDif 10, min 345, max 5
-         */
-        
-        if(currentHeadingSin > maxHeadingSin || currentHeadingSin < minHeadingSin) {
-            
-            logger.info("Correcting heading to target: {}", targetHeading);
-            
-            setPause(true);
-            setHeading(targetHeading);
-            
-            //force this here? or count on the flight app to handle the specific context
-//            setPitch(0);
-//            setRoll(0);
-//            setYaw(0);
-            
-            setPause(false);
-            
-            //trailing sleep only if we made a change
-            try {
-                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
-            } catch (InterruptedException e) {
-                logger.warn("Trailing sleep interrupted", e);
-            }
-        }
-    }
-    
-    public double getPitch() {
-        return Double.parseDouble(getTelemetry().get("/orientation/pitch-deg"));
-    }
-    
-    public void pitchCheck(int maxDifference, double targetPitch) {
-        //read pitch
-        //if pitch is too far from target in +/- directions, set to target
-        
-        double currentPitch = getPitch();
-        
-        //pitch is -180 to 180
-        
-        logger.info("Pitch check. Current {} vs target {}", currentPitch, targetPitch);
-        
-        if( Math.abs(currentPitch) - Math.abs(targetPitch) > maxDifference) {
-            
-            logger.info("Correcting pitch to target: {}", targetPitch);
-
-            setPause(true);
-            setPitch(targetPitch);
-            setPause(false);
-            
-            //trailing sleep only if we made a change
-            try {
-                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
-            } catch (InterruptedException e) {
-                logger.warn("Trailing sleep interrupted", e);
-            }
-        }
-    }
-    
-    public void forceStabilize(double heading, double altitude, double roll, double pitch, double yaw) {
-        
-        logger.info("forceStablize called");
-        
-        //TODO: check if paused
-        
-        LinkedHashMap<String, String> orientationFields = copyStateFields(ORIENTATION_FIELDS);
-        
-        //get telemetry hash
-        
-        orientationFields.put("/orientation/heading-deg", "" + heading);
-        orientationFields.put("/orientation/pitch-deg", "" + pitch);
-        orientationFields.put("/orientation/roll-deg", "" + roll);
-        
-        writeSocketInput(orientationFields, SOCKETS_INPUT_ORIENTATION_PORT);
-        
-        //setAltitude(altitude);
-        altitudeCheck(500, altitude);
-    }
-    
     public synchronized Map<String, String> getTelemetry() {
         Map<String, String> retval = new HashMap<>();
         
@@ -439,7 +182,7 @@ public class C172P extends FlightGearPlane{
         return retval;
     }
     
-    public void startupPlane() {
+    public void startupPlane() throws Exception {
         
         logger.info("Starting up the plane");
         
@@ -480,62 +223,620 @@ public class C172P extends FlightGearPlane{
 //                logger.warn("writeSocketInput: Socket write wait interrupted", e);
 //            }
 //        }
+    	
+    	
+    	//TODO: check if paused, and pause if not
+    	//expect pause before and after invocation of this
+    	//
         
+    	//TODO: wait for stateread to end
+    	
         //TODO: lock on write
         fgSockets.writeInput(inputHash, port);
+        
+        //TODO: unpause if pause issued in this function
 
     }
     
-    public synchronized void setPause(boolean isPaused) {
-        
-        //TODO: check telemetry if already paused
-        
-        //resolve sim_freeze port
-        //if(controlInputs.containsKey(PAUSE_INPUT)) {
-            //FlightGearInput input = controlInputs.get(PAUSE_INPUT);
-            
-            LinkedHashMap<String, String> inputHash = new LinkedHashMap<String, String>();
-        
-            //oh get fucked. requires an int value for the bool, despite the schema specifying a bool.
-            //hardcode the string values because i don't want to have to deal with parse* calls or casting here
-            if(isPaused) {
-                logger.debug("Pausing simulation");
-                inputHash.put("/sim/freeze/clock", "1");
-                inputHash.put("/sim/freeze/master", "1");
-            }
-            else {
-                logger.debug("Unpausing simulation");
-                inputHash.put("/sim/freeze/clock", "0");
-                inputHash.put("/sim/freeze/master", "0");
-            }
-            
-            //clock and master are the only two fields, no need to retrieve from the current state
-            //order matters. defined in input xml schema
+    //////////////
+    //telemetry accessors
+    
+    ///////////////////
+    //consumables
+    
+    public double getCapacity_gal_us() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FUEL_TANK_CAPACITY_FIELD));
+    }
+    
+    public double getLevel_gal_us() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FUEL_TANK_LEVEL_FIELD));
+    }
+    
+    public double getWaterContamination() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.WATER_CONTAMINATION_FIELD));
+    }
+    
+    ///////////////////
+    //controls
+    
+    public int getBatterySwitch() {
+        return Character.getNumericValue( getTelemetry().get(C172PFields.BATTERY_SWITCH_FIELD).charAt(0));
+    }
+    
+    public boolean isBatterySwitchEnabled() {
+    	return getBatterySwitch() == C172PFields.BATTERY_SWITCH_INT_TRUE;
+    }
+    
+    public double getMixture() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.MIXTURE_FIELD));
+    }
+    
+    public double getThrottle() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.THROTTLE_FIELD));
+    }
+    
+    public double getAileron() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.AILERON_FIELD));
+    }
+    
+    public double getAutoCoordination() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.AUTO_COORDINATION_FIELD));
+    }
+    
+    public double getAutoCoordinationFactor() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.AUTO_COORDINATION_FACTOR_FIELD));
+    }
+    
+    public double getElevator() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.ELEVATOR_FIELD));
+    }
+    
+    public double getFlaps() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FLAPS_FIELD));
+    }
+    
+    public double getRudder() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.RUDDER_FIELD));
+    }
+    
+    public double getSpeedbrake() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.SPEED_BRAKE_FIELD));
+    }
+    
+    public int getParkingBrakeEnabled() {
+    	//TODO: this and other fields can be missing if the protocol files are incorrect- safeguard against.
+    	
+    	//returned as a double like 0.000000, just look at the first character
+        return Character.getNumericValue( getTelemetry().get(C172PFields.PARKING_BRAKE_FIELD).charAt(0));
+    }
+    
+    public boolean isParkingBrakeEnabled() {
+        return getParkingBrakeEnabled() == C172PFields.SIM_PARKING_BRAKE_INT_TRUE;
+    }
+    
+    public int getGearDown() {
+        return Character.getNumericValue( getTelemetry().get(C172PFields.GEAR_DOWN_FIELD).charAt(0));
+    }
+    
+    public boolean isGearDown() {
+    	return getGearDown() == C172PFields.GEAR_DOWN_INT_TRUE;
+    }
+    
+    ///////////////////
+    //engine
+    
+    public double getCowlingAirTemperature() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.ENGINE_COWLING_AIR_TEMPERATURE_FIELD));
+    }
 
-            //socket writes typically require pauses so telemetry/state aren't out of date
-            //however this is an exception
-            writeSocketInput(inputHash, SOCKETS_INPUT_SIM_FREEZE_PORT);
-            
-            //trailing sleep, so that the last real telemetry read arrives
-            try {
-                Thread.sleep(250);
-            } catch (InterruptedException e) {
-            	logger.warn("setPause trailing sleep interrupted", e);
-            }
+    public double getExhaustGasTemperature() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.ENGINE_EXHAUST_GAS_TEMPERATURE_FIELD));
+    }
+    
+    public double getExhaustGasTemperatureNormalization() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.ENGINE_EXHAUST_GAS_TEMPERATURE_NORM_FIELD));
+    }
+    
+    public double getFuelFlow() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.ENGINE_FUEL_FLOW_FIELD));
+    }
+    
+    public double getMpOsi() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.ENGINE_MP_OSI_FIELD));
+    }
+    
+    public double getOilPressure() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.ENGINE_OIL_PRESSURE_FIELD));
+    }
+    
+    public double getOilTemperature() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.ENGINE_OIL_TEMPERATURE_FIELD));
+    }
+    
+    public double getEngineRpms() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.ENGINE_RPM_FIELD));
+    }
+    
+    public int getEngineRunning() {
+        return Character.getNumericValue( getTelemetry().get(C172PFields.ENGINE_RUNNING_FIELD).charAt(0));
+    }
+    
+    public boolean isEngineRunning() {
+    	return getEngineRunning() == C172PFields.ENGINE_RUNNING_INT_TRUE;
+    }
+    
+    ///////////////////
+    //environment
+    
+    public double getDewpoint() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.DEWPOINT_FIELD));
+    }
+    
+    public double getEffectiveVisibility() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.EFFECTIVE_VISIBILITY_FIELD));
+    }
+    
+    public double getPressure() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.PRESSURE_FIELD));
+    }
+    
+    public double getRelativeHumidity() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.RELATIVE_HUMIDITY_FIELD));
+    }
+    
+    public double getTemperature() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.TEMPERATURE_FIELD));
+    }
+    
+    public double getVisibility() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.VISIBILITY_FIELD));
+    }
+    
+    public double getWindFromDown() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.WIND_FROM_DOWN_FIELD));
+    }
+    
+    public double getWindFromEast() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.WIND_FROM_EAST_FIELD));
+    }
+    
+    public double getWindFromNorth() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.WIND_FROM_NORTH_FIELD));
+    }
+    
+    public double getWindspeed() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.WINDSPEED_FIELD));
+    }
+    
+    ///////////////////
+    //fdm
+    
+    public int getDamageRepairing() {
+        return Character.getNumericValue( getTelemetry().get(C172PFields.FDM_DAMAGE_REPAIRING_FIELD).charAt(0));
+    }
+    
+    public boolean isDamageRepairing() {
+    	return getDamageRepairing() == C172PFields.FDM_DAMAGE_REPAIRING_INT_TRUE;
+    }
+    
+    //fbx
+    public double getFbxAeroForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBX_AERO_FIELD));
+    }
+    
+    public double getFbxExternalForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBX_EXTERNAL_FIELD));
+    }
+    
+    public double getFbxGearForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBX_GEAR_FIELD));
+    }
+    
+    public double getFbxPropForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBX_PROP_FIELD));
+    }
+    
+    public double getFbxTotalForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBX_TOTAL_FIELD));
+    }
+    
+    public double getFbxWeightForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBX_WEIGHT_FIELD));
+    }
+    
+    //fby
+    public double getFbyAeroForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBY_AERO_FIELD));
+    }
+    
+    public double getFbyExternalForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBY_EXTERNAL_FIELD));
+    }
+    
+    public double getFbyGearForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBY_GEAR_FIELD));
+    }
+    
+    public double getFbyPropForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBY_PROP_FIELD));
+    }
+    
+    public double getFbyTotalForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBY_TOTAL_FIELD));
+    }
+    
+    public double getFbyWeightForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBY_WEIGHT_FIELD));
+    }
+    
+    //fbz
+    public double getFbzAeroForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBZ_AERO_FIELD));
+    }
+    
+    public double getFbzExternalForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBZ_EXTERNAL_FIELD));
+    }
+    
+    public double getFbzGearForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBZ_GEAR_FIELD));
+    }
+    
+    public double getFbzPropForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBZ_PROP_FIELD));
+    }
+    
+    public double getFbzTotalForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBZ_TOTAL_FIELD));
+    }
+    
+    public double getFbzWeightForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FBZ_WEIGHT_FIELD));
+    }
+    
+    //fsx
+    public double getFsxAeroForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FSX_AERO_FIELD));
+    }
+    
+    //fsy
+    public double getFsyAeroForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FSY_AERO_FIELD));
+    }
+    
+    //fsz
+    public double getFszAeroForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FSZ_AERO_FIELD));
+    }
+    
+    //fwy
+    public double getFwyAeroForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FWY_AERO_FIELD));
+    }
+    
+    //fwz
+    public double getFwzAeroForce() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_FWZ_AERO_FIELD));
+    }
+    
+    //load factor
+    public double getLoadFactor() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_LOAD_FACTOR_FIELD));
+    }
+    
+    public double getLodNorm() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_LOD_NORM_FIELD));
+    }
+    
+    //damage
+    
+    public int getDamage() {
+        return Character.getNumericValue(getTelemetry().get(C172PFields.FDM_DAMAGE_FIELD).charAt(0));
+    }
+    
+    public boolean isDamageEnabled() {
+    	return getDamage() == C172PFields.FDM_DAMAGE_ENABLED_INT_TRUE;
+    }
+
+    public double getLeftWingDamage() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_LEFT_WING_DAMAGE_FIELD));
+    }
+    
+    public double getRightWingDamage() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.FDM_RIGHT_WING_DAMAGE_FIELD));
+    }
+    
+    ///////////////////
+    //orientation
+    
+    public double getAlpha() {
+    	return Double.parseDouble(getTelemetry().get(C172PFields.ALPHA_FIELD));
+    }
+    
+    public double getBeta() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.BETA_FIELD));
+    }
+    
+    public double getHeading() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.HEADING_FIELD));
+    }
+    
+    public double getHeadingMag() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.HEADING_MAG_FIELD));
+    }
+    
+    public double getPitch() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.PITCH_FIELD));
+    }
+    
+    public double getRoll() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.ROLL_FIELD));
+    }
+    
+    public double getTrack() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.TRACK_MAG_FIELD));
+    }
+    
+    public double getYaw() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.YAW_FIELD));
+    }
+    
+    public double getYawRate() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.YAW_RATE_FIELD));
+    }
+    
+    ///////////////////
+    //position
+    
+    public double getAltitude() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.ALTITUDE_FIELD));
+    }
+    
+    public double getGroundElevation() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.GROUND_ELEVATION_FIELD));
+    }
+    
+    public double getLatitude() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.LATITUDE_FIELD));
+    }
+    
+    public double getLongitude() {
+        return Double.parseDouble(getTelemetry().get(C172PFields.LONGITUDE_FIELD));
+    }
+    
+    ///////////////////
+    //sim
+    
+    public int getParkingBrake() {   	
+        return Character.getNumericValue(getTelemetry().get(C172PFields.PARKING_BRAKE_FIELD).charAt(0));
+    }
+    
+    public int getSimFreezeClock() {
+        return Character.getNumericValue(getTelemetry().get(C172PFields.SIM_FREEZE_CLOCK_FIELD).charAt(0));
+    }
+    
+    public int getSimFreezeMaster() {
+        return Character.getNumericValue(getTelemetry().get(C172PFields.SIM_FREEZE_MASTER_FIELD).charAt(0));
+    }
+    
+    public double getSimSpeedUp() {
+    	return Double.parseDouble(getTelemetry().get(C172PFields.SIM_SPEEDUP_FIELD));
+    }
+    
+    public double getTimeElapsed() {
+    	return Double.parseDouble(getTelemetry().get(C172PFields.SIM_TIME_ELAPSED_FIELD));
+    }
+    
+    public double getLocalDaySeconds() {
+    	return Double.parseDouble(getTelemetry().get(C172PFields.SIM_LOCAL_DAY_SECONDS_FIELD));
+    }
+    
+    public double getMpClock() {
+    	return Double.parseDouble(getTelemetry().get(C172PFields.SIM_MP_CLOCK_FIELD));
+    }
+    
+    ///////////////////
+    //velocities
+    public double getAirSpeed() {
+    	return Double.parseDouble(getTelemetry().get(C172PFields.AIRSPEED_FIELD));
+    }
+    
+    public double getGroundSpeed() {
+    	return Double.parseDouble(getTelemetry().get(C172PFields.GROUNDSPEED_FIELD));
+    }
+    
+    public double getVerticalSpeed() {
+    	return Double.parseDouble(getTelemetry().get(C172PFields.VERTICALSPEED_FIELD));
+    }
+    
+    public double getUBodySpeed() {
+    	return Double.parseDouble(getTelemetry().get(C172PFields.U_BODY_FIELD));
+    }
+    
+    public double getVBodySpeed() {
+    	return Double.parseDouble(getTelemetry().get(C172PFields.V_BODY_FIELD));
+    }
+    
+    public double getWBodySpeed() {
+    	return Double.parseDouble(getTelemetry().get(C172PFields.W_BODY_FIELD));
+    }
+    
+    //////////////
+    //telemetry modifiers
+    
+    public void forceStabilize(double heading, double altitude, double roll, double pitch, double yaw) {
+        
+        logger.info("forceStablize called");
+        
+        //TODO: check if paused
+        
+        LinkedHashMap<String, String> orientationFields = copyStateFields(C172PFields.ORIENTATION_FIELDS);
+        
+        //get telemetry hash
+        
+        //TODO: String.valueOf for these and similar
+        orientationFields.put(C172PFields.HEADING_FIELD, "" + heading);
+        orientationFields.put(C172PFields.PITCH_FIELD, "" + pitch);
+        orientationFields.put(C172PFields.ROLL_FIELD, "" + roll);
+        
+        writeSocketInput(orientationFields, SOCKETS_INPUT_ORIENTATION_PORT);
+        
+        //setAltitude(altitude);
+        C172PFlightUtilities.altitudeCheck(this, 500, altitude);
+    }
+    
+    public synchronized void refillFuelTank() {
+    	setFuelTankLevel(getCapacity_gal_us());
+    }
+       
+    public synchronized void setFuelTankLevel(double amount) {
+    	LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_FIELDS);
+    	
+        inputHash.put(C172PFields.FUEL_TANK_LEVEL_FIELD, "" + amount);
+        
+        logger.info("Setting fuel tank level: {}", amount);
+        
+        writeSocketInput(inputHash, SOCKETS_INPUT_CONSUMABLES_PORT);
+    }
+    
+    public synchronized void setFuelTankWaterContamination(double amount) {
+    	LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_FIELDS);
+    	
+        inputHash.put(C172PFields.WATER_CONTAMINATION_FIELD, "" + amount);
+        
+        logger.info("Setting fuel tank water contamination: {}", amount);
+        
+        writeSocketInput(inputHash, SOCKETS_INPUT_CONSUMABLES_PORT);
+    	
+    }
+    
+    public synchronized void setBatterySwitch(boolean switchOn) {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_FIELDS);
+        
+        if(switchOn) {
+        	inputHash.put(C172PFields.BATTERY_SWITCH_FIELD, String.valueOf(C172PFields.BATTERY_SWITCH_INT_TRUE));
+        }
+        else {
+        	inputHash.put(C172PFields.BATTERY_SWITCH_FIELD, String.valueOf(C172PFields.BATTERY_SWITCH_INT_FALSE));
+        }
+        
+        logger.info("Setting battery switch to {}", switchOn);
+        
+        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+    }
+    
+    public synchronized void setElevator(double orientation) {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_FIELDS);
+        
+        inputHash.put(C172PFields.ELEVATOR_FIELD, String.valueOf(orientation));
+
+        logger.info("Setting elevator to {}", orientation);
+        
+        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+    }
+    
+    public synchronized void setAileron(double orientation) {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_FIELDS);
+        
+        inputHash.put(C172PFields.AILERON_FIELD, String.valueOf(orientation));
+
+        logger.info("Setting aileron to {}", orientation);
+        
+        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+    }
+    
+    public synchronized void setFlaps(double orientation) {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_FIELDS);
+        
+        inputHash.put(C172PFields.FLAPS_FIELD, String.valueOf(orientation));
+
+        logger.info("Setting flaps to {}", orientation);
+        
+        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+    }
+    
+    public synchronized void setRudder(double orientation) {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_FIELDS);
+        
+        inputHash.put(C172PFields.RUDDER_FIELD, String.valueOf(orientation));
+
+        logger.info("Setting rudder to {}", orientation);
+        
+        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+    }
+    
+    public synchronized void resetControlSurfaces() {
+    	
+    	logger.info("Resetting control surfaces");
+    	
+    	setElevator(C172PFields.ELEVATOR_DEFAULT);
+    	setAileron(C172PFields.AILERON_DEFAULT);
+    	setFlaps(C172PFields.FLAPS_DEFAULT);
+    	setRudder(C172PFields.RUDDER_DEFAULT);
+    }
+        
+	public synchronized void setPause(boolean isPaused) {
+
+		// TODO: check telemetry if already paused
+
+		// resolve sim_freeze port
+		// if(controlInputs.containsKey(PAUSE_INPUT)) {
+		// FlightGearInput input = controlInputs.get(PAUSE_INPUT);
+
+		LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.SIM_PAUSE_FIELDS);
+
+		// oh get fucked. requires an int value for the bool, despite the schema
+		// specifying a bool.
+		// hardcode the string values because i don't want to have to deal with parse*
+		// calls or casting here
+		if (isPaused) {
+			logger.info("Pausing simulation");
+			inputHash.put(C172PFields.SIM_FREEZE_CLOCK_FIELD, C172PFields.SIM_FREEZE_TRUE);
+			inputHash.put(C172PFields.SIM_FREEZE_MASTER_FIELD, C172PFields.SIM_FREEZE_TRUE);
+		} else {
+			logger.info("Unpausing simulation");
+			inputHash.put(C172PFields.SIM_FREEZE_CLOCK_FIELD, C172PFields.SIM_FREEZE_FALSE);
+			inputHash.put(C172PFields.SIM_FREEZE_MASTER_FIELD, C172PFields.SIM_FREEZE_FALSE);
+		}
+
+		// clock and master are the only two fields, no need to retrieve from the
+		// current state
+		// order matters. defined in input xml schema
+
+		// socket writes typically require pauses so telemetry/state aren't out of date
+		// however this is an exception
+		writeSocketInput(inputHash, SOCKETS_INPUT_SIM_FREEZE_PORT);
+
+		// trailing sleep, so that the last real telemetry read arrives
+		try {
+			Thread.sleep(250);
+		} catch (InterruptedException e) {
+			logger.warn("setPause trailing sleep interrupted", e);
+		}
+	}
+    
+    public synchronized void setSpeedUp(double speedup) {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.SIM_SPEEDUP_FIELDS);
+        
+        logger.info("Setting speedup: {}", speedup);
+        
+        inputHash.put(C172PFields.SIM_SPEEDUP_FIELD, "" + speedup);
+        
+        writeSocketInput(inputHash, SOCKETS_INPUT_SIM_SPEEDUP_PORT);
     }
     
     public synchronized void setDamageEnabled(boolean damageEnabled) {
         LinkedHashMap<String, String> inputHash = new LinkedHashMap<String, String>();
         
-        logger.debug("Toggling damage enabled: {}", damageEnabled);
-        
         //requires an int value for the bool
         if(!damageEnabled) {
-            inputHash.put("/fdm/jsbsim/settings/damage","0");
+            inputHash.put(C172PFields.FDM_DAMAGE_FIELD, C172PFields.FDM_DAMAGE_ENABLED_FALSE);
         }
         else {
-            inputHash.put("/fdm/jsbsim/settings/damage","1");
+            inputHash.put(C172PFields.FDM_DAMAGE_FIELD, C172PFields.FDM_DAMAGE_ENABLED_TRUE);
         }
+        
+        logger.info("Toggling damage enabled: {}", damageEnabled);
         
         //socket writes typically require pauses so telemetry/state aren't out of date
         //however this is an exception
@@ -551,11 +852,13 @@ public class C172P extends FlightGearPlane{
         
         //TODO: check if paused
         
-        LinkedHashMap<String, String> inputHash = copyStateFields(ORIENTATION_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.ORIENTATION_FIELDS);
         
         //get telemetry hash
         
-        inputHash.put("/orientation/heading-deg", "" + heading);
+        inputHash.put(C172PFields.HEADING_FIELD, "" + heading);
+        
+        logger.info("Setting heading to {}", heading);
         
         writeSocketInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
     }
@@ -564,9 +867,9 @@ public class C172P extends FlightGearPlane{
 
         //TODO: check if paused
         
-        LinkedHashMap<String, String> inputHash = copyStateFields(ORIENTATION_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.ORIENTATION_FIELDS);
         
-        inputHash.put("/orientation/pitch-deg", "" + pitch);
+        inputHash.put(C172PFields.PITCH_FIELD, "" + pitch);
         
         logger.info("Setting pitch to {}", pitch);
         
@@ -577,9 +880,9 @@ public class C172P extends FlightGearPlane{
 
         //TODO: check if paused
         
-        LinkedHashMap<String, String> inputHash = copyStateFields(ORIENTATION_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.ORIENTATION_FIELDS);
                 
-        inputHash.put("/orientation/roll-deg", "" + roll);
+        inputHash.put(C172PFields.ROLL_FIELD, "" + roll);
         
         logger.info("Setting roll to {}", roll);
         
@@ -590,34 +893,35 @@ public class C172P extends FlightGearPlane{
 
         //TODO: check if paused
         
-        LinkedHashMap<String, String> inputHash = copyStateFields(POSITION_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.POSITION_FIELDS);
         
-        inputHash.put("/position/altitude-ft", "" + altitude);
+        inputHash.put(C172PFields.ALTITUDE_FIELD, "" + altitude);
         
         logger.info("Setting altitude to {}", altitude);
         
         writeSocketInput(inputHash, SOCKETS_INPUT_POSITION_PORT);
     }
-    
-    public synchronized void setYaw(double yaw) {
 
-        //TODO: check if paused
-        
-        LinkedHashMap<String, String> inputHash = copyStateFields(ORIENTATION_FIELDS);
-                
-        inputHash.put("/orientation/yaw-deg", "" + yaw);
-        
-        logger.info("Setting yaw to {}", yaw);
-        
-        writeSocketInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
-    }
+//can't modify the yaw
+//    public synchronized void setYaw(double yaw) {
+//
+//        //TODO: check if paused
+//        
+//        LinkedHashMap<String, String> inputHash = copyStateFields(ORIENTATION_FIELDS);
+//                
+//        inputHash.put("/orientation/yaw-deg", "" + yaw);
+//        
+//        logger.info("Setting yaw to {}", yaw);
+//        
+//        writeSocketInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
+//    }
     
     public synchronized void setAirSpeed(double speed) {
         //TODO: check if paused
         
-        LinkedHashMap<String, String> inputHash = copyStateFields(VELOCITIES_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.VELOCITIES_FIELDS);
                 
-        inputHash.put("/velocities/airspeed-kt", "" + speed);
+        inputHash.put(C172PFields.AIRSPEED_FIELD, "" + speed);
         
         logger.info("Setting air speed to {}", speed);
         
@@ -625,9 +929,9 @@ public class C172P extends FlightGearPlane{
     }
     
     public synchronized void setThrottle(double throttle ) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(CONTROL_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_FIELDS);
         
-        inputHash.put("/controls/engines/current-engine/throttle", "" + throttle);
+        inputHash.put(C172PFields.THROTTLE_FIELD, "" + throttle);
         
         logger.info("Setting throttle to {}", throttle);
         
@@ -635,9 +939,9 @@ public class C172P extends FlightGearPlane{
     }
     
     public synchronized void setMixture(double mixture ) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(CONTROL_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_FIELDS);
         
-        inputHash.put("/controls/engines/current-engine/mixture", "" + mixture);
+        inputHash.put(C172PFields.MIXTURE_FIELD, "" + mixture);
         
         logger.info("Setting mixture to {}", mixture);
         
@@ -645,18 +949,18 @@ public class C172P extends FlightGearPlane{
     }
     
     public synchronized void setParkingBrake(boolean brakeEnabled) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(SIM_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.SIM_FIELDS);
             
         //visual: in the cockpit, if the brake arm is:
         //pushed in => brake is not engaged (disabled => 0)
         //pulled out => brake is engaged (enabled => 1)
         
-        //requires an int value for the bool
+        //requires an double value for the bool
         if(brakeEnabled) {
-            inputHash.put("/sim/model/c172p/brake-parking", "" + (double)1);
+            inputHash.put(C172PFields.SIM_PARKING_BRAKE_FIELD, "1.0");
         }
         else {
-            inputHash.put("/sim/model/c172p/brake-parking", "" + (double)0);
+            inputHash.put(C172PFields.SIM_PARKING_BRAKE_FIELD, "0.0");
         }
         
         logger.info("Setting parking brake to {}", brakeEnabled);

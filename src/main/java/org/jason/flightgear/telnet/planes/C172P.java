@@ -16,7 +16,7 @@ public class C172P {
 		mgr = new FlightGearManagerTelnet(FG_TELNET_HOST, FG_TELNET_PORT);
 	}
 	
-	public void startupPlane() {
+	public void startupPlane() throws IOException {
 		
 		try {
 			System.out.println("Running before: " + mgr.getPropertyValue("/engines/active-engine/running") );
