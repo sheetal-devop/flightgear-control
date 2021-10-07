@@ -10,7 +10,13 @@
          <postamble />
          <!--  -->
          <!-- fields -->
-         <!-- consumeables -->
+         <!-- consumables -->
+         <chunk>
+            <node>/consumables/fuel/tank/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank/capacity-gal_us": %f,</format>
+         </chunk>
          <chunk>
             <node>/consumables/fuel/tank/level-gal_us</node>
             <name>level-gal_us</name>
@@ -22,18 +28,6 @@
             <name>water-contamination</name>
             <type>float</type>
             <format>"/consumables/fuel/tank/water-contamination": %f,</format>
-         </chunk>
-         <chunk>
-            <node>/consumables/fuel/tank[1]/level-gal_us</node>
-            <name>level-gal_us</name>
-            <type>float</type>
-            <format>"/consumables/fuel/tank[1]/level-gal_us": %f,</format>
-         </chunk>
-         <chunk>
-            <node>/consumables/fuel/tank[1]/water-contamination</node>
-            <name>water-contamination</name>
-            <type>float</type>
-            <format>"/consumables/fuel/tank[1]/water-contamination": %f,</format>
          </chunk>
          <!-- control -->
          <chunk>
@@ -177,12 +171,6 @@
             <format>"/environment/effective-visibility-m": %f,</format>
          </chunk>
          <chunk>
-            <node>/environment/gravitational-acceleration-mps2</node>
-            <name>gravitational-acceleration-mps2</name>
-            <type>float</type>
-            <format>"/environment/gravitational-acceleration-mps2": %f,</format>
-         </chunk>
-         <chunk>
             <node>/environment/pressure-inhg</node>
             <name>pressure-inhg</name>
             <type>float</type>
@@ -223,6 +211,12 @@
             <name>wind-from-north-fps</name>
             <type>float</type>
             <format>"/environment/wind-from-north-fps": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/environment/wind-speed-kt</node>
+            <name>wind-speed-kt</name>
+            <type>float</type>
+            <format>"/environment/wind-speed-kt": %f,</format>
          </chunk>
          <!-- fdm -->
          <chunk>
@@ -560,10 +554,28 @@
             <format>"/velocities/groundspeed-kt": %f,</format>
          </chunk>
          <chunk>
+            <node>/velocities/uBody-fps</node>
+            <name>uBody-fps</name>
+            <type>float</type>
+            <format>"/velocities/uBody-fps": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/velocities/vBody-fps</node>
+            <name>vBody-fps</name>
+            <type>float</type>
+            <format>"/velocities/vBody-fps": %f,</format>
+         </chunk>
+         <chunk>
             <node>/velocities/vertical-speed-fps</node>
             <name>vertical-speed-fps</name>
             <type>float</type>
-            <format>"/velocities/vertical-speed-fps": %f</format>
+            <format>"/velocities/vertical-speed-fps": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/velocities/wBody-fps</node>
+            <name>wBody-fps</name>
+            <type>float</type>
+            <format>"/velocities/wBody-fps": %f</format>
          </chunk>
          <!-- ^^^^^ no trailing comma on the last field - this should output coherent json -->
       </output>
