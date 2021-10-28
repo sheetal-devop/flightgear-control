@@ -1,15 +1,13 @@
 package org.jason.flightgear.planes.c172p.app;
 
-import java.io.IOException;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
-import org.apache.commons.net.telnet.InvalidTelnetOptionException;
+import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.jason.flightgear.planes.c172p.C172P;
 import org.jason.flightgear.sockets.FlightGearManagerSockets;
-import org.jason.flightgear.telnet.FlightGearManagerTelnet;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class C172P_Input_Test {
 	
@@ -29,7 +27,7 @@ public class C172P_Input_Test {
 	
 	private C172P plane;
 	
-	public C172P_Input_Test() throws InvalidTelnetOptionException, IOException {
+	public C172P_Input_Test() throws FlightGearSetupException, SocketException, UnknownHostException {
 		fgSocketsClient = new FlightGearManagerSockets(FG_SOCKETS_HOST, FG_SOCKETS_TELEM_PORT);
 		
 		plane = new C172P();
@@ -38,7 +36,7 @@ public class C172P_Input_Test {
 	}
 	
 	private void loadControlSchema() {
-		//TODO: generate this from the xml file
+
 		//key order definitely matters
 		controlSchema = new LinkedHashMap<String, String>();
 //		controlSchema.put("/consumables/fuel/tank/level-gal_us", "");
@@ -163,7 +161,6 @@ public class C172P_Input_Test {
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -175,7 +172,6 @@ public class C172P_Input_Test {
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -187,7 +183,6 @@ public class C172P_Input_Test {
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -199,7 +194,6 @@ public class C172P_Input_Test {
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -209,7 +203,7 @@ public class C172P_Input_Test {
 		
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FlightGearSetupException, SocketException, UnknownHostException {
 		
 		//fork execution of shell script and wait for telnet port to open
 		//use shell script because we may want to run it from elsewhere
@@ -226,9 +220,6 @@ public class C172P_Input_Test {
 			
 			//try 4 times confirm heading each time
 
-		} catch (InvalidTelnetOptionException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} finally {
 			if (plane != null) {
 				plane.shutdown();

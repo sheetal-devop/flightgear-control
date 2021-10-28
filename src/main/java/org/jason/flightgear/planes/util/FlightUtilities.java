@@ -1,15 +1,20 @@
-package org.jason.flightgear.planes.c172p;
+package org.jason.flightgear.planes.util;
 
+import org.jason.flightgear.planes.FlightGearPlane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class C172PFlightUtilities {
+public class FlightUtilities {
 	
-    private static Logger logger = LoggerFactory.getLogger(C172PFlightUtilities.class);
+    private static Logger logger = LoggerFactory.getLogger(FlightUtilities.class);
 
     private final static int ORIENTATION_CHANGE_SLEEP = 2500;
 	
-    public static void altitudeCheck(C172P plane, int maxDifference, double targetAltitude) {
+    public static void altitudeCheck(FlightGearPlane plane, int maxDifference, double targetAltitude) {
+    	altitudeCheck(plane, maxDifference, targetAltitude, false);
+    }
+    
+    public static void altitudeCheck(FlightGearPlane plane, int maxDifference, double targetAltitude, boolean trailingSleep) {
         double currentAltitude = plane.getAltitude();
         
         logger.info("Altitude check. Current {} vs target {}", currentAltitude, targetAltitude);
@@ -24,16 +29,22 @@ public class C172PFlightUtilities {
             plane.setAltitude(targetAltitude);
             plane.setPause(false);
             
-            //trailing sleep only if we made a change
-            try {
-                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
-            } catch (InterruptedException e) {
-                logger.warn("Trailing sleep interrupted", e);
+            if(trailingSleep) {
+	            //trailing sleep only if we made a change
+	            try {
+	                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
+	            } catch (InterruptedException e) {
+	                logger.warn("Trailing sleep interrupted", e);
+	            }
             }
         }
     }
     
-    public static void headingCheck(C172P plane, int maxDifference, double targetHeading) {
+    public static void headingCheck(FlightGearPlane plane, int maxDifference, double targetHeading) {
+    	headingCheck(plane, maxDifference, targetHeading, false);
+    }
+    
+    public static void headingCheck(FlightGearPlane plane, int maxDifference, double targetHeading, boolean trailingSleep) {
         
         double currentHeading = plane.getHeading();
         double currentHeadingSin = Math.sin( Math.toRadians(currentHeading) );
@@ -77,16 +88,22 @@ public class C172PFlightUtilities {
             
             plane.setPause(false);
             
-            //trailing sleep only if we made a change
-            try {
-                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
-            } catch (InterruptedException e) {
-                logger.warn("Trailing sleep interrupted", e);
+            if(trailingSleep) {
+	            //trailing sleep only if we made a change
+	            try {
+	                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
+	            } catch (InterruptedException e) {
+	                logger.warn("Trailing sleep interrupted", e);
+	            }
             }
         }
     }
     
-    public static void pitchCheck(C172P plane, int maxDifference, double targetPitch) {
+    public static void pitchCheck(FlightGearPlane plane, int maxDifference, double targetPitch) {
+    	pitchCheck(plane, maxDifference, targetPitch, false);
+    }
+    
+    public static void pitchCheck(FlightGearPlane plane, int maxDifference, double targetPitch, boolean trailingSleep) {
         //read pitch
         //if pitch is too far from target in +/- directions, set to target
         
@@ -104,16 +121,22 @@ public class C172PFlightUtilities {
             plane.setPitch(targetPitch);
             plane.setPause(false);
             
-            //trailing sleep only if we made a change
-            try {
-                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
-            } catch (InterruptedException e) {
-                logger.warn("Trailing sleep interrupted", e);
+            if(trailingSleep) {
+	            //trailing sleep only if we made a change
+	            try {
+	                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
+	            } catch (InterruptedException e) {
+	                logger.warn("Trailing sleep interrupted", e);
+	            }
             }
         }
     }
     
-    public static void rollCheck(C172P plane, int maxDifference, double targetRoll) {
+    public static void rollCheck(FlightGearPlane plane, int maxDifference, double targetRoll) {
+    	rollCheck(plane, maxDifference, targetRoll, false);
+    }
+    
+    public static void rollCheck(FlightGearPlane plane, int maxDifference, double targetRoll, boolean trailingSleep) {
         double currentRoll = plane.getRoll();
         
         //roll is +180 to -180
@@ -127,36 +150,14 @@ public class C172PFlightUtilities {
             plane.setRoll(targetRoll);
             plane.setPause(false);
             
-            //trailing sleep only if we made a change
-            try {
-                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
-            } catch (InterruptedException e) {
-                logger.warn("Trailing sleep interrupted", e);
+            if(trailingSleep) {
+	            //trailing sleep only if we made a change
+	            try {
+	                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
+	            } catch (InterruptedException e) {
+	                logger.warn("Trailing sleep interrupted", e);
+	            }
             }
         }
     }
-    
-    //Turns out this is not mutable
-//    public void yawRateCheck(int maxDifference, double targetYawRate) {
-//        double currentYaw = getYawRate();
-//        
-//        //yaw is +180 to -180
-//        
-//        logger.info("Yaw rate check. Current {} vs target {}", currentYaw, targetYawRate);
-//        
-//        if( Math.abs(currentYaw) - Math.abs(targetYawRate) > maxDifference) {
-//            logger.info("Correcting yaw to target: {}", targetYawRate);
-//            
-//            setPause(true);
-//            setYaw(targetYawRate);
-//            setPause(false);
-//            
-//            //trailing sleep only if we made a change
-//            try {
-//                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
-//            } catch (InterruptedException e) {
-//                logger.warn("Trailing sleep interrupted", e);
-//            }
-//        }
-//    }
 }

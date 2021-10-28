@@ -2,7 +2,7 @@ package org.jason.flightgear.planes.c172p.app;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.flightgear.planes.c172p.C172P;
-import org.jason.flightgear.planes.c172p.C172PFlightUtilities;
+import org.jason.flightgear.planes.util.FlightUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,9 +44,9 @@ public class C172P_Waypoints {
 		
 		//////
 		//initial check that we've leveled off
-		C172PFlightUtilities.altitudeCheck(plane, 500, TARGET_ALTITUDE);
-		C172PFlightUtilities.pitchCheck(plane, 4, 3.0);
-		C172PFlightUtilities.rollCheck(plane, 4, 0.0);
+		FlightUtilities.altitudeCheck(plane, 500, TARGET_ALTITUDE);
+		FlightUtilities.pitchCheck(plane, 4, 3.0);
+		FlightUtilities.rollCheck(plane, 4, 0.0);
 		
 		//increase throttle
 		plane.setPause(true);
@@ -103,16 +103,16 @@ public class C172P_Waypoints {
 			
 			logger.info("Cycle {} start ======================", cycles);
 			//check altitude first, if we're in a nose dive that needs to be corrected first
-			C172PFlightUtilities.altitudeCheck(plane, 500, targetAltitude);
+			FlightUtilities.altitudeCheck(plane, 500, targetAltitude);
 			
 			//plane.yawCheck(2, 0);
 			
-			C172PFlightUtilities.pitchCheck(plane, 4, 3.0);
+			FlightUtilities.pitchCheck(plane, 4, 3.0);
 			
-			C172PFlightUtilities.rollCheck(plane, 4, 0.0);
+			FlightUtilities.rollCheck(plane, 4, 0.0);
 			
 			//check heading last, correct pitch/roll/yaw first otherwise the plane will probably drift off heading quickly
-			C172PFlightUtilities.headingCheck(plane, 15, targetHeading);
+			FlightUtilities.headingCheck(plane, 15, targetHeading);
 			
 
 			

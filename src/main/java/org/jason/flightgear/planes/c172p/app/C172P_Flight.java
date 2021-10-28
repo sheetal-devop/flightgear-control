@@ -1,8 +1,6 @@
 package org.jason.flightgear.planes.c172p.app;
 
-import java.io.IOException;
-
-import org.apache.commons.net.telnet.InvalidTelnetOptionException;
+import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.jason.flightgear.planes.c172p.C172P;
 
 public class C172P_Flight {
@@ -25,7 +23,10 @@ public class C172P_Flight {
 			Thread.sleep(10 * 1000);
 			
 
-		} catch (InvalidTelnetOptionException | IOException | InterruptedException e) {
+		} catch (FlightGearSetupException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {

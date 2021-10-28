@@ -2,16 +2,15 @@ package org.jason.flightgear.planes.c172p.app;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.flightgear.planes.c172p.C172P;
-import org.jason.flightgear.planes.c172p.C172PFlightUtilities;
+import org.jason.flightgear.planes.util.FlightUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class C172P_SustainedFlight {
+public class SustainedFlight {
 		
-	private static Logger logger = LoggerFactory.getLogger(C172P_SustainedFlight.class);
-
+	private static Logger logger = LoggerFactory.getLogger(SustainedFlight.class);
 	
-	private final static int TARGET_ALTITUDE = 5000;
+	private final static int TARGET_ALTITUDE = 9000;
 	private final static int TARGET_HEADING = 0;
 	
 	private static void launch(C172P plane) {
@@ -44,9 +43,9 @@ public class C172P_SustainedFlight {
 		
 		//////
 		//initial check that we've leveled off
-		C172PFlightUtilities.altitudeCheck(plane, 500, TARGET_ALTITUDE);
-		C172PFlightUtilities.pitchCheck(plane, 4, 3.0);
-		C172PFlightUtilities.rollCheck(plane, 4, 0.0);
+		FlightUtilities.altitudeCheck(plane, 500, TARGET_ALTITUDE);
+		FlightUtilities.pitchCheck(plane, 4, 3.0);
+		FlightUtilities.rollCheck(plane, 4, 0.0);
 		
 		//increase throttle
 		plane.setPause(true);
@@ -67,8 +66,7 @@ public class C172P_SustainedFlight {
 		}
 		
 		//true north
-		double targetHeading = 0;
-		double targetAltitude = 7000;
+		double targetHeading = 90;
 		
 		//TODO: check if engine running, plane is in the air, speed is not zero
 		//
@@ -86,31 +84,52 @@ public class C172P_SustainedFlight {
 		//////////////////
 		launch(plane);
 
-		
-		//control any roll
-		
 		boolean running = true;
 		int cycles = 0;
 		int maxCycles = 50* 1000;
 			
-		int cycleSleep = 8000;
+		int minFuelGal = 4;
+		
+		int cycleSleep = 750;
+		
+		StringBuilder telemetryRead;
+		
+		plane.setBatterySwitch(false);
+		
+		plane.setSpeedUp(8);
 		
 		while(running && cycles < maxCycles) {
 			
 			logger.info("======================\nCycle {} start. Target heading: {} ", cycles, targetHeading);
+			
 			//check altitude first, if we're in a nose dive that needs to be corrected first
-			C172PFlightUtilities.altitudeCheck(plane, 500, targetAltitude);
+			FlightUtilities.altitudeCheck(plane, 500, TARGET_ALTITUDE);
 			
-			//plane.yawCheck(2, 0);
+			FlightUtilities.pitchCheck(plane, 4, 3.0);
 			
-			C172PFlightUtilities.pitchCheck(plane, 4, 3.0);
+			FlightUtilities.rollCheck(plane, 4, 0.0);
 			
-			C172PFlightUtilities.rollCheck(plane, 4, 0.0);
+			//check heading last, correct pitch/roll first otherwise the plane will probably drift off heading quickly
+			FlightUtilities.headingCheck(plane, 15, targetHeading);
 			
-			//check heading last, correct pitch/roll/yaw first otherwise the plane will probably drift off heading quickly
-			C172PFlightUtilities.headingCheck(plane, 15, targetHeading);
+			//check fuel last last. easy to refuel
+			if(plane.getFuelLevel() < minFuelGal) {
+				plane.refillFuelTank();
+			}
+						
+			telemetryRead = new StringBuilder();
 			
-
+			telemetryRead.append("\n=======\nAltitude: ")
+				.append(plane.getAltitude())
+				.append("\nHeading: ")
+				.append(plane.getHeading())
+				.append("\nParking brake: ")
+				.append(plane.getParkingBrake())
+				.append("\nFuel level: ")
+				.append(plane.getFuelLevel())
+				.append("\n=======\n");
+			
+			logger.info("Telemetry Read: {}", telemetryRead.toString());
 			
 //			plane.setPause(true);
 //			plane.forceStabilize(TARGET_HEADING, TARGET_ALTITUDE, 0, 3, 0);
