@@ -1,5 +1,7 @@
 #!/bin/bash
 
+#TODO: generate some of this from a template, since the ports are defined in the source
+
 fgfs \
  --verbose\
  --prop:/nasal/local_weather/enabled=false\
@@ -12,15 +14,16 @@ fgfs \
  --fg-scenery=/usr/share/games/flightgear/Scenery\
  --fg-aircraft=/usr/share/games/flightgear/Aircraft\
  --airport=CYVR\
- --generic=socket,out,45,localhost,6501,udp,c172p_output\
- --generic=socket,in,45,,6601,udp,c172p_input_consumables\
- --generic=socket,in,45,,6602,udp,c172p_input_controls\
- --generic=socket,in,45,,6603,udp,c172p_input_orientation\
- --generic=socket,in,45,,6604,udp,c172p_input_position\
- --generic=socket,in,45,,6605,udp,c172p_input_sim\
- --generic=socket,in,45,,6606,udp,c172p_input_sim_freeze\
- --generic=socket,in,45,,6607,udp,c172p_input_velocities\
- --generic=socket,in,45,,6608,udp,c172p_input_fdm\
+ --generic=socket,out,45,localhost,6501,udp,f15c_output\
+ --generic=socket,in,45,localhost,6601,udp,f15c_input_consumables\
+ --generic=socket,in,45,localhost,6602,udp,f15c_input_controls\
+ --generic=socket,in,45,localhost,6603,udp,f15c_input_fdm\
+ --generic=socket,in,45,localhost,6604,udp,f15c_input_orientation\
+ --generic=socket,in,45,localhost,6605,udp,f15c_input_position\
+ --generic=socket,in,45,localhost,6606,udp,f15c_input_sim\
+ --generic=socket,in,45,localhost,6607,udp,f15c_input_sim_freeze\
+ --generic=socket,in,45,localhost,6608,udp,f15c_input_sim_speedup\
+ --generic=socket,in,45,localhost,6609,udp,f15c_input_velocities\
  --telnet=5501\
  --disable-ai-traffic\
  --disable-sound\
@@ -32,5 +35,5 @@ fgfs \
  --prop:/sim/rendering/multithreading-mode=AutomaticSelection\
  --allow-nasal-from-sockets\
  --turbulence=0.0\
- --wind=0@0
+ --wind=0\@0
 
