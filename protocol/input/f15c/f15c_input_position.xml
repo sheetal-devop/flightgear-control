@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+ <PropertyList>
+ <generic>
+    <input>
+        <line_separator>newline</line_separator>
+        <var_separator>,</var_separator>
+    
+         <!-- position -->
+         <chunk>
+            <node>/position/altitude-ft</node>
+            <name>altitude-ft</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <node>/position/ground-elev-ft</node>
+            <name>ground-elev-ft</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <node>/position/latitude-deg</node>
+            <name>latitude-deg</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <node>/position/longitude-deg</node>
+            <name>longitude-deg</name>
+            <type>float</type>
+         </chunk>
+
+    </input>
+  </generic>
+ </PropertyList>
