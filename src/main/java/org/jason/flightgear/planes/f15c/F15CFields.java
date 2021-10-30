@@ -14,16 +14,24 @@ public abstract class F15CFields {
 	public final static String FUEL_TANK_CAPACITY_FIELD = "/consumables/fuel/tank/capacity-gal_us";
 	public final static String FUEL_TANK_CAPACITY_FIELD_DESC = "Fuel tank capacity in gallons";
 	
-	public final static String FUEL_TANK_LEVEL_FIELD = "/consumables/fuel/tank/level-gal_us";
-	public final static String FUEL_TANK_LEVEL_FIELD_DESC = "Fuel level in gallons";
+	public final static String FUEL_TANK_LEVEL_FIELD = "/consumables/fuel/total-fuel-gal_us";
+	public final static String FUEL_TANK_LEVEL_FIELD_DESC = "Fuel total level for in gallons";
 	
-	public final static String WATER_CONTAMINATION_FIELD = "/consumables/fuel/tank/water-contamination";
-	public final static String WATER_CONTAMINATION_FIELD_DESC = "Water contamination in the main fuel tank";
+	public final static String FUEL_TANK_0_LEVEL_FIELD = "/consumables/fuel/tank/level-gal_us";
+	public final static String FUEL_TANK_0_LEVEL_FIELD_DESC = "Fuel level for tank 0 in gallons";
+	
+	public final static String FUEL_TANK_1_LEVEL_FIELD = "/consumables/fuel/tank[1]/level-gal_us";
+	public final static String FUEL_TANK_1_LEVEL_FIELD_DESC = "Fuel level for tank 1 in gallons";
+	
+	public final static String FUEL_TANK_2_LEVEL_FIELD = "/consumables/fuel/tank[2]/level-gal_us";
+	public final static String FUEL_TANK_2_LEVEL_FIELD_DESC = "Fuel level for tank 2 in gallons";
 	
 	public final static String[] CONSUMABLES_FIELDS = {
 		FUEL_TANK_CAPACITY_FIELD,
 		FUEL_TANK_LEVEL_FIELD,
-		WATER_CONTAMINATION_FIELD
+		FUEL_TANK_0_LEVEL_FIELD,
+		FUEL_TANK_1_LEVEL_FIELD,
+		FUEL_TANK_2_LEVEL_FIELD
 	};
 	
 	/////////////
@@ -37,13 +45,17 @@ public abstract class F15CFields {
 	public final static String BATTERY_SWITCH_TRUE = String.valueOf(BATTERY_SWITCH_INT_TRUE);
 	public final static String BATTERY_SWITCH_FALSE = String.valueOf(BATTERY_SWITCH_INT_FALSE);
 
-
-	public final static String MIXTURE_FIELD = "/controls/engines/current-engine/mixture";
+	/*
+	 * The McDonnell Douglas F-15 Eagle is an American twin-engine, all-weather 
+	 * tactical fighter aircraft...
+	 * by default throttle and mixture are synced for both engines
+	 */
+	public final static String MIXTURE_FIELD = "/controls/engines/engine/mixture";
 	public final static String MIXTURE_FIELD_DESC = "The engine mixture percentage";
 	public final static double MIXTURE_MAX = 1.0;
 	public final static double MIXTURE_MIN = 0.0;
 
-	public final static String THROTTLE_FIELD = "/controls/engines/current-engine/throttle";
+	public final static String THROTTLE_FIELD = "/controls/engines/engine/throttle";
 	public final static String THROTTLE_FIELD_DESC = "The engine throttle percentage";
 	public final static double THROTTLE_MAX = 1.0;
 	public final static double THROTTLE_MIN = 0.0;
@@ -90,6 +102,12 @@ public abstract class F15CFields {
 
 	public final static String PARKING_BRAKE_FIELD = "/controls/gear/brake-parking";
 	public final static String PARKING_BRAKE_FIELD_DESC = "The parking brake setting";
+	
+	//common values for these fields
+	public final static int PARKING_BRAKE_INT_TRUE = 1;
+	public final static int PARKING_BRAKE_INT_FALSE = 0;
+	public final static String PARKING_BRAKE_TRUE = String.valueOf(PARKING_BRAKE_INT_TRUE);
+	public final static String PARKING_BRAKE_FALSE = String.valueOf(PARKING_BRAKE_INT_FALSE);
 
 	public final static String GEAR_DOWN_FIELD = "/controls/gear/gear-down";
 	public final static String GEAR_DOWN_FIELD_DESC = "The gear down setting";
@@ -118,31 +136,19 @@ public abstract class F15CFields {
 	/////////////
 	// engine
 	
-	public final static String ENGINE_COWLING_AIR_TEMPERATURE_FIELD = "/engines/active-engine/cowling-air-temperature-degf";
-	public final static String ENGINE_COWLING_AIR_TEMPERATURE_DESC = "The engine cowling air temperature in fahrenheit";
-	
-	public final static String ENGINE_EXHAUST_GAS_TEMPERATURE_FIELD = "/engines/active-engine/egt-degf";
+	public final static String ENGINE_EXHAUST_GAS_TEMPERATURE_FIELD = "/engines/engine/egt-degf";
 	public final static String ENGINE_EXHAUST_GAS_TEMPERATURE_DESC = "The exhaust gas temperature in fahrenheit";
 	
-	public final static String ENGINE_EXHAUST_GAS_TEMPERATURE_NORM_FIELD = "/engines/active-engine/egt-norm";
+	public final static String ENGINE_EXHAUST_GAS_TEMPERATURE_NORM_FIELD = "/engines/engine/egt-norm";
 	public final static String ENGINE_EXHAUST_GAS_TEMPERATURE_NORM_DESC = "The exhaust gas temperature normalization in fahrenheit";
 	
-	public final static String ENGINE_FUEL_FLOW_FIELD = "/engines/active-engine/fuel-flow-gph";
+	public final static String ENGINE_FUEL_FLOW_FIELD = "/engines/engine/fuel-flow-gph";
 	public final static String ENGINE_FUEL_FLOW_DESC = "The engine fuel flow in gallons per hour";
 	
-	public final static String ENGINE_MP_OSI_FIELD = "/engines/active-engine/mp-osi";
-	public final static String ENGINE_MP_OSI_DESC = "The engine mp-osi. Not sure what this is. Possibly related to engine pistons";
-
-	public final static String ENGINE_OIL_PRESSURE_FIELD = "/engines/active-engine/oil-pressure-psi";
+	public final static String ENGINE_OIL_PRESSURE_FIELD = "/engines/engine/oil-pressure-psi";
 	public final static String ENGINE_OIL_PRESSURE_DESC = "The engine oil pressure in psi";
 	
-	public final static String ENGINE_OIL_TEMPERATURE_FIELD = "/engines/active-engine/oil-temperature-degf";
-	public final static String ENGINE_OIL_TEMPERATURE_DESC = "The engine oil temperature in fahrenheit";
-
-	public final static String ENGINE_RPM_FIELD = "/engines/active-engine/rpm";
-	public final static String ENGINE_RPM_DESC = "The engine tachometer in rpm";
-	
-	public final static String ENGINE_RUNNING_FIELD = "/engines/active-engine/running";
+	public final static String ENGINE_RUNNING_FIELD = "/engines/engine/running";
 	public final static String ENGINE_RUNNING_DESC = "The engine running state";
 	
 	//common values for these fields
@@ -152,14 +158,10 @@ public abstract class F15CFields {
 	public final static String ENGINE_RUNNING_FALSE = String.valueOf(ENGINE_RUNNING_INT_FALSE);
 	
 	public final static String[] ENGINE_FIELDS = {
-		ENGINE_COWLING_AIR_TEMPERATURE_FIELD,
 		ENGINE_EXHAUST_GAS_TEMPERATURE_FIELD,
 		ENGINE_EXHAUST_GAS_TEMPERATURE_NORM_FIELD,
 		ENGINE_FUEL_FLOW_FIELD,
-		ENGINE_MP_OSI_FIELD,
 		ENGINE_OIL_PRESSURE_FIELD,
-		ENGINE_OIL_TEMPERATURE_FIELD,
-		ENGINE_RPM_FIELD,
 		ENGINE_RUNNING_FIELD
 	};
 	
@@ -422,18 +424,12 @@ public abstract class F15CFields {
 
 	/////////////
 	// Sim
-	public final static String SIM_PARKING_BRAKE_FIELD = "/sim/model/c172p/brake-parking";
-	public final static String SIM_PARKING_BRAKE_FIELD_DESC = "The sim parking brake setting";
 	
 	//common values for these fields
-	public final static int SIM_PARKING_BRAKE_INT_TRUE = 1;
-	public final static int SIM_PARKING_BRAKE_INT_FALSE = 0;
-	public final static String SIM_PARKING_BRAKE_TRUE = String.valueOf(SIM_PARKING_BRAKE_INT_TRUE);
-	public final static String SIM_PARKING_BRAKE_FALSE = String.valueOf(SIM_PARKING_BRAKE_INT_FALSE);
-	
-	public final static String[] SIM_FIELDS = {
-		SIM_PARKING_BRAKE_FIELD
-	};
+//	public final static int SIM_PARKING_BRAKE_INT_TRUE = 1;
+//	public final static int SIM_PARKING_BRAKE_INT_FALSE = 0;
+//	public final static String SIM_PARKING_BRAKE_TRUE = String.valueOf(SIM_PARKING_BRAKE_INT_TRUE);
+//	public final static String SIM_PARKING_BRAKE_FALSE = String.valueOf(SIM_PARKING_BRAKE_INT_FALSE);
 	
 	/////////////
 	// Sim pause - just pause the sim. used a lot so it gets its own fieldset

@@ -39,7 +39,6 @@ public class C172P extends FlightGearPlane{
     	this(new C172PConfig());
     }
     
-    //TODO: custom exceptions thrown
     public C172P(C172PConfig config) throws FlightGearSetupException  {
     	super();
     	
@@ -124,7 +123,8 @@ public class C172P extends FlightGearPlane{
      * @param inputHash
      * @param port
      */
-    private synchronized void writeSocketInput(LinkedHashMap<String, String> inputHash, int port) {
+    @Override
+    protected synchronized void writeSocketInput(LinkedHashMap<String, String> inputHash, int port) {
 //        while(stateReading.get()) {
 //            try {
 //                logger.debug("Waiting for state reading to complete");
@@ -594,8 +594,6 @@ public class C172P extends FlightGearPlane{
         setPause(false);
     }
     
-    //TODO: into superclass. make get capacity more generic
-
     @Override
     public synchronized void setFuelTankLevel(double amount) {
     	LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_FIELDS);
@@ -737,12 +735,13 @@ public class C172P extends FlightGearPlane{
 		}
 	}
     
-    public synchronized void setSpeedUp(double speedup) {
+    @Override
+    public synchronized void setSpeedUp(double targetSpeedup) {
         LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.SIM_SPEEDUP_FIELDS);
         
-        LOGGER.info("Setting speedup: {}", speedup);
+        LOGGER.info("Setting speedup: {}", targetSpeedup);
         
-        inputHash.put(FlightGearPlaneFields.SIM_SPEEDUP_FIELD, "" + speedup);
+        inputHash.put(FlightGearPlaneFields.SIM_SPEEDUP_FIELD, String.valueOf(targetSpeedup));
         
         writeSocketInput(inputHash, SOCKETS_INPUT_SIM_SPEEDUP_PORT);
     }
@@ -770,6 +769,7 @@ public class C172P extends FlightGearPlane{
      * 
      * @param heading    Degrees from north, clockwise. 0=360 => North. 90 => East. 180 => South. 270 => West 
      */
+    @Override
     public synchronized void setHeading(double heading) {
         
         //TODO: check if paused
@@ -778,48 +778,51 @@ public class C172P extends FlightGearPlane{
         
         //get telemetry hash
         
-        inputHash.put(FlightGearPlaneFields.HEADING_FIELD, "" + heading);
+        inputHash.put(FlightGearPlaneFields.HEADING_FIELD, String.valueOf(heading));
         
         LOGGER.info("Setting heading to {}", heading);
         
         writeSocketInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
     }
     
-    public synchronized void setPitch(double pitch) {
+    @Override
+    public synchronized void setPitch(double targetPitch) {
 
         //TODO: check if paused
         
         LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_FIELDS);
         
-        inputHash.put(FlightGearPlaneFields.PITCH_FIELD, "" + pitch);
+        inputHash.put(FlightGearPlaneFields.PITCH_FIELD, String.valueOf(targetPitch));
         
-        LOGGER.info("Setting pitch to {}", pitch);
+        LOGGER.info("Setting pitch to {}", targetPitch);
         
         writeSocketInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
     }
     
-    public synchronized void setRoll(double roll) {
+    @Override
+    public synchronized void setRoll(double targetRoll) {
 
         //TODO: check if paused
         
         LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_FIELDS);
                 
-        inputHash.put(FlightGearPlaneFields.ROLL_FIELD, "" + roll);
+        inputHash.put(FlightGearPlaneFields.ROLL_FIELD, String.valueOf(targetRoll));
         
-        LOGGER.info("Setting roll to {}", roll);
+        LOGGER.info("Setting roll to {}", targetRoll);
         
         writeSocketInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
     }
     
-    public synchronized void setAltitude(double altitude) {
+    @Override
+    public synchronized void setAltitude(double targetAltitude) {
 
         //TODO: check if paused
         
         LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.POSITION_FIELDS);
         
-        inputHash.put(FlightGearPlaneFields.ALTITUDE_FIELD, "" + altitude);
+        inputHash.put(FlightGearPlaneFields.ALTITUDE_FIELD, String.valueOf(targetAltitude));
         
-        LOGGER.info("Setting altitude to {}", altitude);
+        LOGGER.info("Setting altitude to {}", targetAltitude);
         
         writeSocketInput(inputHash, SOCKETS_INPUT_POSITION_PORT);
     }
@@ -829,7 +832,7 @@ public class C172P extends FlightGearPlane{
         
         LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.VELOCITIES_FIELDS);
                 
-        inputHash.put(FlightGearPlaneFields.AIRSPEED_FIELD, "" + speed);
+        inputHash.put(FlightGearPlaneFields.AIRSPEED_FIELD, String.valueOf(speed));
         
         LOGGER.info("Setting air speed to {}", speed);
         
@@ -865,10 +868,10 @@ public class C172P extends FlightGearPlane{
         
         //requires an double value for the bool
         if(brakeEnabled) {
-            inputHash.put(C172PFields.SIM_PARKING_BRAKE_FIELD, "1.0");
+            inputHash.put(C172PFields.SIM_PARKING_BRAKE_FIELD, C172PFields.SIM_PARKING_BRAKE_TRUE);
         }
         else {
-            inputHash.put(C172PFields.SIM_PARKING_BRAKE_FIELD, "0.0");
+            inputHash.put(C172PFields.SIM_PARKING_BRAKE_FIELD, C172PFields.SIM_PARKING_BRAKE_FALSE);
         }
         
         LOGGER.info("Setting parking brake to {}", brakeEnabled);

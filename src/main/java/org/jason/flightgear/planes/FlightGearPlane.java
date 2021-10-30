@@ -191,12 +191,15 @@ public abstract class FlightGearPlane {
     protected abstract String readTelemetryRaw() throws IOException;
     
     
+    /**
+     * Refill the fuel tanks to capacity
+     */
     public synchronized void refillFuelTank() {
-    	//setFuelTankLevel(getCapacity_gal_us());
     	setFuelTankLevel(getFuelTankCapacity());
     }
     
-    
+    protected abstract void writeSocketInput(LinkedHashMap<String, String> inputHash, int port);
+
     
     //////////////////
     //expected FG property setters/getters
@@ -228,5 +231,7 @@ public abstract class FlightGearPlane {
 	public abstract double getRoll();
 
 	public abstract void setRoll(double targetRoll);
+
+	public abstract void setSpeedUp(double targetSpeedup);
 
 }
