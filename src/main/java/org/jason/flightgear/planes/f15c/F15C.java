@@ -164,24 +164,6 @@ public class F15C extends FlightGearPlane {
 	}
 
 	@Override
-	public double getHeading() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void setHeading(double targetHeading) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public double getPitch() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	public void setPitch(double targetPitch) {
         //TODO: check if paused
         
@@ -376,5 +358,11 @@ public class F15C extends FlightGearPlane {
     
     public double getOilPressure() {
         return Double.parseDouble(getTelemetry().get(F15CFields.ENGINE_OIL_PRESSURE_FIELD));
-    }	
+    }
+
+	@Override
+	public void setHeading(double targetHeading) {
+		// TODO Auto-generated method stub
+		
+	}	
 }

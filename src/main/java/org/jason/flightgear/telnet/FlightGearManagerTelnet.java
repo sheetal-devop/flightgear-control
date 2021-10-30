@@ -29,8 +29,6 @@ public class FlightGearManagerTelnet {
 	private PrintStream clientOutputStream;
 	private BufferedInputStream clientInputStream;
 
-	//private final static int COMMAND_TIMEOUT = 5000;
-
 	private final static int COMMAND_RESPONSE_TIMEOUT = 3000;
 	private final static int STARTUP_TIMEOUT = 2000;
 
@@ -38,21 +36,25 @@ public class FlightGearManagerTelnet {
 	private final static String TELNET_PROMPT = "/>";
 	private final static String GET_COMMAND = "get";
 	//private final static String SET_COMMAND = "set";
-
+	
+	//used from examples
+	private final static String TELNET_TERMINAL_TYPE = "VT100";
+	
 	private final static Logger LOGGER = LoggerFactory.getLogger(FlightGearManagerTelnet.class);
 
 	public FlightGearManagerTelnet(String host, int port) throws InvalidTelnetOptionException, IOException {
+		LOGGER.info("Starting up FlightGearManagerTelnet connection");
+		
 		this.host = host;
 		this.port = port;
 
 		this.client = new TelnetClient();
-
+		
 		connect();
-
 	}
 
 	private void connect() throws InvalidTelnetOptionException, IOException {
-		final TerminalTypeOptionHandler ttopt = new TerminalTypeOptionHandler("VT100", false, false, true, false);
+		final TerminalTypeOptionHandler ttopt = new TerminalTypeOptionHandler(TELNET_TERMINAL_TYPE, false, false, true, false);
 		final EchoOptionHandler echoopt = new EchoOptionHandler(true, false, true, false);
 		final SuppressGAOptionHandler gaopt = new SuppressGAOptionHandler(true, true, true, true);
 
@@ -284,5 +286,12 @@ public class FlightGearManagerTelnet {
 
 		// should not get here
 		return null;
+	}
+	
+	public boolean isConnected() {
+		if( this.client != null && this.client.isConnected() ) {
+			return true;
+		}
+		return false;
 	}
 }

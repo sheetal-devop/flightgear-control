@@ -17,6 +17,7 @@ public abstract class FlightGearPlane {
     private final static Logger LOGGER = LoggerFactory.getLogger(FlightGearPlane.class);
 	
     private final static int TELEMETRY_READ_TRAILING_SLEEP = 250;
+    private final static int TELEMETRY_WRITE_WAIT_SLEEP = 100;
     
     private boolean runTelemetryThread;
     
@@ -74,20 +75,53 @@ public abstract class FlightGearPlane {
     	return runTelemetryThread;
     }
     
+    /**
+     * Get the telemetry map. Useful if we need a lot of fields at once.
+     * 
+     * @return a copy of the telemetry map
+     */
     public synchronized Map<String, String> getTelemetry() {
         Map<String, String> retval = new HashMap<>();
-        
+                
+        //TODO: time this out, trigger some kind of reset or clean update
         while(stateWriting.get()) {
             try {
                 LOGGER.debug("Waiting for state writing to complete");
-                Thread.sleep(100);
+                Thread.sleep(TELEMETRY_WRITE_WAIT_SLEEP);
+            } catch (InterruptedException e) {
+                LOGGER.warn("getTelemetry: Socket read wait interrupted", e);
+            }
+        }
+                
+        stateReading.set(true);
+        retval.putAll(currentState);
+        stateReading.set(false);
+        
+        return retval;
+    }
+    
+    /**
+     * Get a single telemetry field
+     * 
+     * @param fieldName	Field name to lookup
+     * @return	value of the field, null if it isn't in the map
+     */
+    public synchronized String getTelemetryField(String fieldName) {
+    	
+    	String retval = null;
+    	
+        //TODO: time this out, trigger some kind of reset or clean update
+        while(stateWriting.get()) {
+            try {
+                LOGGER.debug("Waiting for state writing to complete");
+                Thread.sleep(TELEMETRY_WRITE_WAIT_SLEEP);
             } catch (InterruptedException e) {
                 LOGGER.warn("getTelemetry: Socket read wait interrupted", e);
             }
         }
         
         stateReading.set(true);
-        retval.putAll(currentState);
+        retval = currentState.get(fieldName);
         stateReading.set(false);
         
         return retval;
@@ -219,19 +253,53 @@ public abstract class FlightGearPlane {
 	public abstract void setPause(boolean isPaused);
 
 	public abstract void setAltitude(double targetAltitude);
-
-	public abstract double getHeading();
-
+	
+	public abstract void setRoll(double targetRoll);
+	
 	public abstract void setHeading(double targetHeading);
-
-	public abstract double getPitch();
-
+	
 	public abstract void setPitch(double targetPitch);
 
-	public abstract double getRoll();
-
-	public abstract void setRoll(double targetRoll);
-
 	public abstract void setSpeedUp(double targetSpeedup);
+	
+    ///////////////////
+    //orientation
+    
+    public double getAlpha() {
+    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.ALPHA_FIELD));
+    }
+    
+    public double getBeta() {
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.BETA_FIELD));
+    }
+    
+    public double getHeading() {
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.HEADING_FIELD));
+    }
+    
+    public double getHeadingMag() {
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.HEADING_MAG_FIELD));
+    }
+    
+    public double getPitch() {
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.PITCH_FIELD));
+    }
+    
+    public double getRoll() {
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.ROLL_FIELD));
+    }
+    
+    public double getTrack() {
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.TRACK_MAG_FIELD));
+    }
+    
+    public double getYaw() {
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.YAW_FIELD));
+    }
+    
+    public double getYawRate() {
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.YAW_RATE_FIELD));
+    }
+
 
 }
