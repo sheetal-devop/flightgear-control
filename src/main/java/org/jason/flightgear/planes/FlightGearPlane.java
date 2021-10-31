@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public abstract class FlightGearPlane {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(FlightGearPlane.class);
-	
+    
     private final static int TELEMETRY_READ_WAIT_SLEEP = 100;
     private final static int TELEMETRY_READ_TRAILING_SLEEP = 250;
     private final static int TELEMETRY_WRITE_WAIT_SLEEP = 100;
@@ -31,16 +31,16 @@ public abstract class FlightGearPlane {
     
     //reading telemetry from socket
     protected AtomicBoolean stateReading;
-	
-	public FlightGearPlane() {
-		//linkedhashmap to match the xml schema loaded into the simulator
+    
+    public FlightGearPlane() {
+        //linkedhashmap to match the xml schema loaded into the simulator
         currentState = Collections.synchronizedMap(new LinkedHashMap<String, String>());
         
         stateWriting = new AtomicBoolean(false);
-        stateReading = new AtomicBoolean(false);	
-	}
-	
-	protected void launchTelemetryThread() {
+        stateReading = new AtomicBoolean(false);    
+    }
+    
+    protected void launchTelemetryThread() {
         runTelemetryThread = true;
         
         telemetryThread = new Thread() {
@@ -54,8 +54,8 @@ public abstract class FlightGearPlane {
             }
         };
         telemetryThread.start();
-	}
-	
+    }
+    
     protected LinkedHashMap<String, String> copyStateFields(String[] fields) {
         LinkedHashMap<String, String> retval = new LinkedHashMap<>();
         
@@ -73,7 +73,7 @@ public abstract class FlightGearPlane {
     }
 
     public boolean runningTelemetryThread() {
-    	return runTelemetryThread;
+        return runTelemetryThread;
     }
     
     /**
@@ -104,13 +104,13 @@ public abstract class FlightGearPlane {
     /**
      * Get a single telemetry field
      * 
-     * @param fieldName	Field name to lookup
-     * @return	value of the field, null if it isn't in the map
+     * @param fieldName    Field name to lookup
+     * @return    value of the field, null if it isn't in the map
      */
     public synchronized String getTelemetryField(String fieldName) {
-    	
-    	String retval = null;
-    	
+        
+        String retval = null;
+        
         //TODO: time this out, trigger some kind of reset or clean update
         while(stateWriting.get()) {
             try {
@@ -129,8 +129,8 @@ public abstract class FlightGearPlane {
     }
     
     public void shutdown() {
-    	LOGGER.debug("Plane shutdown invoked");
-    	
+        LOGGER.debug("Plane shutdown invoked");
+        
         //stop telemetry read
         runTelemetryThread = false;
                 
@@ -155,18 +155,18 @@ public abstract class FlightGearPlane {
         
         LOGGER.debug("Telemetry thread terminated. isAlive: {}", telemetryThread.isAlive());
         
-    	LOGGER.info("Plane shutdown completed");
+        LOGGER.info("Plane shutdown completed");
     }
     
     //internal telemetry retrieval thread
     private void readTelemetry() {
         
         //TODO: enable pause on sim freeze
-    	String telemetryRead = null;
+        String telemetryRead = null;
         while(runningTelemetryThread()) {
             
             //wait for any state read operations to finish
-        	//TODO: max wait on this
+            //TODO: max wait on this
             while(stateReading.get()) {
                 try {
                     LOGGER.trace("Waiting for state reading to complete");
@@ -182,23 +182,23 @@ public abstract class FlightGearPlane {
 
             try {
                 //telemetryRead = fgSockets.readTelemetry();
-            	telemetryRead = readTelemetryRaw();
+                telemetryRead = readTelemetryRaw();
                 
-            	if(telemetryRead != null) {
-	                //if for some reason telemetryRead is not proper json, the update is dropped
-	                final JSONObject jsonTelemetry = new JSONObject(telemetryRead);
-	                
-	                if(jsonTelemetry != null) {
-		                jsonTelemetry.keySet().forEach( 
-		                    keyStr -> {
-		                        currentState.put(keyStr, jsonTelemetry.get(keyStr).toString());
-		                    }    
-		                );
-	                }
-            	}
-            	else {
-            		LOGGER.warn("Raw telemetry read was null. Bailing on update.");
-            	}
+                if(telemetryRead != null) {
+                    //if for some reason telemetryRead is not proper json, the update is dropped
+                    final JSONObject jsonTelemetry = new JSONObject(telemetryRead);
+                    
+                    if(jsonTelemetry != null) {
+                        jsonTelemetry.keySet().forEach( 
+                            keyStr -> {
+                                currentState.put(keyStr, jsonTelemetry.get(keyStr).toString());
+                            }    
+                        );
+                    }
+                }
+                else {
+                    LOGGER.warn("Raw telemetry read was null. Bailing on update.");
+                }
             } catch (JSONException jsonException) {
                 LOGGER.error("JSON Error parsing telemetry. Received:\n{}\n===", telemetryRead, jsonException);
             } catch (IOException ioException) {
@@ -231,42 +231,42 @@ public abstract class FlightGearPlane {
     
     public abstract double getFuelLevel();
 
-	/**
-	 * May not be generic, since planes may have multiple tanks, so the subclass handles this details. 
-	 */
-	public abstract double getFuelTankCapacity();
+    /**
+     * May not be generic, since planes may have multiple tanks, so the subclass handles this details. 
+     */
+    public abstract double getFuelTankCapacity();
     
-	public abstract void setPause(boolean isPaused);
+    public abstract void setPause(boolean isPaused);
 
-	public abstract void setAltitude(double targetAltitude);
-	
-	public abstract void setLatitude(double targetLatitude);
-	
-	public abstract void setLongitude(double targetLongitude);
-	
-	public abstract void setRoll(double targetRoll);
-	
-	public abstract void setHeading(double targetHeading);
-	
-	public abstract void setPitch(double targetPitch);
+    public abstract void setAltitude(double targetAltitude);
+    
+    public abstract void setLatitude(double targetLatitude);
+    
+    public abstract void setLongitude(double targetLongitude);
+    
+    public abstract void setRoll(double targetRoll);
+    
+    public abstract void setHeading(double targetHeading);
+    
+    public abstract void setPitch(double targetPitch);
 
-	public abstract void setSpeedUp(double targetSpeedup);
-	
-	public abstract void setAirSpeed(double targetSpeed);
-	
-	public abstract void setVerticalSpeed(double targetSpeed);
-	
-	public abstract boolean isEngineRunning();
-	
-	///////////////////
-	
+    public abstract void setSpeedUp(double targetSpeedup);
+    
+    public abstract void setAirSpeed(double targetSpeed);
+    
+    public abstract void setVerticalSpeed(double targetSpeed);
+    
+    public abstract boolean isEngineRunning();
+    
+    ///////////////////
+    
     /**
      * Refill the fuel tanks to capacity
      */
     public synchronized void refillFuelTank() {
-    	setFuelTankLevel(getFuelTankCapacity());
+        setFuelTankLevel(getFuelTankCapacity());
     }
-	
+    
     ///////////////////
     //environment
     
@@ -318,7 +318,7 @@ public abstract class FlightGearPlane {
     }
     
     public boolean isDamageRepairing() {
-    	return getDamageRepairing() == FlightGearPlaneFields.FDM_DAMAGE_REPAIRING_INT_TRUE;
+        return getDamageRepairing() == FlightGearPlaneFields.FDM_DAMAGE_REPAIRING_INT_TRUE;
     }
     
     //fbx
@@ -437,7 +437,7 @@ public abstract class FlightGearPlane {
     }
     
     public boolean isDamageEnabled() {
-    	return getDamage() == FlightGearPlaneFields.FDM_DAMAGE_ENABLED_INT_TRUE;
+        return getDamage() == FlightGearPlaneFields.FDM_DAMAGE_ENABLED_INT_TRUE;
     }
 
     public double getLeftWingDamage() {
@@ -447,12 +447,12 @@ public abstract class FlightGearPlane {
     public double getRightWingDamage() {
         return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_RIGHT_WING_DAMAGE_FIELD));
     }
-	
+    
     ///////////////////
     //orientation
     
     public double getAlpha() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.ALPHA_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.ALPHA_FIELD));
     }
     
     public double getBeta() {
@@ -518,44 +518,44 @@ public abstract class FlightGearPlane {
     }
     
     public double getSimSpeedUp() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_SPEEDUP_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_SPEEDUP_FIELD));
     }
     
     public double getTimeElapsed() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_TIME_ELAPSED_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_TIME_ELAPSED_FIELD));
     }
     
     public double getLocalDaySeconds() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_LOCAL_DAY_SECONDS_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_LOCAL_DAY_SECONDS_FIELD));
     }
     
     public double getMpClock() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_MP_CLOCK_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_MP_CLOCK_FIELD));
     }
     
     ///////////////////
     //velocities
     public double getAirSpeed() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.AIRSPEED_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.AIRSPEED_FIELD));
     }
     
     public double getGroundSpeed() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.GROUNDSPEED_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.GROUNDSPEED_FIELD));
     }
     
     public double getVerticalSpeed() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.VERTICALSPEED_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.VERTICALSPEED_FIELD));
     }
     
     public double getUBodySpeed() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.U_BODY_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.U_BODY_FIELD));
     }
     
     public double getVBodySpeed() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.V_BODY_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.V_BODY_FIELD));
     }
     
     public double getWBodySpeed() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.W_BODY_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.W_BODY_FIELD));
     }
 }

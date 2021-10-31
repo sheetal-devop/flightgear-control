@@ -51,20 +51,20 @@ public class FlightGearSocketsConnection {
     public FlightGearSocketsConnection(String host,  int telemetryPort) 
             throws SocketException, UnknownHostException {
         
-    	if(Charset.isSupported(UTF8_CHARSET_STR)) {
-    		utf8_charset = Charset.forName(UTF8_CHARSET_STR);
-    		//StandardCharsets.UTF_8.name()
-    	} else {
-    		throw new SocketException("UTF8 charset not found");
-    	}
-    	
+        if(Charset.isSupported(UTF8_CHARSET_STR)) {
+            utf8_charset = Charset.forName(UTF8_CHARSET_STR);
+            //StandardCharsets.UTF_8.name()
+        } else {
+            throw new SocketException("UTF8 charset not found");
+        }
+        
         //set this here rather than before the match because we don't want to initialize it with every telemetry read
         telemetryLinePattern = Pattern.compile("^[\"/]\\S+[\": ]\\S+[,]?$");
         
         this.host = host;
         
         if( telemetryPort <= 0 ) {
-    		throw new SocketException("Invalid port");
+            throw new SocketException("Invalid port");
         }
         
         this.telemetryPort = telemetryPort;
@@ -156,7 +156,7 @@ public class FlightGearSocketsConnection {
         */
         
         if(LOGGER.isTraceEnabled()) {
-        	LOGGER.trace("=========================\nRaw telemetry received:\n{}\n=========================\n", output);
+            LOGGER.trace("=========================\nRaw telemetry received:\n{}\n=========================\n", output);
         }
         
         String[] lines = output.split(FG_SOCKET_PROTOCOL_LINE_SEP);
@@ -195,11 +195,11 @@ public class FlightGearSocketsConnection {
         
         //foreach key, write the value into a simple unquoted csv string. fail socket write on missing values
         for( Entry<String, String> entry : inputHash.entrySet()) {
-        	if(!entry.getValue().equals( "" )) {
-        		controlInput.append(entry.getValue());
+            if(!entry.getValue().equals( "" )) {
+                controlInput.append(entry.getValue());
             }
             else {
-            	LOGGER.error("Missing field value: {}" + entry.getKey());
+                LOGGER.error("Missing field value: {}" + entry.getKey());
                     
                 //field count check later
                 validFieldCount = false;
@@ -217,15 +217,15 @@ public class FlightGearSocketsConnection {
             writeInputToSocket(controlInput.toString(), port);
             
             if(LOGGER.isDebugEnabled()) {
-            	LOGGER.debug("Wrote control input to socket: {}", controlInput.toString());
-            	
-            	StringBuilder output = new StringBuilder();
+                LOGGER.debug("Wrote control input to socket: {}", controlInput.toString());
+                
+                StringBuilder output = new StringBuilder();
  
-            	for( Entry<String, String> field : inputHash.entrySet()) {
-            		output.append(String.format("%s => %s\n", field.getKey(), field.getValue()));
-            	}
-            		
-            	LOGGER.debug("Wrote field data to socket:\n{}\n=======", output.toString() );    
+                for( Entry<String, String> field : inputHash.entrySet()) {
+                    output.append(String.format("%s => %s\n", field.getKey(), field.getValue()));
+                }
+                    
+                LOGGER.debug("Wrote field data to socket:\n{}\n=======", output.toString() );    
             }
         }
         else

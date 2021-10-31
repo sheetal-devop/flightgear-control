@@ -1,6 +1,6 @@
 package org.jason.flightgear.planes.c172p.app;
 
-import org.apache.commons.net.telnet.InvalidTelnetOptionException;
+import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.jason.flightgear.planes.c172p.C172P;
 import org.jason.flightgear.planes.util.FlightUtilities;
 import org.slf4j.Logger;
@@ -10,8 +10,11 @@ public class SustainedFlight {
 		
 	private static Logger logger = LoggerFactory.getLogger(SustainedFlight.class);
 	
+	private final static int EXPECTED_TRACK = 30;
 	private final static int TARGET_ALTITUDE = 9000;
-	private final static int TARGET_HEADING = 0;
+	
+	//0 => N, 90 => E
+	private final static int TARGET_HEADING = 90;
 	
 	private static void launch(C172P plane) {
 		//assume start unpaused;
@@ -21,10 +24,6 @@ public class SustainedFlight {
 		//place in the air
 		plane.setAltitude(TARGET_ALTITUDE);
 		
-		//retract landing gear if not fixed
-
-		//head north
-		plane.setHeading(TARGET_HEADING);
 				
 		plane.setPause(false);
 		
@@ -37,7 +36,6 @@ public class SustainedFlight {
 		try {
 			Thread.sleep(40*1000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -53,100 +51,118 @@ public class SustainedFlight {
 		plane.setPause(false);
 	}
 	
-	public static void main(String [] args) throws InvalidTelnetOptionException, Exception {
-		C172P plane = new C172P();
+	private static String telemetryReadOut(C172P plane) {
 		
-		plane.setDamageEnabled(false);
+		return 
+			String.format("\nHeading: %f", plane.getHeading()) +
+			String.format("\nFuel level: %f", plane.getFuelLevel()) +
+			String.format("\nEngine running: %d", plane.getEngineRunning()) + 
+			String.format("\nAltitude: %f", plane.getAltitude()) +
+			String.format("\nLatitude: %f", plane.getLatitude()) + 
+			String.format("\nLongitude: %f", plane.getLongitude());
+	}
+	
+	public static void main(String [] args) {
+		C172P plane = null;
 		
 		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+			plane = new C172P();
 		
-		//true north
-		double targetHeading = 90;
-		
-		//TODO: check if engine running, plane is in the air, speed is not zero
-		//
-		
-		plane.startupPlane();
-
-		//wait for startup to complete and telemetry reads to arrive
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		//////////////////
-		launch(plane);
-
-		boolean running = true;
-		int cycles = 0;
-		int maxCycles = 50* 1000;
+			plane.setDamageEnabled(false);
 			
-		int minFuelGal = 4;
-		
-		int cycleSleep = 750;
-		
-		StringBuilder telemetryRead;
-		
-		plane.setBatterySwitch(false);
-		
-		plane.setSpeedUp(8);
-		
-		while(running && cycles < maxCycles) {
-			
-			logger.info("======================\nCycle {} start. Target heading: {} ", cycles, targetHeading);
-			
-			//check altitude first, if we're in a nose dive that needs to be corrected first
-			FlightUtilities.altitudeCheck(plane, 500, TARGET_ALTITUDE);
-			
-			FlightUtilities.pitchCheck(plane, 4, 3.0);
-			
-			FlightUtilities.rollCheck(plane, 4, 0.0);
-			
-			//check heading last, correct pitch/roll first otherwise the plane will probably drift off heading quickly
-			FlightUtilities.headingCheck(plane, 15, targetHeading);
-			
-			//check fuel last last. easy to refuel
-			if(plane.getFuelLevel() < minFuelGal) {
-				plane.refillFuelTank();
-			}
-						
-			telemetryRead = new StringBuilder();
-			
-			telemetryRead.append("\n=======\nAltitude: ")
-				.append(plane.getAltitude())
-				.append("\nHeading: ")
-				.append(plane.getHeading())
-				.append("\nParking brake: ")
-				.append(plane.getParkingBrake())
-				.append("\nFuel level: ")
-				.append(plane.getFuelLevel())
-				.append("\n=======\n");
-			
-			logger.info("Telemetry Read: {}", telemetryRead.toString());
-			
-//			plane.setPause(true);
-//			plane.forceStabilize(TARGET_HEADING, TARGET_ALTITUDE, 0, 3, 0);
-//			plane.setPause(false);
+			//in case we get a previously lightly-used environment
+			plane.refillFuelTank();
 			
 			try {
-				Thread.sleep(cycleSleep);
+				Thread.sleep(10000);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			
+			//c172p tracks hard and i haven't figured out how to solve this with the autopilot
+			double trueHeading = (TARGET_HEADING + EXPECTED_TRACK);
+			
+			if(trueHeading < 0) {
+				trueHeading += 360;
+			} else {
+				trueHeading %= 360;
+			}
+			
+			//head north
+			plane.setHeading(trueHeading);
+			
+			//TODO: check if engine running, plane is in the air, speed is not zero
+			//
+			
+			plane.startupPlane();
+	
+			//wait for startup to complete and telemetry reads to arrive
+			try {
+				Thread.sleep(5000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
-			cycles++;
+			//////////////////
+			launch(plane);
+	
+			boolean running = true;
+			int cycles = 0;
+			int maxCycles = 50* 1000;
+				
+			int minFuelGal = 4;
 			
-			logger.info("Cycle end\n======================");
+			int cycleSleep = 250;
+						
+			plane.setBatterySwitch(false);
+			
+			//i'm in a hurry and a c172p only goes so fast
+			plane.setSpeedUp(16);
+			
+			while(running && cycles < maxCycles) {
+				
+				logger.info("======================\nCycle {} start. Target heading: {} ", cycles, trueHeading);
+				
+				//check altitude first, if we're in a nose dive that needs to be corrected first
+				FlightUtilities.altitudeCheck(plane, 500, TARGET_ALTITUDE);
+				
+				//TODO: ground elevation check. it's a problem if your target alt is 5000ft and you're facing a 5000ft mountain
+				
+				FlightUtilities.pitchCheck(plane, 4, 3.0);
+				
+				FlightUtilities.rollCheck(plane, 4, 0.0);
+				
+				//check heading last, correct pitch/roll first otherwise the plane will probably drift off heading quickly
+				FlightUtilities.headingCheck(plane, 15, trueHeading);
+				
+				//check fuel last last. easy to refuel
+				if(plane.getFuelLevel() < minFuelGal) {
+					plane.refillFuelTank();
+				}
+				
+				logger.info("Telemetry Read: {}", telemetryReadOut(plane));
+				
+	//			plane.setPause(true);
+	//			plane.forceStabilize(TARGET_HEADING, TARGET_ALTITUDE, 0, 3, 0);
+	//			plane.setPause(false);
+				
+//				try {
+//					Thread.sleep(cycleSleep);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+				
+				cycles++;
+				
+				logger.info("Cycle end\n======================");
+			}
+		} catch (FlightGearSetupException e1) {
+			e1.printStackTrace();
 		}
-		
-		plane.shutdown();
+		finally {
+			if(plane != null) {
+				plane.shutdown();
+			}
+		}
 	}
 }

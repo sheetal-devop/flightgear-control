@@ -9,7 +9,10 @@ public class FlightUtilities {
     private static Logger logger = LoggerFactory.getLogger(FlightUtilities.class);
 
     private final static int ORIENTATION_CHANGE_SLEEP = 2500;
+    private final static int POSITION_CHANGE_SLEEP = 2500;
 	
+    //TODO: maybe make these functions boolean so we can easily determine if a change was made
+    
     public static void altitudeCheck(FlightGearPlane plane, int maxDifference, double targetAltitude) {
     	altitudeCheck(plane, maxDifference, targetAltitude, false);
     }
@@ -32,7 +35,7 @@ public class FlightUtilities {
             if(trailingSleep) {
 	            //trailing sleep only if we made a change
 	            try {
-	                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
+	                Thread.sleep(POSITION_CHANGE_SLEEP);
 	            } catch (InterruptedException e) {
 	                logger.warn("Trailing sleep interrupted", e);
 	            }

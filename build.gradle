@@ -5,13 +5,6 @@ apply from: 'dependencies.gradle'
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
-
-
-
-
-
-
-
 repositories {
     jcenter()
     mavenCentral() 
@@ -55,13 +48,9 @@ distributions {
             into('protocols') {
                 from( project.file("protocol"))
             }
-            
-            
         }
     }
 }
-
-
 
 jar {
 
@@ -73,7 +62,7 @@ jar {
     }
 }
 
-
+//TODO: broken fix it
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'src'
     version fgControlVersion
