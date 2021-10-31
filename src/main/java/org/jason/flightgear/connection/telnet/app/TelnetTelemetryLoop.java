@@ -1,9 +1,9 @@
-package org.jason.flightgear.telnet;
+package org.jason.flightgear.connection.telnet.app;
 
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
+import org.jason.flightgear.connection.telnet.FlightGearTelnetConnection;
 
 public class TelnetTelemetryLoop {
 	public static void main(String [] args) {
@@ -41,9 +41,9 @@ public class TelnetTelemetryLoop {
 		
 		int loopIterations = 4;
 		
-		FlightGearManagerTelnet mgr = null;
+		FlightGearTelnetConnection mgr = null;
 		try {
-			mgr = new FlightGearManagerTelnet("localhost", 5501);
+			mgr = new FlightGearTelnetConnection("localhost", 5501);
 			
 			System.out.println("==========");
 			String outputRaw, outputValues, cmdOutput;

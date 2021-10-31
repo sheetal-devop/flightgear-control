@@ -9,7 +9,7 @@ package org.jason.flightgear.planes.c172p;
 public abstract class C172PFields {
 
 	private C172PFields() {};
-	
+		
 	/////////////
 	// consumables
 
@@ -24,6 +24,11 @@ public abstract class C172PFields {
 	
 	public final static String[] CONSUMABLES_FIELDS = {
 		FUEL_TANK_CAPACITY_FIELD,
+		FUEL_TANK_LEVEL_FIELD,
+		WATER_CONTAMINATION_FIELD
+	};
+	
+	public final static String[] CONSUMABLES_INPUT_FIELDS = {
 		FUEL_TANK_LEVEL_FIELD,
 		WATER_CONTAMINATION_FIELD
 	};
@@ -117,6 +122,8 @@ public abstract class C172PFields {
 		GEAR_DOWN_FIELD
 	};
 	
+	public final static String[] CONTROL_INPUT_FIELDS = CONTROL_FIELDS;
+	
 	/////////////
 	// engine
 	
@@ -164,6 +171,8 @@ public abstract class C172PFields {
 		ENGINE_RPM_FIELD,
 		ENGINE_RUNNING_FIELD
 	};
+	
+	//no input fields for engine
 	
 	/////////////
 	// Sim

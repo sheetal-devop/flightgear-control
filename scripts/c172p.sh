@@ -2,6 +2,9 @@
 
 #TODO: generate some of this from a template, since the ports are defined in the source
 
+#for visuals use larger geometry: --geometry=1024x768\
+#for apps user smaller geometry: --geometry=320x200\
+
 fgfs \
  --verbose\
  --prop:/nasal/local_weather/enabled=false\
@@ -30,7 +33,7 @@ fgfs \
  --disable-ai-traffic\
  --disable-sound\
  --disable-real-weather-fetch\
- --geometry=1024x768\
+ --geometry=640x480\
  --texture-filtering=4\
  --disable-anti-alias-hud\
  --enable-auto-coordination\

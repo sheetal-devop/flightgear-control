@@ -50,6 +50,7 @@ public abstract class FlightGearPlaneFields {
 		WINDSPEED_FIELD
     };
 	
+	//no input fields for environment
 	
 	/////////////
 	// fdm
@@ -199,6 +200,10 @@ public abstract class FlightGearPlaneFields {
 		FDM_LEFT_WING_DAMAGE_FIELD,
 		FDM_RIGHT_WING_DAMAGE_FIELD
 	};
+
+	public final static String[] FDM_INPUT_FIELDS = {
+		FDM_DAMAGE_FIELD
+	};
 	
 	/////////////
 	// Orientation
@@ -241,6 +246,12 @@ public abstract class FlightGearPlaneFields {
 		YAW_RATE_FIELD
 	};
 	
+	public final static String[] ORIENTATION_INPUT_FIELDS = {
+		HEADING_FIELD,
+		PITCH_FIELD,
+		ROLL_FIELD
+	};
+	
 	/////////////
 	// Position
 	public final static String ALTITUDE_FIELD = "/position/altitude-ft";
@@ -258,6 +269,12 @@ public abstract class FlightGearPlaneFields {
 	public final static String[] POSITION_FIELDS = {
 		ALTITUDE_FIELD,
 		GROUND_ELEVATION_FIELD,
+		LATITUDE_FIELD,
+		LONGITUDE_FIELD
+	};
+	
+	public final static String[] POSITION_INPUT_FIELDS = {
+		ALTITUDE_FIELD,
 		LATITUDE_FIELD,
 		LONGITUDE_FIELD
 	};
@@ -339,5 +356,10 @@ public abstract class FlightGearPlaneFields {
 		U_BODY_FIELD,
 		V_BODY_FIELD,
 		W_BODY_FIELD
+	};
+	
+	public final static String[] VELOCITIES_INPUT_FIELDS = {
+		AIRSPEED_FIELD,
+		VERTICALSPEED_FIELD
 	};
 }

@@ -1,8 +1,8 @@
 package org.jason.flightgear.planes.f15c.app;
 
-public class F15C_SustainedFlight {
+public class SustainedFlight {
 
-	public F15C_SustainedFlight() {
+	public SustainedFlight() {
 		// TODO Auto-generated constructor stub
 	}
 

@@ -12,11 +12,6 @@
             <type>float</type>
          </chunk>
          <chunk>
-            <node>/position/ground-elev-ft</node>
-            <name>ground-elev-ft</name>
-            <type>float</type>
-         </chunk>
-         <chunk>
             <node>/position/latitude-deg</node>
             <name>latitude-deg</name>
             <type>float</type>

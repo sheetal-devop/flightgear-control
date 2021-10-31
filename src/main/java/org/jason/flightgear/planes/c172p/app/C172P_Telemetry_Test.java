@@ -3,8 +3,8 @@ package org.jason.flightgear.planes.c172p.app;
 import java.io.IOException;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
-import org.jason.flightgear.sockets.FlightGearManagerSockets;
-import org.jason.flightgear.telnet.FlightGearManagerTelnet;
+import org.jason.flightgear.connection.sockets.FlightGearSocketsConnection;
+import org.jason.flightgear.connection.telnet.FlightGearTelnetConnection;
 
 public class C172P_Telemetry_Test {
 	
@@ -13,10 +13,10 @@ public class C172P_Telemetry_Test {
 	private final static int FG_SOCKETS_TELEM_PORT = 6501;
 	private final static int FG_SOCKETS_INPUT_PORT = 6601;
 
-	private FlightGearManagerSockets fgSocketsClient;
+	private FlightGearSocketsConnection fgSocketsClient;
 	
 	public C172P_Telemetry_Test() throws InvalidTelnetOptionException, IOException {
-		fgSocketsClient = new FlightGearManagerSockets(FG_SOCKETS_HOST, FG_SOCKETS_TELEM_PORT);
+		fgSocketsClient = new FlightGearSocketsConnection(FG_SOCKETS_HOST, FG_SOCKETS_TELEM_PORT);
 		
 		//maybe try to get control schema from input file
 	}

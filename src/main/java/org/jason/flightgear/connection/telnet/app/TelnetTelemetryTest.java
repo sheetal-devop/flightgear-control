@@ -1,4 +1,4 @@
-package org.jason.flightgear.telnet;
+package org.jason.flightgear.connection.telnet.app;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

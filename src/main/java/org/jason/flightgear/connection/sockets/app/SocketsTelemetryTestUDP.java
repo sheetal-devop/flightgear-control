@@ -1,4 +1,4 @@
-package org.jason.flightgear.sockets;
+package org.jason.flightgear.connection.sockets.app;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,11 +12,11 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 
-public class SocketsTelemetryTestUDP_works {
+public class SocketsTelemetryTestUDP {
 	
 	private final static String FG_SOCKETS_HOST = "localhost";
 	private final static int FG_SOCKETS_TELEM_PORT = 6501;
-	private final static int FG_SOCKETS_INPUT_PORT = 6602;
+	private final static int FG_SOCKETS_INPUT_PORT = 6601;
 
 	
 	String[] properties = {
@@ -85,25 +85,28 @@ public class SocketsTelemetryTestUDP_works {
 			DatagramSocket fgInputSocket = null;
 		    DatagramPacket fgInputPacket = null;
 
-				
+			receivingDataBuffer = new byte[1024];
+			
+			fgTelemetryPacket = new DatagramPacket(
+					receivingDataBuffer, 
+					receivingDataBuffer.length
+				);
 
 			for(int i = 0; i< 5; i++) {
 				//test output////////////
-				receivingDataBuffer = new byte[1024];
-//				
+
+
+				
 //				//need to restablish datagram socket connection on every read, or else updates don't arrive
 				fgTelemetrySocket = new DatagramSocket(FG_SOCKETS_TELEM_PORT, InetAddress.getByName(FG_SOCKETS_HOST) );
 				
-				fgTelemetryPacket = new DatagramPacket(
-						receivingDataBuffer, 
-						receivingDataBuffer.length
-					);
+
 				
 				
 				fgTelemetrySocket.receive(fgTelemetryPacket);
 				
 				String receivedData = new String(fgTelemetryPacket.getData());
-				System.out.println("Received telemetry from flightgear:\n" + receivedData);
+				System.out.println("Received telemetry from flightgear: " + receivedData);
 				
 				try {
 					Thread.sleep(1000);
@@ -118,9 +121,6 @@ public class SocketsTelemetryTestUDP_works {
 				//read on next loop iteration
 				
 				//fgInputSocket = new DatagramSocket(FG_SOCKETS_INPUT_PORT, InetAddress.getByName(FG_SOCKETS_HOST) );
-				
-				//for controls, autocoordination may have side affects.
-				//setting aileron will adjust rudder/elevator
 				
 				/*
 				/controls/flight/elevator,/controls/flight/aileron
@@ -157,10 +157,10 @@ public class SocketsTelemetryTestUDP_works {
 			
 
 		} 
-//		catch (UnknownHostException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} 
+		catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
 		catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

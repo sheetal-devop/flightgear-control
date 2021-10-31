@@ -6,11 +6,11 @@ import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
+import org.jason.flightgear.connection.sockets.FlightGearSocketsConnection;
+import org.jason.flightgear.connection.telnet.FlightGearTelnetConnection;
 import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.jason.flightgear.planes.FlightGearPlane;
 import org.jason.flightgear.planes.FlightGearPlaneFields;
-import org.jason.flightgear.sockets.FlightGearManagerSockets;
-import org.jason.flightgear.telnet.FlightGearManagerTelnet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,8 +33,8 @@ public class C172P extends FlightGearPlane{
     private final static int POST_PAUSE_SLEEP = 250;
     private final static int SOCKET_WRITE_WAIT_SLEEP = 100;
     
-    private FlightGearManagerTelnet fgTelnet;
-    private FlightGearManagerSockets fgSockets;
+    private FlightGearTelnetConnection fgTelnet;
+    private FlightGearSocketsConnection fgSockets;
                
     public C172P() throws FlightGearSetupException {
     	this(new C172PConfig());
@@ -67,13 +67,13 @@ public class C172P extends FlightGearPlane{
         //launch thread to update telemetry
 
         try {
-			fgSockets = new FlightGearManagerSockets(config.getSocketsHostname(), config.getSocketsPort());
+			fgSockets = new FlightGearSocketsConnection(config.getSocketsHostname(), config.getSocketsPort());
 			
 	        //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
 			//
 	        launchTelemetryThread();
 			
-			fgTelnet = new FlightGearManagerTelnet(config.getTelnetHostname(), config.getTelnetPort());
+			fgTelnet = new FlightGearTelnetConnection(config.getTelnetHostname(), config.getTelnetPort());
 
 		} catch (SocketException | UnknownHostException | InvalidTelnetOptionException e) {
 			
@@ -138,7 +138,6 @@ public class C172P extends FlightGearPlane{
         	throw new FlightGearSetupException("Engine was not running after startup. Bailing out-not literally.");
         }
     
-
         LOGGER.info("Startup completed");
     }
     
@@ -149,7 +148,7 @@ public class C172P extends FlightGearPlane{
      * @param port
      */
     @Override
-    protected synchronized void writeSocketInput(LinkedHashMap<String, String> inputHash, int port) {
+    protected synchronized void writeControlInput(LinkedHashMap<String, String> inputHash, int port) {
     	//wait for state write to finish. don't care about state reads
     	//may not actually need this since this is a synchronized function
     	//TODO: test^^^
@@ -298,267 +297,16 @@ public class C172P extends FlightGearPlane{
         return Character.getNumericValue( getTelemetryField(C172PFields.ENGINE_RUNNING_FIELD).charAt(0));
     }
     
+    @Override
     public boolean isEngineRunning() {
     	return getEngineRunning() == C172PFields.ENGINE_RUNNING_INT_TRUE;
     }
     
     ///////////////////
-    //environment
-    
-    public double getDewpoint() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.DEWPOINT_FIELD));
-    }
-    
-    public double getEffectiveVisibility() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.EFFECTIVE_VISIBILITY_FIELD));
-    }
-    
-    public double getPressure() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.PRESSURE_FIELD));
-    }
-    
-    public double getRelativeHumidity() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.RELATIVE_HUMIDITY_FIELD));
-    }
-    
-    public double getTemperature() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.TEMPERATURE_FIELD));
-    }
-    
-    public double getVisibility() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.VISIBILITY_FIELD));
-    }
-    
-    public double getWindFromDown() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.WIND_FROM_DOWN_FIELD));
-    }
-    
-    public double getWindFromEast() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.WIND_FROM_EAST_FIELD));
-    }
-    
-    public double getWindFromNorth() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.WIND_FROM_NORTH_FIELD));
-    }
-    
-    public double getWindspeed() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.WINDSPEED_FIELD));
-    }
-    
-    ///////////////////
-    //fdm
-    
-    public int getDamageRepairing() {
-        return Character.getNumericValue( getTelemetryField(FlightGearPlaneFields.FDM_DAMAGE_REPAIRING_FIELD).charAt(0));
-    }
-    
-    public boolean isDamageRepairing() {
-    	return getDamageRepairing() == FlightGearPlaneFields.FDM_DAMAGE_REPAIRING_INT_TRUE;
-    }
-    
-    //fbx
-    public double getFbxAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBX_AERO_FIELD));
-    }
-    
-    public double getFbxExternalForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBX_EXTERNAL_FIELD));
-    }
-    
-    public double getFbxGearForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBX_GEAR_FIELD));
-    }
-    
-    public double getFbxPropForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBX_PROP_FIELD));
-    }
-    
-    public double getFbxTotalForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBX_TOTAL_FIELD));
-    }
-    
-    public double getFbxWeightForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBX_WEIGHT_FIELD));
-    }
-    
-    //fby
-    public double getFbyAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBY_AERO_FIELD));
-    }
-    
-    public double getFbyExternalForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBY_EXTERNAL_FIELD));
-    }
-    
-    public double getFbyGearForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBY_GEAR_FIELD));
-    }
-    
-    public double getFbyPropForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBY_PROP_FIELD));
-    }
-    
-    public double getFbyTotalForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBY_TOTAL_FIELD));
-    }
-    
-    public double getFbyWeightForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBY_WEIGHT_FIELD));
-    }
-    
-    //fbz
-    public double getFbzAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBZ_AERO_FIELD));
-    }
-    
-    public double getFbzExternalForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBZ_EXTERNAL_FIELD));
-    }
-    
-    public double getFbzGearForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBZ_GEAR_FIELD));
-    }
-    
-    public double getFbzPropForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBZ_PROP_FIELD));
-    }
-    
-    public double getFbzTotalForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBZ_TOTAL_FIELD));
-    }
-    
-    public double getFbzWeightForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBZ_WEIGHT_FIELD));
-    }
-    
-    //fsx
-    public double getFsxAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FSX_AERO_FIELD));
-    }
-    
-    //fsy
-    public double getFsyAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FSY_AERO_FIELD));
-    }
-    
-    //fsz
-    public double getFszAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FSZ_AERO_FIELD));
-    }
-    
-    //fwy
-    public double getFwyAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FWY_AERO_FIELD));
-    }
-    
-    //fwz
-    public double getFwzAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FWZ_AERO_FIELD));
-    }
-    
-    //load factor
-    public double getLoadFactor() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_LOAD_FACTOR_FIELD));
-    }
-    
-    public double getLodNorm() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_LOD_NORM_FIELD));
-    }
-    
-    //damage
-    
-    public int getDamage() {
-        return Character.getNumericValue(getTelemetryField(FlightGearPlaneFields.FDM_DAMAGE_FIELD).charAt(0));
-    }
-    
-    public boolean isDamageEnabled() {
-    	return getDamage() == FlightGearPlaneFields.FDM_DAMAGE_ENABLED_INT_TRUE;
-    }
-
-    public double getLeftWingDamage() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_LEFT_WING_DAMAGE_FIELD));
-    }
-    
-    public double getRightWingDamage() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_RIGHT_WING_DAMAGE_FIELD));
-    }
-    
-
-    
-    ///////////////////
-    //position
-    
-    public double getAltitude() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.ALTITUDE_FIELD));
-    }
-    
-    public double getGroundElevation() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.GROUND_ELEVATION_FIELD));
-    }
-    
-    public double getLatitude() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.LATITUDE_FIELD));
-    }
-    
-    public double getLongitude() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.LONGITUDE_FIELD));
-    }
-    
-    ///////////////////
     //sim
-    
-    public int getSimFreezeClock() {
-        return Character.getNumericValue(getTelemetryField(FlightGearPlaneFields.SIM_FREEZE_CLOCK_FIELD).charAt(0));
-    }
-    
-    public int getSimFreezeMaster() {
-        return Character.getNumericValue(getTelemetryField(FlightGearPlaneFields.SIM_FREEZE_MASTER_FIELD).charAt(0));
-    }
     
     public int getSimParkingBrake() {   	
         return Character.getNumericValue(getTelemetryField(C172PFields.SIM_PARKING_BRAKE_FIELD).charAt(0));
-    }
-    
-    public double getSimSpeedUp() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_SPEEDUP_FIELD));
-    }
-    
-    public double getTimeElapsed() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_TIME_ELAPSED_FIELD));
-    }
-    
-    public double getLocalDaySeconds() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_LOCAL_DAY_SECONDS_FIELD));
-    }
-    
-    public double getMpClock() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_MP_CLOCK_FIELD));
-    }
-    
-    ///////////////////
-    //velocities
-    public double getAirSpeed() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.AIRSPEED_FIELD));
-    }
-    
-    public double getGroundSpeed() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.GROUNDSPEED_FIELD));
-    }
-    
-    public double getVerticalSpeed() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.VERTICALSPEED_FIELD));
-    }
-    
-    public double getUBodySpeed() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.U_BODY_FIELD));
-    }
-    
-    public double getVBodySpeed() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.V_BODY_FIELD));
-    }
-    
-    public double getWBodySpeed() {
-    	return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.W_BODY_FIELD));
     }
     
     //////////////
@@ -570,7 +318,7 @@ public class C172P extends FlightGearPlane{
         
         //TODO: check if paused
         
-        LinkedHashMap<String, String> orientationFields = copyStateFields(FlightGearPlaneFields.ORIENTATION_FIELDS);
+        LinkedHashMap<String, String> orientationFields = copyStateFields(FlightGearPlaneFields.ORIENTATION_INPUT_FIELDS);
         
         setPause(true);
         orientationFields.put(FlightGearPlaneFields.HEADING_FIELD, String.valueOf(heading) ) ;
@@ -578,35 +326,35 @@ public class C172P extends FlightGearPlane{
         orientationFields.put(FlightGearPlaneFields.ROLL_FIELD, String.valueOf(roll) );
         orientationFields.put(FlightGearPlaneFields.ALTITUDE_FIELD, String.valueOf(altitude) );
 
-        writeSocketInput(orientationFields, SOCKETS_INPUT_ORIENTATION_PORT);
+        writeControlInput(orientationFields, SOCKETS_INPUT_ORIENTATION_PORT);
 
         setPause(false);
     }
     
     @Override
     public synchronized void setFuelTankLevel(double amount) {
-    	LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_FIELDS);
+    	LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_INPUT_FIELDS);
     	
         inputHash.put(C172PFields.FUEL_TANK_LEVEL_FIELD, String.valueOf(amount));
         
         LOGGER.info("Setting fuel tank level: {}", amount);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONSUMABLES_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_CONSUMABLES_PORT);
     }
     
     public synchronized void setFuelTankWaterContamination(double amount) {
-    	LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_FIELDS);
+    	LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_INPUT_FIELDS);
     	
         inputHash.put(C172PFields.WATER_CONTAMINATION_FIELD, "" + amount);
         
         LOGGER.info("Setting fuel tank water contamination: {}", amount);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONSUMABLES_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_CONSUMABLES_PORT);
     	
     }
     
     public synchronized void setBatterySwitch(boolean switchOn) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         if(switchOn) {
         	inputHash.put(C172PFields.BATTERY_SWITCH_FIELD, C172PFields.BATTERY_SWITCH_TRUE);
@@ -617,31 +365,31 @@ public class C172P extends FlightGearPlane{
         
         LOGGER.info("Setting battery switch to {}", switchOn);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
     }
     
     public synchronized void setElevator(double orientation) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         inputHash.put(C172PFields.ELEVATOR_FIELD, String.valueOf(orientation));
 
         LOGGER.info("Setting elevator to {}", orientation);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
     }
     
     public synchronized void setAileron(double orientation) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         inputHash.put(C172PFields.AILERON_FIELD, String.valueOf(orientation));
 
         LOGGER.info("Setting aileron to {}", orientation);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
     }
     
     public synchronized void setAutoCoordination(boolean enabled) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         if(enabled) {
         	inputHash.put(C172PFields.AUTO_COORDINATION_FIELD, C172PFields.AUTO_COORDINATION_TRUE);
@@ -652,27 +400,47 @@ public class C172P extends FlightGearPlane{
 
         LOGGER.info("Setting autocoordination to {}", enabled);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
     }
     
     public synchronized void setFlaps(double orientation) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         inputHash.put(C172PFields.FLAPS_FIELD, String.valueOf(orientation));
 
         LOGGER.info("Setting flaps to {}", orientation);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
     }
     
     public synchronized void setRudder(double orientation) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         inputHash.put(C172PFields.RUDDER_FIELD, String.valueOf(orientation));
 
         LOGGER.info("Setting rudder to {}", orientation);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+    }
+    
+    public synchronized void setThrottle(double throttle ) {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
+        
+        inputHash.put(C172PFields.THROTTLE_FIELD, String.valueOf(throttle));
+        
+        LOGGER.info("Setting throttle to {}", throttle);
+        
+        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+    }
+    
+    public synchronized void setMixture(double mixture ) {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
+        
+        inputHash.put(C172PFields.MIXTURE_FIELD, String.valueOf(mixture));
+        
+        LOGGER.info("Setting mixture to {}", mixture);
+        
+        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
     }
     
     public synchronized void resetControlSurfaces() {
@@ -714,7 +482,7 @@ public class C172P extends FlightGearPlane{
 
 		// socket writes typically require pauses so telemetry/state aren't out of date
 		// however this is an exception
-		writeSocketInput(inputHash, SOCKETS_INPUT_SIM_FREEZE_PORT);
+		writeControlInput(inputHash, SOCKETS_INPUT_SIM_FREEZE_PORT);
 
 		// trailing sleep, so that the last real telemetry read arrives
 		try {
@@ -732,11 +500,11 @@ public class C172P extends FlightGearPlane{
         
         inputHash.put(FlightGearPlaneFields.SIM_SPEEDUP_FIELD, String.valueOf(targetSpeedup));
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_SIM_SPEEDUP_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_SIM_SPEEDUP_PORT);
     }
     
     public synchronized void setDamageEnabled(boolean damageEnabled) {
-        LinkedHashMap<String, String> inputHash = new LinkedHashMap<String, String>();
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.FDM_INPUT_FIELDS);
         
         //requires an int value for the bool
         if(!damageEnabled) {
@@ -750,7 +518,7 @@ public class C172P extends FlightGearPlane{
         
         //socket writes typically require pauses so telemetry/state aren't out of date
         //however this is an exception
-        writeSocketInput(inputHash, SOCKETS_INPUT_FDM_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_FDM_PORT);
     }
     
     /**
@@ -760,7 +528,7 @@ public class C172P extends FlightGearPlane{
      */
     @Override
     public synchronized void setHeading(double heading) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_INPUT_FIELDS);
         
         //get telemetry hash
         
@@ -768,69 +536,83 @@ public class C172P extends FlightGearPlane{
         
         LOGGER.info("Setting heading to {}", heading);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
     }
     
     public synchronized void setPitch(double targetPitch) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_INPUT_FIELDS);
         
         inputHash.put(FlightGearPlaneFields.PITCH_FIELD, String.valueOf(targetPitch));
         
         LOGGER.info("Setting pitch to {}", targetPitch);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
     }
     
     @Override
     public synchronized void setRoll(double targetRoll) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_INPUT_FIELDS);
                 
         inputHash.put(FlightGearPlaneFields.ROLL_FIELD, String.valueOf(targetRoll));
         
         LOGGER.info("Setting roll to {}", targetRoll);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
     }
     
     @Override
     public synchronized void setAltitude(double targetAltitude) {        
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.POSITION_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.POSITION_INPUT_FIELDS);
         
         inputHash.put(FlightGearPlaneFields.ALTITUDE_FIELD, String.valueOf(targetAltitude));
         
         LOGGER.info("Setting altitude to {}", targetAltitude);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_POSITION_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_POSITION_PORT);
     }
     
-    public synchronized void setAirSpeed(double speed) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.VELOCITIES_FIELDS);
+    @Override
+    public synchronized void setLatitude(double targetLatitude) {        
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.POSITION_INPUT_FIELDS);
+        
+        inputHash.put(FlightGearPlaneFields.LATITUDE_FIELD, String.valueOf(targetLatitude));
+        
+        LOGGER.info("Setting latitude to {}", targetLatitude);
+        
+        writeControlInput(inputHash, SOCKETS_INPUT_POSITION_PORT);
+    }
+    
+    @Override
+    public synchronized void setLongitude(double targetLongitude) {        
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.POSITION_INPUT_FIELDS);
+        
+        inputHash.put(FlightGearPlaneFields.LONGITUDE_FIELD, String.valueOf(targetLongitude));
+        
+        LOGGER.info("Setting longitude to {}", targetLongitude);
+        
+        writeControlInput(inputHash, SOCKETS_INPUT_POSITION_PORT);
+    }
+    
+    @Override
+    public synchronized void setAirSpeed(double targetSpeed) {
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.VELOCITIES_INPUT_FIELDS);
                 
-        inputHash.put(FlightGearPlaneFields.AIRSPEED_FIELD, String.valueOf(speed));
+        inputHash.put(FlightGearPlaneFields.AIRSPEED_FIELD, String.valueOf(targetSpeed));
         
-        LOGGER.info("Setting air speed to {}", speed);
+        LOGGER.info("Setting air speed to {}", targetSpeed);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_VELOCITIES_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_VELOCITIES_PORT);
     }
     
-    public synchronized void setThrottle(double throttle ) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_FIELDS);
+    @Override
+    public synchronized void setVerticalSpeed(double targetSpeed) {
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.VELOCITIES_INPUT_FIELDS);
+                
+        inputHash.put(FlightGearPlaneFields.VERTICALSPEED_FIELD, String.valueOf(targetSpeed));
         
-        inputHash.put(C172PFields.THROTTLE_FIELD, String.valueOf(throttle));
+        LOGGER.info("Setting vertical speed to {}", targetSpeed);
         
-        LOGGER.info("Setting throttle to {}", throttle);
-        
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
-    }
-    
-    public synchronized void setMixture(double mixture ) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_FIELDS);
-        
-        inputHash.put(C172PFields.MIXTURE_FIELD, String.valueOf(mixture));
-        
-        LOGGER.info("Setting mixture to {}", mixture);
-        
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_VELOCITIES_PORT);
     }
     
     public synchronized void setParkingBrake(boolean brakeEnabled) {
@@ -850,7 +632,7 @@ public class C172P extends FlightGearPlane{
         
         LOGGER.info("Setting parking brake to {}", brakeEnabled);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_SIM_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_SIM_PORT);
     }
     
 ///////////////

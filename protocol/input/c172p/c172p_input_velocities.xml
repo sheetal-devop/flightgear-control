@@ -11,11 +11,6 @@
             <type>float</type>
          </chunk>
          <chunk>
-            <node>/velocities/groundspeed-kt</node>
-            <name>groundspeed-kt</name>
-            <type>float</type>
-         </chunk>
-         <chunk>
             <node>/velocities/vertical-speed-fps</node>
             <name>vertical-speed-fps</name>
             <type>float</type>

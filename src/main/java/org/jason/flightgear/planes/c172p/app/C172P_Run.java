@@ -5,21 +5,6 @@ import org.jason.flightgear.planes.c172p.C172P;
 
 public class C172P_Run {
 	
-	private static void minAltitudeCheck(C172P plane, int minAlt, int targetAlt) {
-		//read altitude
-		//if altitude is lower than minAlt: pause, set to target, unpause
-		
-	}
-	
-	private static void pitchCheck(C172P Plane, int maxDifference, int targetPitch) {
-		//read pitch
-		//if pitch is too far from target in +/- directions, set to target
-	}
-	
-	private static void rollCheck(C172P Plane, int maxDifference, int targetPitch) {
-		
-	}
-	
 	private static void basicUpdatesApp(C172P plane) {
 		//assume start unpaused;
 		

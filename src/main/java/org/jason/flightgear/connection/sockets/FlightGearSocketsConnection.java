@@ -1,4 +1,4 @@
-package org.jason.flightgear.sockets;
+package org.jason.flightgear.connection.sockets;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
  *  
  *
  */
-public class FlightGearManagerSockets {
+public class FlightGearSocketsConnection {
     
-    private final static Logger LOGGER = LoggerFactory.getLogger(FlightGearManagerSockets.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(FlightGearSocketsConnection.class);
     
     private String host;
     private int telemetryPort;
@@ -40,6 +40,7 @@ public class FlightGearManagerSockets {
     private final static String FG_SOCKET_PROTOCOL_LINE_SEP = "\n";
     
     //cache this so we don't have to constantly perform lookups when receiving data
+    //TODO: replace with StandardCharsets.UTF_8;
     private final static String UTF8_CHARSET_STR = "UTF-8";
     private Charset utf8_charset;
     
@@ -47,11 +48,12 @@ public class FlightGearManagerSockets {
 
     private Pattern telemetryLinePattern;
     
-    public FlightGearManagerSockets(String host,  int telemetryPort) 
+    public FlightGearSocketsConnection(String host,  int telemetryPort) 
             throws SocketException, UnknownHostException {
         
     	if(Charset.isSupported(UTF8_CHARSET_STR)) {
     		utf8_charset = Charset.forName(UTF8_CHARSET_STR);
+    		//StandardCharsets.UTF_8.name()
     	} else {
     		throw new SocketException("UTF8 charset not found");
     	}
@@ -60,6 +62,11 @@ public class FlightGearManagerSockets {
         telemetryLinePattern = Pattern.compile("^[\"/]\\S+[\": ]\\S+[,]?$");
         
         this.host = host;
+        
+        if( telemetryPort <= 0 ) {
+    		throw new SocketException("Invalid port");
+        }
+        
         this.telemetryPort = telemetryPort;
         
         receivingDataBuffer = new byte[MAX_RECEIVE_BUFFER_LEN];
@@ -94,6 +101,7 @@ public class FlightGearManagerSockets {
         
         LOGGER.trace("Telemetry called for {}:{}", host, telemetryPort);
         
+        //empty string by default
         String output = "";
         
         DatagramSocket fgTelemetrySocket = null;
@@ -130,7 +138,9 @@ public class FlightGearManagerSockets {
         }
                 
         /*
-         occasionally see this. not sure where those extra digits are coming from
+         occasionally see this. 
+         not sure where those extra digits are coming from before the closing brace
+         
         ...
         "/velocities/groundspeed-kt": 8.734266,
         "/velocities/vertical-speed-fps": -303.683014
@@ -145,13 +155,15 @@ public class FlightGearManagerSockets {
         0}    
         */
         
-        LOGGER.trace("=========================\nRaw telemetry received:\n{}\n=========================\n", output);
+        if(LOGGER.isTraceEnabled()) {
+        	LOGGER.trace("=========================\nRaw telemetry received:\n{}\n=========================\n", output);
+        }
         
         String[] lines = output.split(FG_SOCKET_PROTOCOL_LINE_SEP);
         
         //TODO: count accepted lines and compare against schema
         
-        LOGGER.trace("Cleaning up raw telemetry data");
+        LOGGER.trace("Parsing up raw telemetry data");
         
         int telemetryLineCount = 0;
         StringBuilder cleanOutput = new StringBuilder();
@@ -167,7 +179,7 @@ public class FlightGearManagerSockets {
             }
         }
         
-        LOGGER.debug("readTelemetry returning. Read {} lines", telemetryLineCount);
+        LOGGER.trace("readTelemetry returning. Read {} lines", telemetryLineCount);
                 
         
         //return after adding json braces
@@ -183,17 +195,17 @@ public class FlightGearManagerSockets {
         
         //foreach key, write the value into a simple unquoted csv string. fail socket write on missing values
         for( Entry<String, String> entry : inputHash.entrySet()) {
-                if(!entry.getValue().equals( "" )) {
-                    controlInput.append(entry.getValue());
-                }
-                else {
-                    LOGGER.error("Missing field value: {}" + entry.getKey());
+        	if(!entry.getValue().equals( "" )) {
+        		controlInput.append(entry.getValue());
+            }
+            else {
+            	LOGGER.error("Missing field value: {}" + entry.getKey());
                     
-                    //field count check later
-                    validFieldCount = false;
-                    break;
-                }
-                controlInput.append(FG_SOCKET_PROTOCOL_VAR_SEP);
+                //field count check later
+                validFieldCount = false;
+                break;
+            }
+            controlInput.append(FG_SOCKET_PROTOCOL_VAR_SEP);
         }
         
         //trailing commas appear to be okay
@@ -202,10 +214,19 @@ public class FlightGearManagerSockets {
             
             controlInput.append(FG_SOCKET_PROTOCOL_LINE_SEP);
         
-
-            LOGGER.debug("Writing control input: {}", controlInput.toString());
-                
-            writeControlInput(controlInput.toString(), port);
+            writeInputToSocket(controlInput.toString(), port);
+            
+            if(LOGGER.isDebugEnabled()) {
+            	LOGGER.debug("Wrote control input to socket: {}", controlInput.toString());
+            	
+            	StringBuilder output = new StringBuilder();
+ 
+            	for( Entry<String, String> field : inputHash.entrySet()) {
+            		output.append(String.format("%s => %s\n", field.getKey(), field.getValue()));
+            	}
+            		
+            	LOGGER.debug("Wrote field data to socket:\n{}\n=======", output.toString() );    
+            }
         }
         else
         {
@@ -214,13 +235,14 @@ public class FlightGearManagerSockets {
 
     }
     
-    public synchronized void writeControlInput(String input, int port) {
+    public synchronized void writeInputToSocket(String input, int port) {
         byte[] fgInputPayload = input.getBytes(utf8_charset);
 
         DatagramSocket fgInputSocket = null;
 
         LOGGER.debug("Sending input to {}:{}", host, port);
-        
+
+        //TODO: maybe time the write
         try {
             DatagramPacket fgInputPacket = new DatagramPacket(
                 fgInputPayload, 

@@ -1,4 +1,4 @@
-package org.jason.flightgear.sockets;
+package org.jason.flightgear.connection.sockets;
 
 import java.io.BufferedReader;
 import java.io.IOException;

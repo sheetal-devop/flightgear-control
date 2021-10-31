@@ -5,9 +5,9 @@ import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
+import org.jason.flightgear.connection.sockets.FlightGearSocketsConnection;
 import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.jason.flightgear.planes.c172p.C172P;
-import org.jason.flightgear.sockets.FlightGearManagerSockets;
 
 public class C172P_Input_Test {
 	
@@ -23,12 +23,12 @@ public class C172P_Input_Test {
 	private LinkedHashMap<String, String> controlSchema;
 
 	
-	private FlightGearManagerSockets fgSocketsClient;
+	private FlightGearSocketsConnection fgSocketsClient;
 	
 	private C172P plane;
 	
 	public C172P_Input_Test() throws FlightGearSetupException, SocketException, UnknownHostException {
-		fgSocketsClient = new FlightGearManagerSockets(FG_SOCKETS_HOST, FG_SOCKETS_TELEM_PORT);
+		fgSocketsClient = new FlightGearSocketsConnection(FG_SOCKETS_HOST, FG_SOCKETS_TELEM_PORT);
 		
 		plane = new C172P();
 		
@@ -78,14 +78,6 @@ public class C172P_Input_Test {
 		return new LinkedHashMap<String, String>(controlSchema);
 	}
 	
-//	public synchronized String readTelemetry() throws IOException {
-//		return fgSocketsClient.readTelemetry();
-//	}
-//	
-//	public JSONObject readTelemetryJSON() throws JSONException, IOException {
-//		return new JSONObject(readTelemetry());
-//	}
-	
 	public void writeInput(LinkedHashMap<String, String> inputHash) {
 		
 		boolean validFieldCount = true;
@@ -125,7 +117,7 @@ public class C172P_Input_Test {
 				
 				System.out.println("Writing control input: " + controlInput.toString());
 				
-				fgSocketsClient.writeControlInput(controlInput.toString(), FG_SOCKETS_ORIENTATION_INPUT_PORT);
+				fgSocketsClient.writeInputToSocket(controlInput.toString(), FG_SOCKETS_ORIENTATION_INPUT_PORT);
 				
 			}
 			else

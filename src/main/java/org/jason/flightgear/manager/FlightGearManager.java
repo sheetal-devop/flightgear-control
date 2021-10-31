@@ -1,7 +1,7 @@
 package org.jason.flightgear.manager;
 
-import org.jason.flightgear.sockets.FlightGearManagerSockets;
-import org.jason.flightgear.telnet.FlightGearManagerTelnet;
+import org.jason.flightgear.connection.sockets.FlightGearSocketsConnection;
+import org.jason.flightgear.connection.telnet.FlightGearTelnetConnection;
 
 /**
  * 
@@ -10,8 +10,8 @@ import org.jason.flightgear.telnet.FlightGearManagerTelnet;
  */
 public class FlightGearManager {
 	
-	private FlightGearManagerTelnet telnetConnection;
-	private FlightGearManagerSockets socketsConnection;
+	private FlightGearTelnetConnection telnetConnection;
+	private FlightGearSocketsConnection socketsConnection;
 	
 	public void connect() {
 		

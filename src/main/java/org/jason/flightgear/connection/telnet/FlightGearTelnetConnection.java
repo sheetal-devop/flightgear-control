@@ -1,4 +1,4 @@
-package org.jason.flightgear.telnet;
+package org.jason.flightgear.connection.telnet;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * @author jason
  *
  */
-public class FlightGearManagerTelnet {
+public class FlightGearTelnetConnection {
 	private String host;
 	private int port;
 	private TelnetClient client;
@@ -40,9 +40,9 @@ public class FlightGearManagerTelnet {
 	//used from examples
 	private final static String TELNET_TERMINAL_TYPE = "VT100";
 	
-	private final static Logger LOGGER = LoggerFactory.getLogger(FlightGearManagerTelnet.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(FlightGearTelnetConnection.class);
 
-	public FlightGearManagerTelnet(String host, int port) throws InvalidTelnetOptionException, IOException {
+	public FlightGearTelnetConnection(String host, int port) throws InvalidTelnetOptionException, IOException {
 		LOGGER.info("Starting up FlightGearManagerTelnet connection");
 		
 		this.host = host;

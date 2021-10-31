@@ -5,7 +5,7 @@
         <line_separator>newline</line_separator>
         <var_separator>,</var_separator>
  
-        <!-- only the main fuel tank -->
+        <!-- only a main fuel tank -->
          <chunk>
             <node>/consumables/fuel/tank/level-gal_us</node>
             <name>level-gal_us</name>

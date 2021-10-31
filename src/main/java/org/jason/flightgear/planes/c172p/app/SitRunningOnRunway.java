@@ -12,49 +12,35 @@ public class SitRunningOnRunway {
 	private static final Logger LOGGER = LoggerFactory.getLogger(SitRunningOnRunway.class);
 	
 	private static String telemetryReadOut(C172P plane) {
-		StringBuilder telemetryRead = new StringBuilder();
 		
-		//engine should be running and consuming consumables
-		telemetryRead.append("\n=======")
-			.append("\nFuel level: ")
-			.append(plane.getFuelLevel())
-			.append("\nTime Elapsed: ")
-			.append(plane.getTimeElapsed())
-			.append("\nTime Local: ")
-			.append(plane.getLocalDaySeconds())
-			.append("\nFuel flow: ")
-			.append(plane.getFuelFlow())
-			.append("\nOil pressure: ")
-			.append(plane.getOilPressure())
-			.append("\nOil temperature: ")
-			.append(plane.getOilTemperature())
-			.append("\nMpOsi: ")
-			.append(plane.getMpOsi())
-			.append("\nThrottle: ")
-			.append(plane.getThrottle())
-			.append("\nMixture: ")
-			.append(plane.getMixture())
-			.append("\nEngine running: ")
-			.append(plane.getEngineRunning())
-			.append("\n=======\n");
-		
-		return telemetryRead.toString();
+		return 
+			String.format("\nFuel level: %f", plane.getFuelLevel()) +
+			String.format("\nTime Elapsed: %f", plane.getTimeElapsed()) +
+			String.format("\nTime Local: %f", plane.getLocalDaySeconds()) +
+			String.format("\nFuel flow: %f", plane.getFuelFlow()) +
+			String.format("\nOil pressure: %f", plane.getOilPressure()) +
+			String.format("\nOil temperature: %f", plane.getOilTemperature()) +
+			String.format("\nMpOsi: %f", plane.getMpOsi()) +
+			String.format("\nThrottle: %f", plane.getThrottle()) +
+			String.format("\nMixture: %f", plane.getMixture()) +
+			String.format("\nEngine running: %d", plane.getEngineRunning());
 	}
 	
 	public static void main(String [] args) {
 		
-		
-		
-		int maxRuntime = 60 * 60 * 1000;
+		int maxRuntime = 20 * 60 * 1000;
 		int runtime = 0;
 		
 		//need a low sleep time because we'll crank up the simulator time reference
-		int runtimeSleep = 100;
+		int runtimeSleep = 250;
 		
 		C172P plane = null;
 		
 		try {
 			plane = new C172P();
+			
+			//refill in case a previous run emptied it
+			plane.refillFuelTank();
 			
 			//start the engine up to start consuming stuff
 			plane.startupPlane();
@@ -64,16 +50,18 @@ public class SitRunningOnRunway {
 			//probably not going to happen but do it anyway
 			plane.setDamageEnabled(false);
 			
-			//so the plane doesn't move
+			//so the plane doesn't move- not that it really matters.
 			plane.setParkingBrake(true);
 			
 			//engine should be running at this point but it's not ready  
 			//wait for startup to complete and telemetry reads to arrive
-
 			Thread.sleep(POST_STARTUP_SLEEP);
 			
+			//a full fuel tank will take a while
+			plane.setFuelTankLevel(5);
+			
 			//throttle and mixture up to consume faster
-			//mixture has to be set first, then the throttle stepped up
+			//mixture has to be set first, then the throttle
 			plane.setMixture(0.95);
 			
 			//step up the throttle. autostart sets it at 20%
@@ -85,17 +73,21 @@ public class SitRunningOnRunway {
 			plane.setThrottle(0.75);
 			plane.setThrottle(0.85);
 			plane.setThrottle(0.95);
-			
+
 			//highest it goes at 100%.
 			plane.setThrottle(1);
 			
+			//have seen this set the throttle back to 20
+			//possible that we're not waiting on the next state read after writing the input to the socket
+			//highest it goes at 100%. set after throttle
+			//plane.setMixture(1);
+						
 			//speed up time in the simulator
+			//full tank 32x - 752s 
+			//full tank 16x - 824s
 			plane.setSpeedUp(16);
 			
-			//a full fuel tank will take a while
-			//set this after the engine is running
-			//possible that setting this too low drops the fuel flow which causes the engine to seize
-			//plane.setFuelTankLevel(5);
+			long startTime = System.currentTimeMillis();
 			
 			while( plane.isEngineRunning() && runtime < maxRuntime ) {
 				
@@ -116,7 +108,12 @@ public class SitRunningOnRunway {
 			
 			LOGGER.debug("Exiting runtime loop");
 			
+			//at higher speedups the simulator window is unusable, so return it to something usable
+			plane.setSpeedUp(1);
+			
 			LOGGER.info("Final Telemetry Read: {}", telemetryReadOut(plane));
+			
+			LOGGER.info("Completed burnout in {}s", (System.currentTimeMillis() - startTime)/1000);
 			
 		} catch (FlightGearSetupException e) {
 			LOGGER.error("FlightGearSetupException caught", e);

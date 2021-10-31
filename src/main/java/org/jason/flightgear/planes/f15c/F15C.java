@@ -6,11 +6,11 @@ import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
+import org.jason.flightgear.connection.sockets.FlightGearSocketsConnection;
+import org.jason.flightgear.connection.telnet.FlightGearTelnetConnection;
 import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.jason.flightgear.planes.FlightGearPlane;
 import org.jason.flightgear.planes.FlightGearPlaneFields;
-import org.jason.flightgear.sockets.FlightGearManagerSockets;
-import org.jason.flightgear.telnet.FlightGearManagerTelnet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,8 +32,8 @@ public class F15C extends FlightGearPlane {
     private final static int AUTOSTART_COMPLETION_SLEEP = 5000;
     private final static int POST_PAUSE_SLEEP = 250;
     
-    private FlightGearManagerTelnet fgTelnet;
-    private FlightGearManagerSockets fgSockets;
+    private FlightGearTelnetConnection fgTelnet;
+    private FlightGearSocketsConnection fgSockets;
                
     public F15C() throws FlightGearSetupException {
     	this(new F15CConfig());
@@ -66,13 +66,13 @@ public class F15C extends FlightGearPlane {
         //launch thread to update telemetry
 
         try {
-			fgSockets = new FlightGearManagerSockets(config.getSocketsHostname(), config.getSocketsPort());
+			fgSockets = new FlightGearSocketsConnection(config.getSocketsHostname(), config.getSocketsPort());
 			
 	        //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
 			//
 	        launchTelemetryThread();
 			
-			fgTelnet = new FlightGearManagerTelnet(config.getTelnetHostname(), config.getTelnetPort());
+			fgTelnet = new FlightGearTelnetConnection(config.getTelnetHostname(), config.getTelnetPort());
 
 		} catch (SocketException | UnknownHostException | InvalidTelnetOptionException e) {
 			
@@ -124,7 +124,7 @@ public class F15C extends FlightGearPlane {
      * @param port
      */
     @Override
-    protected synchronized void writeSocketInput(LinkedHashMap<String, String> inputHash, int port) {
+    protected synchronized void writeControlInput(LinkedHashMap<String, String> inputHash, int port) {
 //        while(stateReading.get()) {
 //            try {
 //                logger.debug("Waiting for state reading to complete");
@@ -173,7 +173,7 @@ public class F15C extends FlightGearPlane {
         
         LOGGER.info("Setting pitch to {}", targetPitch);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
 	}
 
 	@Override
@@ -203,7 +203,7 @@ public class F15C extends FlightGearPlane {
         
         LOGGER.info("Setting fuel tank level: {}", amount);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONSUMABLES_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_CONSUMABLES_PORT);
 	}
 
 	@Override
@@ -233,7 +233,7 @@ public class F15C extends FlightGearPlane {
         
         //socket writes typically require pauses so telemetry/state aren't out of date
         //however this is an exception
-        writeSocketInput(inputHash, SOCKETS_INPUT_FDM_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_FDM_PORT);
     }
 
     public synchronized void setParkingBrake(boolean brakeEnabled) {
@@ -253,7 +253,7 @@ public class F15C extends FlightGearPlane {
         
         LOGGER.info("Setting parking brake to {}", brakeEnabled);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
     }
 
     public synchronized void setElevator(double orientation) {
@@ -263,7 +263,7 @@ public class F15C extends FlightGearPlane {
 
         LOGGER.info("Setting elevator to {}", orientation);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
     }
     
     public synchronized void setAileron(double orientation) {
@@ -273,7 +273,7 @@ public class F15C extends FlightGearPlane {
 
         LOGGER.info("Setting aileron to {}", orientation);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
     }
     
     public synchronized void setAutoCoordination(boolean enabled) {
@@ -288,7 +288,7 @@ public class F15C extends FlightGearPlane {
 
         LOGGER.info("Setting autocoordination to {}", enabled);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
     }
     
     public synchronized void setFlaps(double orientation) {
@@ -298,7 +298,7 @@ public class F15C extends FlightGearPlane {
 
         LOGGER.info("Setting flaps to {}", orientation);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
     }
     
     public synchronized void setRudder(double orientation) {
@@ -308,7 +308,7 @@ public class F15C extends FlightGearPlane {
 
         LOGGER.info("Setting rudder to {}", orientation);
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
     }
     
     public synchronized void resetControlSurfaces() {
@@ -330,7 +330,7 @@ public class F15C extends FlightGearPlane {
         
         LOGGER.info("Setting speedup: {}", speedup);        
         
-        writeSocketInput(inputHash, SOCKETS_INPUT_SIM_SPEEDUP_PORT);
+        writeControlInput(inputHash, SOCKETS_INPUT_SIM_SPEEDUP_PORT);
     }
 
     public int getEngineRunning() {
@@ -362,6 +362,30 @@ public class F15C extends FlightGearPlane {
 
 	@Override
 	public void setHeading(double targetHeading) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLatitude(double targetLatitude) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setLongitude(double targetLongitude) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setAirSpeed(double targetSpeed) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setVerticalSpeed(double targetSpeed) {
 		// TODO Auto-generated method stub
 		
 	}	
