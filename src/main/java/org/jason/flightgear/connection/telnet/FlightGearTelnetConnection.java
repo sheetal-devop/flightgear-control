@@ -92,23 +92,23 @@ public class FlightGearTelnetConnection {
 
         LOGGER.info("Telnet session established.");
     }
+    
+    public void terminateSimulator() throws IOException {
+    	runNasal("fgcommand(\"exit\");");
+    }
 
     public void reset() throws InvalidTelnetOptionException, IOException {
-        //sendCommand("run reset");
 
         disconnect();
 
         connect();
     }
 
+    //exits the telnet session
     public void exit() {
         //sendCommand("run exit");
 
         disconnect();
-    }
-
-    public HashMap<String, String> getPropertyValues(String[] propertyNames) {
-        return null;
     }
 
     // one-liner script
