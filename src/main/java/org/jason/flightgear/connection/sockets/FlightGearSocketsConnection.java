@@ -7,12 +7,10 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-import org.jason.flightgear.manager.FlightGearInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +28,10 @@ public class FlightGearSocketsConnection {
     
     private DatagramPacket fgTelemetryPacket;
     
-    private byte[] receivingDataBuffer;
-    
     private final static int SOCKET_TIMEOUT = 5000;
     private final static int MAX_RECEIVE_BUFFER_LEN = 4096;
+    
+    private final static int MAX_WRITE_LEN = 300;
     
     //TODO: default values overridable, or used to generate protocol files from templates
     private final static String FG_SOCKET_PROTOCOL_VAR_SEP = ",";
@@ -44,22 +42,20 @@ public class FlightGearSocketsConnection {
     private final static String UTF8_CHARSET_STR = "UTF-8";
     private Charset utf8_charset;
     
-    private HashMap<String, FlightGearInput> controlInputs;
-
     private Pattern telemetryLinePattern;
     
     public FlightGearSocketsConnection(String host,  int telemetryPort) 
             throws SocketException, UnknownHostException {
         
         if(Charset.isSupported(UTF8_CHARSET_STR)) {
-            utf8_charset = Charset.forName(UTF8_CHARSET_STR);
+            this.utf8_charset = Charset.forName(UTF8_CHARSET_STR);
             //StandardCharsets.UTF_8.name()
         } else {
             throw new SocketException("UTF8 charset not found");
         }
         
         //set this here rather than before the match because we don't want to initialize it with every telemetry read
-        telemetryLinePattern = Pattern.compile("^[\"/]\\S+[\": ]\\S+[,]?$");
+        this.telemetryLinePattern = Pattern.compile("^[\"/]\\S+[\": ]\\S+[,]?$");
         
         this.host = host;
         
@@ -69,26 +65,10 @@ public class FlightGearSocketsConnection {
         
         this.telemetryPort = telemetryPort;
         
-        receivingDataBuffer = new byte[MAX_RECEIVE_BUFFER_LEN];
+        byte[] receivingDataBuffer = new byte[MAX_RECEIVE_BUFFER_LEN];
         
-        fgTelemetryPacket = new DatagramPacket(receivingDataBuffer, receivingDataBuffer.length);
-        
-        controlInputs = new HashMap<>();
+        this.fgTelemetryPacket = new DatagramPacket(receivingDataBuffer, receivingDataBuffer.length);
     }
-    
-    /**
-     * Need a way of resolving an input type to a schema and port
-     * 
-     * @param key
-     * @param input
-     */
-    public void registerInput(String key, FlightGearInput input) {
-        
-        LOGGER.info("Registering control input: {}, on port: {}", key, input.getPort());
-        
-        controlInputs.put(key, input);
-    }
-    
     
     /**
      * Read output fields from the flightgear output socket.
@@ -106,9 +86,7 @@ public class FlightGearSocketsConnection {
         
         DatagramSocket fgTelemetrySocket = null;
 
-        
         try {
-
             //technically a server connection. we connect to the fg port, which starts sending us data
             fgTelemetrySocket = new DatagramSocket( telemetryPort, InetAddress.getByName(host) );
             fgTelemetrySocket.setSoTimeout(SOCKET_TIMEOUT);
@@ -139,7 +117,7 @@ public class FlightGearSocketsConnection {
                 
         /*
          occasionally see this. 
-         not sure where those extra digits are coming from before the closing brace
+         not sure where those extra digits and whitespace are coming from before the closing brace
          
         ...
         "/velocities/groundspeed-kt": 8.734266,
@@ -186,7 +164,7 @@ public class FlightGearSocketsConnection {
         return cleanOutput.insert(0, "{").append("}").toString();
     }
     
-    public synchronized void writeInput(LinkedHashMap<String, String> inputHash, int port) {
+    public synchronized void writeControlInput(LinkedHashMap<String, String> inputHash, int port) {
         
         boolean validFieldCount = true;
         
@@ -195,7 +173,9 @@ public class FlightGearSocketsConnection {
         
         //foreach key, write the value into a simple unquoted csv string. fail socket write on missing values
         for( Entry<String, String> entry : inputHash.entrySet()) {
-            if(!entry.getValue().equals( "" )) {
+ 
+        	//TODO: more checks around value
+            if( !entry.getValue().equals( "" )) {
                 controlInput.append(entry.getValue());
             }
             else {
@@ -214,30 +194,39 @@ public class FlightGearSocketsConnection {
             
             controlInput.append(FG_SOCKET_PROTOCOL_LINE_SEP);
         
-            writeInputToSocket(controlInput.toString(), port);
-            
-            if(LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Wrote control input to socket: {}", controlInput.toString());
-                
-                StringBuilder output = new StringBuilder();
- 
-                for( Entry<String, String> field : inputHash.entrySet()) {
-                    output.append(String.format("%s => %s\n", field.getKey(), field.getValue()));
-                }
-                    
-                LOGGER.debug("Wrote field data to socket:\n{}\n=======", output.toString() );    
-            }
+            try {
+				writeToSocket(controlInput.toString(), port);
+				
+	            if(LOGGER.isDebugEnabled()) {
+	                LOGGER.debug("Wrote control input to socket: {}", controlInput.toString());
+	                
+	                StringBuilder output = new StringBuilder();
+	 
+	                for( Entry<String, String> field : inputHash.entrySet()) {
+	                    output.append(String.format("%s => %s\n", field.getKey(), field.getValue()));
+	                }
+	                    
+	                LOGGER.debug("Wrote field data to socket:\n{}\n=======", output.toString() );    
+	            }
+			} catch (SocketException e) {
+				LOGGER.error("Socket write failed", e);
+			}
         }
         else
         {
             LOGGER.error("Error writing control input. Missing field values");
         }
-
     }
     
-    public synchronized void writeInputToSocket(String input, int port) {
-        byte[] fgInputPayload = input.getBytes(utf8_charset);
+    private synchronized void writeToSocket(String input, int port) throws SocketException {
 
+    	if(input.length() > MAX_WRITE_LEN) {
+    		LOGGER.error("Socket input data too large. Abandoning write.");
+    		throw new SocketException("Socket input data size above threshold.");
+    	}
+    	
+    	byte[] fgInputPayload = input.getBytes(utf8_charset);
+        
         DatagramSocket fgInputSocket = null;
 
         LOGGER.debug("Sending input to {}:{}", host, port);
@@ -263,11 +252,12 @@ public class FlightGearSocketsConnection {
         } 
         catch (SocketException e) {
             //a subclass of IOException. timeouts are thrown here 
-            LOGGER.warn("SocketException writing control input", e);
+            LOGGER.error("SocketException writing control input", e);
+            throw e;
         }
         catch (IOException e) {
             //thrown on send()
-            LOGGER.warn("IOException writing control input", e);
+            LOGGER.error("IOException writing control input", e);
         } finally {
             if (fgInputSocket != null && !fgInputSocket.isClosed()) {
                 fgInputSocket.close();
