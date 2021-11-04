@@ -117,7 +117,7 @@ public class C172P_Input_Test {
 				
 				System.out.println("Writing control input: " + controlInput.toString());
 				
-				fgSocketsClient.writeInputToSocket(controlInput.toString(), FG_SOCKETS_ORIENTATION_INPUT_PORT);
+				fgSocketsClient.writeControlInput(controlSchema, FG_SOCKETS_ORIENTATION_INPUT_PORT);
 				
 			}
 			else

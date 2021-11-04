@@ -33,7 +33,9 @@ public class C172P extends FlightGearPlane{
     private final static int POST_PAUSE_SLEEP = 250;
     private final static int SOCKET_WRITE_WAIT_SLEEP = 100;
     
+    //TODO: migrate this out of the class state. it'll likely be used as a single-use facilitator to the nasal repl in the simulator 
     private FlightGearTelnetConnection fgTelnet;
+    
     private FlightGearSocketsConnection fgSockets;
                
     public C172P() throws FlightGearSetupException {
@@ -163,7 +165,7 @@ public class C172P extends FlightGearPlane{
         
         try {
             stateWriting.set(true);
-            fgSockets.writeInput(inputHash, port);
+            fgSockets.writeControlInput(inputHash, port);
         }
         finally {
             stateWriting.set(false);

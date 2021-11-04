@@ -1,4 +1,4 @@
-package org.jason.flightgear.planes.util;
+package org.jason.flightgear.flight.util;
 
 import org.jason.flightgear.planes.FlightGearPlane;
 import org.slf4j.Logger;
@@ -6,27 +6,37 @@ import org.slf4j.LoggerFactory;
 
 public class FlightUtilities {
 	
-    private static Logger logger = LoggerFactory.getLogger(FlightUtilities.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(FlightUtilities.class);
 
     private final static int ORIENTATION_CHANGE_SLEEP = 2500;
     private final static int POSITION_CHANGE_SLEEP = 2500;
+    
+    private final static int MAX_HEADING_ADJUSTMENT = 2;
 	
     //TODO: maybe make these functions boolean so we can easily determine if a change was made
     
-    public static void altitudeCheck(FlightGearPlane plane, int maxDifference, double targetAltitude) {
+    public static void positionCheck(FlightGearPlane plane, int maxDifference, double targetAltitude) {
+    	positionCheck(plane, maxDifference, targetAltitude, false);
+    }
+    
+    private static void positionCheck(FlightGearPlane plane, int maxDifference, double targetAltitude, boolean trailingSleep) {
+		
+	}
+
+	public static void altitudeCheck(FlightGearPlane plane, int maxDifference, double targetAltitude) {
     	altitudeCheck(plane, maxDifference, targetAltitude, false);
     }
     
     public static void altitudeCheck(FlightGearPlane plane, int maxDifference, double targetAltitude, boolean trailingSleep) {
         double currentAltitude = plane.getAltitude();
         
-        logger.info("Altitude check. Current {} vs target {}", currentAltitude, targetAltitude);
+        LOGGER.info("Altitude check. Current {} vs target {}", currentAltitude, targetAltitude);
         
         //correct if too high or too low
         if(targetAltitude - maxDifference > currentAltitude || 
             targetAltitude + maxDifference < currentAltitude ) {
             
-            logger.info("Correcting altitude to target: {}", targetAltitude);
+            LOGGER.info("Correcting altitude to target: {}", targetAltitude);
             
             plane.setPause(true);
             plane.setAltitude(targetAltitude);
@@ -37,7 +47,7 @@ public class FlightUtilities {
 	            try {
 	                Thread.sleep(POSITION_CHANGE_SLEEP);
 	            } catch (InterruptedException e) {
-	                logger.warn("Trailing sleep interrupted", e);
+	                LOGGER.warn("Trailing sleep interrupted", e);
 	            }
             }
         }
@@ -54,7 +64,7 @@ public class FlightUtilities {
         
         //heading is 0 to 360, both values are true/mag north
         
-        logger.info("Heading check. Current {} vs target {}", currentHeading, targetHeading);
+        LOGGER.info("Heading check. Current {} vs target {}", currentHeading, targetHeading);
         
         double minHeadingSin = Math.sin( Math.toRadians(targetHeading - maxDifference) );
 //        if (minHeading < 0) {
@@ -65,7 +75,7 @@ public class FlightUtilities {
         //target heading of 355 with a maxDifference of 10, is a min of 345 and a max of 5
         double maxHeadingSin = Math.sin( Math.toRadians(targetHeading + maxDifference) );
         
-        logger.info("Target heading sin range {} to {}, current: {}", minHeadingSin, maxHeadingSin, currentHeadingSin);
+        LOGGER.info("Target heading sin range {} to {}, current: {}", minHeadingSin, maxHeadingSin, currentHeadingSin);
         
         /*
          * Might be easier to normal 
@@ -79,15 +89,22 @@ public class FlightUtilities {
         
         if(currentHeadingSin > maxHeadingSin || currentHeadingSin < minHeadingSin) {
             
-            logger.info("Correcting heading to target: {}", targetHeading);
+            LOGGER.info("Correcting heading to target: {}", targetHeading);
+            
+            double finalHeading = targetHeading;
+//            double finalHeading = MAX_HEADING_ADJUSTMENT;
+//            
+//            if( currentHeadingSin > Math.sin( Math.toRadians(targetHeading)) ) {
+//            	LOGGER.debug("Adjusting lower");
+//            	finalHeading = currentHeadingSin - Math.sin( Math.toRadians(MAX_HEADING_ADJUSTMENT) );
+//            } else if (currentHeadingSin < Math.sin( Math.toRadians(targetHeading))) {
+//            	LOGGER.debug("Adjusting higher");
+//            	finalHeading = currentHeadingSin + Math.sin( Math.toRadians(MAX_HEADING_ADJUSTMENT) );
+//            }
             
             plane.setPause(true);
-            plane.setHeading(targetHeading);
+            plane.setHeading(finalHeading);
             
-            //force this here? or count on the flight app to handle the specific context
-//            setPitch(0);
-//            setRoll(0);
-//            setYaw(0);
             
             plane.setPause(false);
             
@@ -96,7 +113,7 @@ public class FlightUtilities {
 	            try {
 	                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
 	            } catch (InterruptedException e) {
-	                logger.warn("Trailing sleep interrupted", e);
+	                LOGGER.warn("Trailing sleep interrupted", e);
 	            }
             }
         }
@@ -114,11 +131,11 @@ public class FlightUtilities {
         
         //pitch is -180 to 180
         
-        logger.info("Pitch check. Current {} vs target {}", currentPitch, targetPitch);
+        LOGGER.info("Pitch check. Current {} vs target {}", currentPitch, targetPitch);
         
         if( Math.abs(currentPitch) - Math.abs(targetPitch) > maxDifference) {
             
-            logger.info("Correcting pitch to target: {}", targetPitch);
+            LOGGER.info("Correcting pitch to target: {}", targetPitch);
 
             plane.setPause(true);
             plane.setPitch(targetPitch);
@@ -129,7 +146,7 @@ public class FlightUtilities {
 	            try {
 	                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
 	            } catch (InterruptedException e) {
-	                logger.warn("Trailing sleep interrupted", e);
+	                LOGGER.warn("Trailing sleep interrupted", e);
 	            }
             }
         }
@@ -144,10 +161,10 @@ public class FlightUtilities {
         
         //roll is +180 to -180
         
-        logger.info("Roll check. Current {} vs target {}", currentRoll, targetRoll);
+        LOGGER.info("Roll check. Current {} vs target {}", currentRoll, targetRoll);
         
         if( Math.abs(currentRoll) - Math.abs(targetRoll) > maxDifference) {
-            logger.info("Correcting roll to target: {}", targetRoll);
+            LOGGER.info("Correcting roll to target: {}", targetRoll);
             
             plane.setPause(true);
             plane.setRoll(targetRoll);
@@ -158,7 +175,7 @@ public class FlightUtilities {
 	            try {
 	                Thread.sleep(ORIENTATION_CHANGE_SLEEP);
 	            } catch (InterruptedException e) {
-	                logger.warn("Trailing sleep interrupted", e);
+	                LOGGER.warn("Trailing sleep interrupted", e);
 	            }
             }
         }

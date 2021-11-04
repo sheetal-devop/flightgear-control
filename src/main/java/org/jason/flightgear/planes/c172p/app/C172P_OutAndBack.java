@@ -1,8 +1,8 @@
 package org.jason.flightgear.planes.c172p.app;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
+import org.jason.flightgear.flight.util.FlightUtilities;
 import org.jason.flightgear.planes.c172p.C172P;
-import org.jason.flightgear.planes.util.FlightUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
