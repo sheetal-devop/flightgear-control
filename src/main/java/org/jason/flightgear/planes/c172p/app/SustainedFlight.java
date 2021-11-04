@@ -1,8 +1,8 @@
 package org.jason.flightgear.planes.c172p.app;
 
 import org.jason.flightgear.exceptions.FlightGearSetupException;
+import org.jason.flightgear.flight.util.FlightUtilities;
 import org.jason.flightgear.planes.c172p.C172P;
-import org.jason.flightgear.planes.util.FlightUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +14,7 @@ public class SustainedFlight {
 	private final static int TARGET_ALTITUDE = 9000;
 	
 	//0 => N, 90 => E
-	private final static int TARGET_HEADING = 90;
+	private final static int TARGET_HEADING = 180;
 	
 	private static void launch(C172P plane) {
 		//assume start unpaused;
@@ -80,13 +80,16 @@ public class SustainedFlight {
 			}
 			
 			//c172p tracks hard and i haven't figured out how to solve this with the autopilot
-			double trueHeading = (TARGET_HEADING + EXPECTED_TRACK);
+			//double trueHeading = (TARGET_HEADING + EXPECTED_TRACK);
 			
-			if(trueHeading < 0) {
-				trueHeading += 360;
-			} else {
-				trueHeading %= 360;
-			}
+			double trueHeading = (TARGET_HEADING);
+			
+			
+//			if(trueHeading < 0) {
+//				trueHeading += 360;
+//			} else {
+//				trueHeading %= 360;
+//			}
 			
 			//head north
 			plane.setHeading(trueHeading);
@@ -112,16 +115,22 @@ public class SustainedFlight {
 				
 			int minFuelGal = 4;
 			
-			int cycleSleep = 250;
+			
 						
 			plane.setBatterySwitch(false);
 			
 			//i'm in a hurry and a c172p only goes so fast
-			plane.setSpeedUp(16);
+			plane.setSpeedUp(8);
+			
+			//tailor the update rate to the speedup
+			int cycleSleep = 50;
+			
 			
 			while(running && cycles < maxCycles) {
 				
 				logger.info("======================\nCycle {} start. Target heading: {} ", cycles, trueHeading);
+				
+				
 				
 				//check altitude first, if we're in a nose dive that needs to be corrected first
 				FlightUtilities.altitudeCheck(plane, 500, TARGET_ALTITUDE);
@@ -133,7 +142,7 @@ public class SustainedFlight {
 				FlightUtilities.rollCheck(plane, 4, 0.0);
 				
 				//check heading last, correct pitch/roll first otherwise the plane will probably drift off heading quickly
-				FlightUtilities.headingCheck(plane, 15, trueHeading);
+				FlightUtilities.headingCheck(plane, 8, trueHeading);
 				
 				//check fuel last last. easy to refuel
 				if(plane.getFuelLevel() < minFuelGal) {
@@ -146,11 +155,16 @@ public class SustainedFlight {
 	//			plane.forceStabilize(TARGET_HEADING, TARGET_ALTITUDE, 0, 3, 0);
 	//			plane.setPause(false);
 				
-//				try {
-//					Thread.sleep(cycleSleep);
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				}
+				try {
+					Thread.sleep(cycleSleep);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+				if(cycles % 100 == 0) {
+					trueHeading += 30;
+					trueHeading %= 360;
+				}
 				
 				cycles++;
 				
