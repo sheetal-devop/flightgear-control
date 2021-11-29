@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.jason.flightgear.flight.Position;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -265,6 +266,10 @@ public abstract class FlightGearPlane {
      */
     public synchronized void refillFuelTank() {
         setFuelTankLevel(getFuelTankCapacity());
+    }
+    
+    public synchronized Position getPosition() {
+    	return new Position(getLatitude(), getLongitude(), getAltitude());
     }
     
     ///////////////////
