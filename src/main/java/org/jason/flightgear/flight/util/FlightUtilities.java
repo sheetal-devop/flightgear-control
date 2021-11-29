@@ -10,6 +10,7 @@ public class FlightUtilities {
 
     private final static int ORIENTATION_CHANGE_SLEEP = 2500;
     private final static int POSITION_CHANGE_SLEEP = 2500;
+    private final static int VELOCITIES_CHANGE_SLEEP = 2500;
     
     private final static int MAX_HEADING_ADJUSTMENT = 2;
 	
@@ -23,6 +24,37 @@ public class FlightUtilities {
 		
 	}
 
+    //TODO: this affects altitude. don't want a subsequent altitude check teleporting the plane into a mountain
+	public static void groundElevationCheck(FlightGearPlane plane, int maxDifference, double targetAltitude) {
+		groundElevationCheck(plane, maxDifference, targetAltitude, false);
+    }
+	
+	public static void groundElevationCheck(FlightGearPlane plane, int maxDifference, double targetAltitude, boolean trailingSleep) {
+        double currentAltitude = plane.getAltitude();
+        
+        LOGGER.info("Ground elevation check. Current {} vs target {}", currentAltitude, targetAltitude);
+        
+        //correct if too high or too low
+        if(targetAltitude - maxDifference > currentAltitude || 
+            targetAltitude + maxDifference < currentAltitude ) {
+            
+            LOGGER.info("Correcting altitude to target: {}", targetAltitude);
+            
+            plane.setPause(true);
+            plane.setAltitude(targetAltitude);
+            plane.setPause(false);
+            
+            if(trailingSleep) {
+	            //trailing sleep only if we made a change
+	            try {
+	                Thread.sleep(POSITION_CHANGE_SLEEP);
+	            } catch (InterruptedException e) {
+	                LOGGER.warn("Trailing sleep interrupted", e);
+	            }
+            }
+        }
+    }
+    
 	public static void altitudeCheck(FlightGearPlane plane, int maxDifference, double targetAltitude) {
     	altitudeCheck(plane, maxDifference, targetAltitude, false);
     }
@@ -180,4 +212,35 @@ public class FlightUtilities {
             }
         }
     }
+    
+    public static void airSpeedCheck(FlightGearPlane plane, int maxDifference, double targetAirspeed) {
+    	airSpeedCheck(plane, maxDifference, targetAirspeed, false);
+    }
+    
+    public static void airSpeedCheck(FlightGearPlane plane, int maxDifference, double targetAirspeed, boolean trailingSleep) {
+        double currentAirSpeed = plane.getAirSpeed();
+        
+        //roll is +180 to -180
+        
+        LOGGER.info("Airspeed check. Current {} vs target {}", currentAirSpeed, targetAirspeed);
+        
+        if( Math.abs(currentAirSpeed) - Math.abs(targetAirspeed) > maxDifference) {
+            LOGGER.info("Correcting airspeed to target: {}", targetAirspeed);
+            
+            plane.setPause(true);
+            plane.setAirSpeed(targetAirspeed);
+            plane.setPause(false);
+            
+            if(trailingSleep) {
+	            //trailing sleep only if we made a change
+	            try {
+	                Thread.sleep(VELOCITIES_CHANGE_SLEEP);
+	            } catch (InterruptedException e) {
+	                LOGGER.warn("Trailing sleep interrupted", e);
+	            }
+            }
+        }
+    }
+    
+    
 }
