@@ -140,7 +140,7 @@ public class F15C extends FlightGearPlane {
         //TODO: wait for stateread to end
         
         //TODO: lock on write
-        fgSockets.writeInput(inputHash, port);
+        fgSockets.writeControlInput(inputHash, port);
         
         //TODO: unpause if pause issued in this function
     }

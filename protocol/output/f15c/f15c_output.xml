@@ -18,10 +18,10 @@
             <format>"/consumables/fuel/tank/capacity-gal_us": %f,</format>
          </chunk>
          <chunk>
-            <node>/consumables/fuel/tank/level-gal_us</node>
-            <name>level-gal_us</name>
+            <node>/consumables/fuel/total-fuel-gal_us</node>
+            <name>total-fuel-gal_us</name>
             <type>float</type>
-            <format>"/consumables/fuel/tank/level-gal_us": %f,</format>
+            <format>"/consumables/fuel/total-fuel-gal_us: %f,</format>
          </chunk>
          <!-- control -->
          <chunk>
@@ -122,22 +122,10 @@
             <format>"/engines/engine/egt-norm": %f,</format>
          </chunk>
          <chunk>
-            <node>/engines/engine/fuel-flow-gph</node>
-            <name>fuel-flow-gph</name>
-            <type>float</type>
-            <format>"/engines/engine/fuel-flow-gph": %f,</format>
-         </chunk>
-         <chunk>
             <node>/engines/engine/oil-pressure-psi</node>
             <name>oil-pressure-psi</name>
             <type>float</type>
             <format>"/engines/engine/oil-pressure-psi": %f,</format>
-         </chunk>
-         <chunk>
-            <node>/engines/engine/rpm</node>
-            <name>rpm</name>
-            <type>float</type>
-            <format>"/engines/engine/rpm": %f,</format>
          </chunk>
          <chunk>
             <node>/engines/engine/running</node>
@@ -158,22 +146,10 @@
             <format>"/engines/engine[1]/egt-norm": %f,</format>
          </chunk>
          <chunk>
-            <node>/engines/engine[1]/fuel-flow-gph</node>
-            <name>fuel-flow-gph</name>
-            <type>float</type>
-            <format>"/engines/engine[1]/fuel-flow-gph": %f,</format>
-         </chunk>
-         <chunk>
             <node>/engines/engine[1]/oil-pressure-psi</node>
             <name>oil-pressure-psi</name>
             <type>float</type>
             <format>"/engines/engine[1]/oil-pressure-psi": %f,</format>
-         </chunk>
-         <chunk>
-            <node>/engines/engine[1]/rpm</node>
-            <name>rpm</name>
-            <type>float</type>
-            <format>"/engines/engine[1]/rpm": %f,</format>
          </chunk>
          <chunk>
             <node>/engines/engine[1]/running</node>
