@@ -9,7 +9,7 @@ import org.jason.flightgear.connection.sockets.FlightGearSocketsConnection;
 import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.jason.flightgear.planes.c172p.C172P;
 
-public class C172P_Input_Test {
+public class ControlInputTest {
 	
 	private final static String FG_SOCKETS_HOST = "localhost";
 	private final static String FG_SOCKET_PROTOCOL_VAR_SEP = ",";
@@ -27,7 +27,7 @@ public class C172P_Input_Test {
 	
 	private C172P plane;
 	
-	public C172P_Input_Test() throws FlightGearSetupException, SocketException, UnknownHostException {
+	public ControlInputTest() throws FlightGearSetupException, SocketException, UnknownHostException {
 		fgSocketsClient = new FlightGearSocketsConnection(FG_SOCKETS_HOST, FG_SOCKETS_TELEM_PORT);
 		
 		plane = new C172P();
@@ -201,10 +201,10 @@ public class C172P_Input_Test {
 		//use shell script because we may want to run it from elsewhere
 		
 		
-		C172P_Input_Test plane = null;
+		ControlInputTest plane = null;
 		
 		try {
-			plane = new C172P_Input_Test();
+			plane = new ControlInputTest();
 			
 			//rotate plane 90 degrees
 			plane.changeHeading90DegCC();
