@@ -11,49 +11,39 @@ public class FlightUtilities {
     private final static int ORIENTATION_CHANGE_SLEEP = 2500;
     private final static int POSITION_CHANGE_SLEEP = 2500;
     private final static int VELOCITIES_CHANGE_SLEEP = 2500;
-    
-    private final static int MAX_HEADING_ADJUSTMENT = 2;
 	
     //TODO: maybe make these functions boolean so we can easily determine if a change was made
-    
-    public static void positionCheck(FlightGearPlane plane, int maxDifference, double targetAltitude) {
-    	positionCheck(plane, maxDifference, targetAltitude, false);
-    }
-    
-    private static void positionCheck(FlightGearPlane plane, int maxDifference, double targetAltitude, boolean trailingSleep) {
-		
-	}
 
     //TODO: this affects altitude. don't want a subsequent altitude check teleporting the plane into a mountain
-	public static void groundElevationCheck(FlightGearPlane plane, int maxDifference, double targetAltitude) {
-		groundElevationCheck(plane, maxDifference, targetAltitude, false);
-    }
-	
-	public static void groundElevationCheck(FlightGearPlane plane, int maxDifference, double targetAltitude, boolean trailingSleep) {
-        double currentAltitude = plane.getAltitude();
-        
-        LOGGER.info("Ground elevation check. Current {} vs target {}", currentAltitude, targetAltitude);
-        
-        //correct if too high or too low
-        if(targetAltitude - maxDifference > currentAltitude || 
-            targetAltitude + maxDifference < currentAltitude ) {
-            
-            LOGGER.info("Correcting altitude to target: {}", targetAltitude);
-            
-            plane.setPause(true);
-            plane.setAltitude(targetAltitude);
-            plane.setPause(false);
-            
-            if(trailingSleep) {
-	            //trailing sleep only if we made a change
-	            try {
-	                Thread.sleep(POSITION_CHANGE_SLEEP);
-	            } catch (InterruptedException e) {
-	                LOGGER.warn("Trailing sleep interrupted", e);
-	            }
-            }
-        }
-    }
+//	public static void groundElevationCheck(FlightGearPlane plane, int maxDifference, double targetAltitude) {
+//		groundElevationCheck(plane, maxDifference, targetAltitude, false);
+//    }
+//	
+//	public static void groundElevationCheck(FlightGearPlane plane, int maxDifference, double targetAltitude, boolean trailingSleep) {
+//        double currentAltitude = plane.getAltitude();
+//        
+//        LOGGER.info("Ground elevation check. Current {} vs target {}", currentAltitude, targetAltitude);
+//        
+//        //correct if too high or too low
+//        if(targetAltitude - maxDifference > currentAltitude || 
+//            targetAltitude + maxDifference < currentAltitude ) {
+//            
+//            LOGGER.info("Correcting altitude to target: {}", targetAltitude);
+//            
+//            plane.setPause(true);
+//            plane.setAltitude(targetAltitude);
+//            plane.setPause(false);
+//            
+//            if(trailingSleep) {
+//	            //trailing sleep only if we made a change
+//	            try {
+//	                Thread.sleep(POSITION_CHANGE_SLEEP);
+//	            } catch (InterruptedException e) {
+//	                LOGGER.warn("Trailing sleep interrupted", e);
+//	            }
+//            }
+//        }
+//    }
     
 	public static void altitudeCheck(FlightGearPlane plane, int maxDifference, double targetAltitude) {
     	altitudeCheck(plane, maxDifference, targetAltitude, false);
