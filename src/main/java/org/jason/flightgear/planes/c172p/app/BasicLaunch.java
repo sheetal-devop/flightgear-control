@@ -3,7 +3,13 @@ package org.jason.flightgear.planes.c172p.app;
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.flightgear.planes.c172p.C172P;
 
-public class C172P_Run {
+/**
+ * Start the plane and throw it into the air.
+ * 
+ * @author jason
+ *
+ */
+public class BasicLaunch {
 	
 	private static void basicUpdatesApp(C172P plane) {
 		//assume start unpaused;
@@ -21,7 +27,6 @@ public class C172P_Run {
 		try {
 			Thread.sleep(20000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -34,7 +39,6 @@ public class C172P_Run {
 		try {
 			Thread.sleep(20000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -50,7 +54,6 @@ public class C172P_Run {
 		try {
 			Thread.sleep(30000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -64,7 +67,6 @@ public class C172P_Run {
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 

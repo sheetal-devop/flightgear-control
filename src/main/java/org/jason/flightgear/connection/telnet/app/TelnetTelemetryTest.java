@@ -1,19 +1,14 @@
 package org.jason.flightgear.connection.telnet.app;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 
 import org.apache.commons.net.telnet.EchoOptionHandler;
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
-import org.apache.commons.net.telnet.SimpleOptionHandler;
 import org.apache.commons.net.telnet.SuppressGAOptionHandler;
 import org.apache.commons.net.telnet.TelnetClient;
-import org.apache.commons.net.telnet.TelnetNotificationHandler;
 import org.apache.commons.net.telnet.TerminalTypeOptionHandler;
 
 public class TelnetTelemetryTest {
@@ -59,9 +54,6 @@ public class TelnetTelemetryTest {
         try {
 			tc.connect(host, port);
 			
-
-			
-            //reader.start();
 			PrintStream outstr = new PrintStream( tc.getOutputStream() );
 			BufferedInputStream instr = new BufferedInputStream(tc.getInputStream());
             
@@ -72,13 +64,7 @@ public class TelnetTelemetryTest {
 				e.printStackTrace();
 			}
 			
-			int ch;
-
-            final byte[] buff = new byte[1024];
-            int ret_read = 0;
-			
             //"\r\n"
-            
             System.out.println("Write initial CR");
            
             
