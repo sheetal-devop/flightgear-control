@@ -56,6 +56,14 @@ public class C172P extends FlightGearPlane{
         LOGGER.info("C172P setup completed");
     }
     
+    public void resetSimulator() throws IOException {
+		fgTelnet.resetSimulator();
+    }
+    
+    public void terminateSimulator() throws IOException {
+		fgTelnet.terminateSimulator();
+    }
+    
     private void launchSimulator() {
         //run script, wait for telemetry port and first read
     }
