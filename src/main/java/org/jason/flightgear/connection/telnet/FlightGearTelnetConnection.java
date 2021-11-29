@@ -4,7 +4,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.HashMap;
 
 import org.apache.commons.net.telnet.EchoOptionHandler;
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
@@ -95,6 +94,10 @@ public class FlightGearTelnetConnection {
     
     public void terminateSimulator() throws IOException {
     	runNasal("fgcommand(\"exit\");");
+    }
+    
+    public void resetSimulator() throws IOException {
+    	runNasal("fgcommand(\"reset\");");
     }
 
     public void reset() throws InvalidTelnetOptionException, IOException {
