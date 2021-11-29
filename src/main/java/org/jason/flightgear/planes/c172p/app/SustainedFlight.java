@@ -10,7 +10,7 @@ public class SustainedFlight {
 		
 	private static Logger logger = LoggerFactory.getLogger(SustainedFlight.class);
 	
-	private final static int EXPECTED_TRACK = 30;
+	//private final static int EXPECTED_TRACK = 30;
 	private final static int TARGET_ALTITUDE = 9000;
 	
 	//0 => N, 90 => E
@@ -24,20 +24,41 @@ public class SustainedFlight {
 		//place in the air
 		plane.setAltitude(TARGET_ALTITUDE);
 		
-				
+		//high initially to cut down on the plane falling out of the air
+		plane.setAirSpeed(200);
+		
 		plane.setPause(false);
+		
+		int i = 0;
+		while( i < 50) {
+			FlightUtilities.airSpeedCheck(plane, 10, 100);
+			
+			FlightUtilities.altitudeCheck(plane, 500, TARGET_ALTITUDE);
+			FlightUtilities.pitchCheck(plane, 4, 3.0);
+			FlightUtilities.rollCheck(plane, 4, 0.0);
+			
+			//narrow heading check on launch
+			FlightUtilities.headingCheck(plane, 4, TARGET_HEADING);
+			
+			i++;
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		
 		//set while not paused. this functions more like a boost- 
 		//the plane can be acceled or deceled to the specified speed, 
 		//but then the fdm takes over and stabilizes the air speed
-		plane.setAirSpeed(100);
-		
-		//initial drop. allow to level off
-		try {
-			Thread.sleep(40*1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//		plane.setAirSpeed(100);
+//		
+//		//initial drop. allow to level off
+//		try {
+//			Thread.sleep(40*1000);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 		
 		//////
 		//initial check that we've leveled off
@@ -52,9 +73,10 @@ public class SustainedFlight {
 	}
 	
 	private static String telemetryReadOut(C172P plane) {
-		
+				
 		return 
 			String.format("\nHeading: %f", plane.getHeading()) +
+			String.format("\nAir Speed: %f", plane.getAirSpeed()) +
 			String.format("\nFuel level: %f", plane.getFuelLevel()) +
 			String.format("\nEngine running: %d", plane.getEngineRunning()) + 
 			String.format("\nAltitude: %f", plane.getAltitude()) +
@@ -81,9 +103,7 @@ public class SustainedFlight {
 			
 			//c172p tracks hard and i haven't figured out how to solve this with the autopilot
 			//double trueHeading = (TARGET_HEADING + EXPECTED_TRACK);
-			
 			double trueHeading = (TARGET_HEADING);
-			
 			
 //			if(trueHeading < 0) {
 //				trueHeading += 360;
@@ -137,12 +157,14 @@ public class SustainedFlight {
 				
 				//TODO: ground elevation check. it's a problem if your target alt is 5000ft and you're facing a 5000ft mountain
 				
-				FlightUtilities.pitchCheck(plane, 4, 3.0);
+				FlightUtilities.pitchCheck(plane, 4, 2.0);
 				
 				FlightUtilities.rollCheck(plane, 4, 0.0);
 				
-				//check heading last, correct pitch/roll first otherwise the plane will probably drift off heading quickly
+				//check heading last-ish, correct pitch/roll first otherwise the plane will probably drift off heading quickly
 				FlightUtilities.headingCheck(plane, 8, trueHeading);
+				
+				FlightUtilities.airSpeedCheck(plane, 20, 100);
 				
 				//check fuel last last. easy to refuel
 				if(plane.getFuelLevel() < minFuelGal) {
