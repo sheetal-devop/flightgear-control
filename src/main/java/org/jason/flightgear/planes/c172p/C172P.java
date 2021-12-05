@@ -53,54 +53,6 @@ public class C172P extends FlightGearPlane{
         LOGGER.info("C172P setup completed");
     }
     
-    public void resetSimulator() throws IOException, InvalidTelnetOptionException {
-    	
-    	LOGGER.debug("Simulator reset invoked");
-    	
-    	FlightGearTelnetConnection telnetSession = null;
-
-		try {
-			telnetSession = new FlightGearTelnetConnection(networkConfig.getTelnetHost(), networkConfig.getTelnetPort());
-			telnetSession.resetSimulator();
-
-	    	LOGGER.info("Simulator reset completed");
-		} catch (IOException e) {
-			LOGGER.error("Exception resetting simulator", e);
-			throw e;
-		} catch (InvalidTelnetOptionException e) {
-			LOGGER.error("Exception resetting simulator", e);
-			throw e;
-		} finally {
-			if (telnetSession != null && telnetSession.isConnected()) {
-				telnetSession.disconnect();
-			}
-		}
-    }
-    
-    public void terminateSimulator() throws IOException, InvalidTelnetOptionException {
-    	
-    	LOGGER.debug("Simulator termination invoked");
-    	
-    	FlightGearTelnetConnection telnetSession = null;
-
-		try {
-			telnetSession = new FlightGearTelnetConnection(networkConfig.getTelnetHost(), networkConfig.getTelnetPort());
-			telnetSession.terminateSimulator();
-
-			LOGGER.info("Simulator termination completed");
-		} catch (IOException e) {
-			LOGGER.error("Exception terminating simulator", e);
-			throw e;
-		} catch (InvalidTelnetOptionException e) {
-			LOGGER.error("Exception terminating simulator", e);
-			throw e;
-		} finally {
-			if (telnetSession != null && telnetSession.isConnected()) {
-				telnetSession.disconnect();
-			}
-		}
-	}
-    
     private void launchSimulator() {
         //run script, wait for telemetry port and first read
     }

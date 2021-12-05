@@ -7,7 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.flightgear.connection.sockets.FlightGearInputConnection;
+import org.jason.flightgear.connection.telnet.FlightGearTelnetConnection;
 import org.jason.flightgear.flight.PlanePosition;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -226,6 +228,57 @@ public abstract class FlightGearPlane {
         
         LOGGER.debug("readTelemetry returning");
     }
+    
+    /////////////////
+    //simulator management
+    
+    public void resetSimulator() throws IOException, InvalidTelnetOptionException {
+    	
+    	LOGGER.debug("Simulator reset invoked");
+    	
+    	FlightGearTelnetConnection telnetSession = null;
+
+		try {
+			telnetSession = new FlightGearTelnetConnection(networkConfig.getTelnetHost(), networkConfig.getTelnetPort());
+			telnetSession.resetSimulator();
+
+	    	LOGGER.info("Simulator reset completed");
+		} catch (IOException e) {
+			LOGGER.error("Exception resetting simulator", e);
+			throw e;
+		} catch (InvalidTelnetOptionException e) {
+			LOGGER.error("Exception resetting simulator", e);
+			throw e;
+		} finally {
+			if (telnetSession != null && telnetSession.isConnected()) {
+				telnetSession.disconnect();
+			}
+		}
+    }
+    
+    public void terminateSimulator() throws IOException, InvalidTelnetOptionException {
+    	
+    	LOGGER.debug("Simulator termination invoked");
+    	
+    	FlightGearTelnetConnection telnetSession = null;
+
+		try {
+			telnetSession = new FlightGearTelnetConnection(networkConfig.getTelnetHost(), networkConfig.getTelnetPort());
+			telnetSession.terminateSimulator();
+
+			LOGGER.info("Simulator termination completed");
+		} catch (IOException e) {
+			LOGGER.error("Exception terminating simulator", e);
+			throw e;
+		} catch (InvalidTelnetOptionException e) {
+			LOGGER.error("Exception terminating simulator", e);
+			throw e;
+		} finally {
+			if (telnetSession != null && telnetSession.isConnected()) {
+				telnetSession.disconnect();
+			}
+		}
+	}
     
     /////////////////
     
