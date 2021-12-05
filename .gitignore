@@ -19,3 +19,5 @@ gradle-app.setting
 .settings/
 
 /log/
+
+scripts/updateProtocolFiles.sh
