@@ -6,7 +6,8 @@ import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
-import org.jason.flightgear.connection.sockets.FlightGearSocketsConnection;
+import org.jason.flightgear.connection.sockets.FlightGearInputConnection;
+import org.jason.flightgear.connection.sockets.FlightGearTelemetryConnection;
 import org.jason.flightgear.connection.telnet.FlightGearTelnetConnection;
 import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.jason.flightgear.planes.FlightGearPlane;
@@ -17,26 +18,22 @@ import org.slf4j.LoggerFactory;
 public class C172P extends FlightGearPlane{
     
     private final static Logger LOGGER = LoggerFactory.getLogger(C172P.class);
-    
-    //TODO: read from config file
-    private final static int SOCKETS_INPUT_CONSUMABLES_PORT = 6601;
-    private final static int SOCKETS_INPUT_CONTROLS_PORT = 6602;
-    private final static int SOCKETS_INPUT_FDM_PORT = 6603;
-    private final static int SOCKETS_INPUT_ORIENTATION_PORT = 6604;
-    private final static int SOCKETS_INPUT_POSITION_PORT = 6605;
-    private final static int SOCKETS_INPUT_SIM_PORT = 6606;
-    private final static int SOCKETS_INPUT_SIM_FREEZE_PORT = 6607;
-    private final static int SOCKETS_INPUT_SIM_SPEEDUP_PORT = 6608;
-    private final static int SOCKETS_INPUT_VELOCITIES_PORT = 6609;
 
     private final static int AUTOSTART_COMPLETION_SLEEP = 5000;
-    private final static int POST_PAUSE_SLEEP = 250;
+    
     private final static int SOCKET_WRITE_WAIT_SLEEP = 100;
     
-    //TODO: migrate this out of the class state. it'll likely be used as a single-use facilitator to the nasal repl in the simulator 
-    private FlightGearTelnetConnection fgTelnet;
+    private FlightGearTelemetryConnection socketsTelemetryConnection;
     
-    private FlightGearSocketsConnection fgSockets;
+    private FlightGearInputConnection consumeablesInputConnection;
+    private FlightGearInputConnection controlInputConnection;
+    private FlightGearInputConnection fdmInputConnection;
+    private FlightGearInputConnection orientationInputConnection;
+    private FlightGearInputConnection positionInputConnection;
+    private FlightGearInputConnection simInputConnection;
+    private FlightGearInputConnection simFreezeInputConnection;
+    private FlightGearInputConnection simSpeedupInputConnection;
+    private FlightGearInputConnection velocitiesInputConnection;
                
     public C172P() throws FlightGearSetupException {
         this(new C172PConfig());
@@ -47,22 +44,62 @@ public class C172P extends FlightGearPlane{
         
         LOGGER.info("Loading C172P...");
         
-        //setup the socket and telnet connections. start the telemetry retrieval thread.
+        //setup known ports, and the telemetry socket. start the telemetry retrieval thread.
         setup(config);
         
-        //TODO: implement. possibly add to superclass
+        //TODO: implement. possibly add to superclass. depends on superclass init and setup
         launchSimulator();
                 
         LOGGER.info("C172P setup completed");
     }
     
-    public void resetSimulator() throws IOException {
-		fgTelnet.resetSimulator();
+    public void resetSimulator() throws IOException, InvalidTelnetOptionException {
+    	
+    	LOGGER.debug("Simulator reset invoked");
+    	
+    	FlightGearTelnetConnection telnetSession = null;
+
+		try {
+			telnetSession = new FlightGearTelnetConnection(networkConfig.getTelnetHost(), networkConfig.getTelnetPort());
+			telnetSession.resetSimulator();
+
+	    	LOGGER.info("Simulator reset completed");
+		} catch (IOException e) {
+			LOGGER.error("Exception resetting simulator", e);
+			throw e;
+		} catch (InvalidTelnetOptionException e) {
+			LOGGER.error("Exception resetting simulator", e);
+			throw e;
+		} finally {
+			if (telnetSession != null && telnetSession.isConnected()) {
+				telnetSession.disconnect();
+			}
+		}
     }
     
-    public void terminateSimulator() throws IOException {
-		fgTelnet.terminateSimulator();
-    }
+    public void terminateSimulator() throws IOException, InvalidTelnetOptionException {
+    	
+    	LOGGER.debug("Simulator termination invoked");
+    	
+    	FlightGearTelnetConnection telnetSession = null;
+
+		try {
+			telnetSession = new FlightGearTelnetConnection(networkConfig.getTelnetHost(), networkConfig.getTelnetPort());
+			telnetSession.terminateSimulator();
+
+			LOGGER.info("Simulator termination completed");
+		} catch (IOException e) {
+			LOGGER.error("Exception terminating simulator", e);
+			throw e;
+		} catch (InvalidTelnetOptionException e) {
+			LOGGER.error("Exception terminating simulator", e);
+			throw e;
+		} finally {
+			if (telnetSession != null && telnetSession.isConnected()) {
+				telnetSession.disconnect();
+			}
+		}
+	}
     
     private void launchSimulator() {
         //run script, wait for telemetry port and first read
@@ -71,28 +108,42 @@ public class C172P extends FlightGearPlane{
     private void setup(C172PConfig config) throws FlightGearSetupException {
         LOGGER.info("setup called");
         
+        //TODO: invoke port setters in superclass per config
+        //networkConfig.setConsumeablesPort(config.getConsumeablesPort);
+        
+        try {
+        	LOGGER.info("Establishing input socket connections.");
+        	
+        	consumeablesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getConsumeablesPort());
+			controlInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getControlsPort());
+			fdmInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getFdmPort());
+			orientationInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getOrientationPort());
+			positionInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getPositionPort());
+			simInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimPort());
+			simFreezeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimFreezePort());
+			simSpeedupInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimSpeedupPort());
+			velocitiesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getVelocitiesPort());
+			
+			LOGGER.info("Input socket connections established.");
+		} catch (SocketException | UnknownHostException e) {
+            LOGGER.error("Exception occurred establishing control input connections", e);
+            
+            throw new FlightGearSetupException(e);
+		}
+        
         //TODO: check that any dynamic config reads result in all control input ports being defined
         
         //TODO: consider a separate function so this can be started/restarted externally
         //launch thread to update telemetry
 
         try {
-            fgSockets = new FlightGearSocketsConnection(config.getSocketsHostname(), config.getSocketsPort());
+            socketsTelemetryConnection = new FlightGearTelemetryConnection(networkConfig.getTelemetryOutputHost(), networkConfig.getTelemetryOutputPort());
             
             //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
-            //
             launchTelemetryThread();
-            
-            fgTelnet = new FlightGearTelnetConnection(config.getTelnetHostname(), config.getTelnetPort());
-
-        } catch (SocketException | UnknownHostException | InvalidTelnetOptionException e) {
+        } catch (SocketException | UnknownHostException e) {
             
             LOGGER.error("Exception occurred during setup", e);
-            
-            throw new FlightGearSetupException(e);
-        } catch (IOException e) {
-            
-            LOGGER.error("IOException occurred during setup", e);
             
             throw new FlightGearSetupException(e);
         }
@@ -102,12 +153,15 @@ public class C172P extends FlightGearPlane{
     
     public void startupPlane() throws FlightGearSetupException {
         
-        LOGGER.info("Starting up the plane");
+        LOGGER.info("Starting up the C172P");
                 
-        //nasal script to autostart from c172p menu
+        FlightGearTelnetConnection planeStartupTelnetSession = null; 
+		//nasal script to autostart from c172p menu
         try {
+        	planeStartupTelnetSession = new FlightGearTelnetConnection(networkConfig.getTelnetHost(), networkConfig.getTelnetPort());
+        	
             //execute the startup nasal script
-            fgTelnet.runNasal("c172p.autostart();");
+            planeStartupTelnetSession.runNasal("c172p.autostart();");
             
             LOGGER.debug("Startup nasal script was executed. Sleeping for completion.");
             
@@ -120,22 +174,21 @@ public class C172P extends FlightGearPlane{
             }        
             
             LOGGER.debug("Startup nasal script execution completed");
-        } catch (IOException e) {
+        } catch (IOException | InvalidTelnetOptionException e) {
             LOGGER.error("Exception running startup nasal script", e);
             throw new FlightGearSetupException("Could not execute startup nasal script");
         } finally {
             //disconnect the telnet connection because we only use it to run the nasal script
             //to start the plane. it's not used again.
-            if(fgTelnet.isConnected()) {
-                fgTelnet.disconnect();
+            if(planeStartupTelnetSession.isConnected()) {
+                planeStartupTelnetSession.disconnect();
             }
         }
         
         int startupWait = 0;
-        int maxWait = AUTOSTART_COMPLETION_SLEEP;
         int sleep = 250;
         
-        while(!this.isEngineRunning() && startupWait < maxWait) {
+        while(!this.isEngineRunning() && startupWait < AUTOSTART_COMPLETION_SLEEP) {
             LOGGER.debug("Waiting for engine to complete startup");
             try {
                 Thread.sleep(sleep);
@@ -145,20 +198,21 @@ public class C172P extends FlightGearPlane{
         }
         
         if(!this.isEngineRunning()) {
-            throw new FlightGearSetupException("Engine was not running after startup. Bailing out-not literally.");
+            throw new FlightGearSetupException("Engine was not running after startup. Bailing out. Not literally.");
         }
     
         LOGGER.info("Startup completed");
     }
     
     /**
-     * Write an input hash to the simulator.
+     * Write an input hash to a simulator input socket.
      * 
      * @param inputHash
      * @param port
+     * @throws IOException 
      */
     @Override
-    protected synchronized void writeControlInput(LinkedHashMap<String, String> inputHash, int port) {
+    protected synchronized void writeControlInput(LinkedHashMap<String, String> inputHash, FlightGearInputConnection socketConnection) throws IOException {
         //wait for state write to finish. don't care about state reads
         //may not actually need this since this is a synchronized function
         //TODO: test^^^
@@ -173,7 +227,7 @@ public class C172P extends FlightGearPlane{
         
         try {
             stateWriting.set(true);
-            fgSockets.writeControlInput(inputHash, port);
+            socketConnection.writeControlInput(inputHash);
         }
         finally {
             stateWriting.set(false);
@@ -322,7 +376,7 @@ public class C172P extends FlightGearPlane{
     //////////////
     //telemetry modifiers
     
-    public void forceStabilize(double heading, double altitude, double roll, double pitch) {
+    public void forceStabilize(double heading, double altitude, double roll, double pitch) throws IOException {
         
         LOGGER.info("forceStablize called");
         
@@ -334,36 +388,36 @@ public class C172P extends FlightGearPlane{
         orientationFields.put(FlightGearPlaneFields.HEADING_FIELD, String.valueOf(heading) ) ;
         orientationFields.put(FlightGearPlaneFields.PITCH_FIELD, String.valueOf(pitch) );
         orientationFields.put(FlightGearPlaneFields.ROLL_FIELD, String.valueOf(roll) );
-        orientationFields.put(FlightGearPlaneFields.ALTITUDE_FIELD, String.valueOf(altitude) );
 
-        writeControlInput(orientationFields, SOCKETS_INPUT_ORIENTATION_PORT);
+        //TODO: altitude check?
+        
+        writeControlInput(orientationFields, this.orientationInputConnection);
 
         setPause(false);
     }
     
     @Override
-    public synchronized void setFuelTankLevel(double amount) {
+    public synchronized void setFuelTankLevel(double amount) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_INPUT_FIELDS);
         
         inputHash.put(C172PFields.FUEL_TANK_LEVEL_FIELD, String.valueOf(amount));
         
         LOGGER.info("Setting fuel tank level: {}", amount);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_CONSUMABLES_PORT);
+        writeControlInput(inputHash, this.consumeablesInputConnection);
     }
     
-    public synchronized void setFuelTankWaterContamination(double amount) {
+    public synchronized void setFuelTankWaterContamination(double amount) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_INPUT_FIELDS);
         
         inputHash.put(C172PFields.WATER_CONTAMINATION_FIELD, "" + amount);
         
         LOGGER.info("Setting fuel tank water contamination: {}", amount);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_CONSUMABLES_PORT);
-        
+        writeControlInput(inputHash, this.consumeablesInputConnection);   
     }
     
-    public synchronized void setBatterySwitch(boolean switchOn) {
+    public synchronized void setBatterySwitch(boolean switchOn) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         if(switchOn) {
@@ -375,30 +429,30 @@ public class C172P extends FlightGearPlane{
         
         LOGGER.info("Setting battery switch to {}", switchOn);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, this.controlInputConnection);
     }
     
-    public synchronized void setElevator(double orientation) {
+    public synchronized void setElevator(double orientation) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         inputHash.put(C172PFields.ELEVATOR_FIELD, String.valueOf(orientation));
 
         LOGGER.info("Setting elevator to {}", orientation);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, this.controlInputConnection);
     }
     
-    public synchronized void setAileron(double orientation) {
+    public synchronized void setAileron(double orientation) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         inputHash.put(C172PFields.AILERON_FIELD, String.valueOf(orientation));
 
         LOGGER.info("Setting aileron to {}", orientation);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, this.controlInputConnection);
     }
     
-    public synchronized void setAutoCoordination(boolean enabled) {
+    public synchronized void setAutoCoordination(boolean enabled) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         if(enabled) {
@@ -410,50 +464,50 @@ public class C172P extends FlightGearPlane{
 
         LOGGER.info("Setting autocoordination to {}", enabled);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, this.controlInputConnection);
     }
     
-    public synchronized void setFlaps(double orientation) {
+    public synchronized void setFlaps(double orientation) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         inputHash.put(C172PFields.FLAPS_FIELD, String.valueOf(orientation));
 
         LOGGER.info("Setting flaps to {}", orientation);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, this.controlInputConnection);
     }
     
-    public synchronized void setRudder(double orientation) {
+    public synchronized void setRudder(double orientation) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         inputHash.put(C172PFields.RUDDER_FIELD, String.valueOf(orientation));
 
         LOGGER.info("Setting rudder to {}", orientation);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, this.controlInputConnection);
     }
     
-    public synchronized void setThrottle(double throttle ) {
+    public synchronized void setThrottle(double throttle ) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         inputHash.put(C172PFields.THROTTLE_FIELD, String.valueOf(throttle));
         
         LOGGER.info("Setting throttle to {}", throttle);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, this.controlInputConnection);
     }
     
-    public synchronized void setMixture(double mixture ) {
+    public synchronized void setMixture(double mixture ) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         inputHash.put(C172PFields.MIXTURE_FIELD, String.valueOf(mixture));
         
         LOGGER.info("Setting mixture to {}", mixture);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, this.controlInputConnection);
     }
     
-    public synchronized void resetControlSurfaces() {
+    public synchronized void resetControlSurfaces() throws IOException {
         
         LOGGER.info("Resetting control surfaces");
         
@@ -464,56 +518,8 @@ public class C172P extends FlightGearPlane{
         
         LOGGER.info("Reset of control surfaces completed");
     }
-        
-    public synchronized void setPause(boolean isPaused) {
-
-        // TODO: check telemetry if already paused
-
-        // resolve sim_freeze port
-        // if(controlInputs.containsKey(PAUSE_INPUT)) {
-        // FlightGearInput input = controlInputs.get(PAUSE_INPUT);
-
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.SIM_PAUSE_FIELDS);
-
-        // oh get fucked. requires an int value for the bool, despite the schema specifying a bool.
-        if (isPaused) {
-            LOGGER.info("Pausing simulation");
-            inputHash.put(FlightGearPlaneFields.SIM_FREEZE_CLOCK_FIELD, FlightGearPlaneFields.SIM_FREEZE_TRUE);
-            inputHash.put(FlightGearPlaneFields.SIM_FREEZE_MASTER_FIELD, FlightGearPlaneFields.SIM_FREEZE_TRUE);
-        } else {
-            LOGGER.info("Unpausing simulation");
-            inputHash.put(FlightGearPlaneFields.SIM_FREEZE_CLOCK_FIELD, FlightGearPlaneFields.SIM_FREEZE_FALSE);
-            inputHash.put(FlightGearPlaneFields.SIM_FREEZE_MASTER_FIELD, FlightGearPlaneFields.SIM_FREEZE_FALSE);
-        }
-
-        // clock and master are the only two fields, no need to retrieve from the
-        // current state
-        // order matters. defined in input xml schema
-
-        // socket writes typically require pauses so telemetry/state aren't out of date
-        // however this is an exception
-        writeControlInput(inputHash, SOCKETS_INPUT_SIM_FREEZE_PORT);
-
-        // trailing sleep, so that the last real telemetry read arrives
-        try {
-            Thread.sleep(POST_PAUSE_SLEEP);
-        } catch (InterruptedException e) {
-            LOGGER.warn("setPause trailing sleep interrupted", e);
-        }
-    }
     
-    @Override
-    public synchronized void setSpeedUp(double targetSpeedup) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.SIM_SPEEDUP_FIELDS);
-        
-        LOGGER.info("Setting speedup: {}", targetSpeedup);
-        
-        inputHash.put(FlightGearPlaneFields.SIM_SPEEDUP_FIELD, String.valueOf(targetSpeedup));
-        
-        writeControlInput(inputHash, SOCKETS_INPUT_SIM_SPEEDUP_PORT);
-    }
-    
-    public synchronized void setDamageEnabled(boolean damageEnabled) {
+    public synchronized void setDamageEnabled(boolean damageEnabled) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.FDM_INPUT_FIELDS);
         
         //requires an int value for the bool
@@ -528,104 +534,44 @@ public class C172P extends FlightGearPlane{
         
         //socket writes typically require pauses so telemetry/state aren't out of date
         //however this is an exception
-        writeControlInput(inputHash, SOCKETS_INPUT_FDM_PORT);
-    }
-    
-    /**
-     * 
-     * 
-     * @param heading    Degrees from north, clockwise. 0=360 => North. 90 => East. 180 => South. 270 => West 
-     */
-    @Override
-    public synchronized void setHeading(double heading) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_INPUT_FIELDS);
-        
-        //get telemetry hash
-        
-        inputHash.put(FlightGearPlaneFields.HEADING_FIELD, String.valueOf(heading));
-        
-        LOGGER.info("Setting heading to {}", heading);
-        
-        writeControlInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
-    }
-    
-    public synchronized void setPitch(double targetPitch) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_INPUT_FIELDS);
-        
-        inputHash.put(FlightGearPlaneFields.PITCH_FIELD, String.valueOf(targetPitch));
-        
-        LOGGER.info("Setting pitch to {}", targetPitch);
-        
-        writeControlInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
+        writeControlInput(inputHash, this.fdmInputConnection);
     }
     
     @Override
-    public synchronized void setRoll(double targetRoll) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_INPUT_FIELDS);
-                
-        inputHash.put(FlightGearPlaneFields.ROLL_FIELD, String.valueOf(targetRoll));
-        
-        LOGGER.info("Setting roll to {}", targetRoll);
-        
-        writeControlInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
-    }
-    
-    @Override
-    public synchronized void setAltitude(double targetAltitude) {        
+    public synchronized void setAltitude(double targetAltitude) throws IOException {        
         LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.POSITION_INPUT_FIELDS);
         
         inputHash.put(FlightGearPlaneFields.ALTITUDE_FIELD, String.valueOf(targetAltitude));
         
         LOGGER.info("Setting altitude to {}", targetAltitude);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_POSITION_PORT);
+        writeControlInput(inputHash, this.positionInputConnection);
     }
     
     @Override
-    public synchronized void setLatitude(double targetLatitude) {        
+    public synchronized void setLatitude(double targetLatitude) throws IOException {        
         LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.POSITION_INPUT_FIELDS);
         
         inputHash.put(FlightGearPlaneFields.LATITUDE_FIELD, String.valueOf(targetLatitude));
         
         LOGGER.info("Setting latitude to {}", targetLatitude);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_POSITION_PORT);
+        writeControlInput(inputHash, this.positionInputConnection);
     }
     
     @Override
-    public synchronized void setLongitude(double targetLongitude) {        
+    public synchronized void setLongitude(double targetLongitude) throws IOException {        
         LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.POSITION_INPUT_FIELDS);
         
         inputHash.put(FlightGearPlaneFields.LONGITUDE_FIELD, String.valueOf(targetLongitude));
         
         LOGGER.info("Setting longitude to {}", targetLongitude);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_POSITION_PORT);
+        writeControlInput(inputHash, this.positionInputConnection);
     }
     
     @Override
-    public synchronized void setAirSpeed(double targetSpeed) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.VELOCITIES_INPUT_FIELDS);
-                
-        inputHash.put(FlightGearPlaneFields.AIRSPEED_FIELD, String.valueOf(targetSpeed));
-        
-        LOGGER.info("Setting air speed to {}", targetSpeed);
-        
-        writeControlInput(inputHash, SOCKETS_INPUT_VELOCITIES_PORT);
-    }
-    
-    @Override
-    public synchronized void setVerticalSpeed(double targetSpeed) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.VELOCITIES_INPUT_FIELDS);
-                
-        inputHash.put(FlightGearPlaneFields.VERTICALSPEED_FIELD, String.valueOf(targetSpeed));
-        
-        LOGGER.info("Setting vertical speed to {}", targetSpeed);
-        
-        writeControlInput(inputHash, SOCKETS_INPUT_VELOCITIES_PORT);
-    }
-    
-    public synchronized void setParkingBrake(boolean brakeEnabled) {
+    public synchronized void setParkingBrake(boolean brakeEnabled) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.SIM_FIELDS);
             
         //visual: in the cockpit, if the brake arm is:
@@ -642,10 +588,32 @@ public class C172P extends FlightGearPlane{
         
         LOGGER.info("Setting parking brake to {}", brakeEnabled);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_SIM_PORT);
+        writeControlInput(inputHash, this.simInputConnection);
     }
     
-///////////////
+    @Override
+    public synchronized void setAirSpeed(double targetSpeed) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.VELOCITIES_INPUT_FIELDS);
+                
+        inputHash.put(FlightGearPlaneFields.AIRSPEED_FIELD, String.valueOf(targetSpeed));
+        
+        LOGGER.info("Setting air speed to {}", targetSpeed);
+        
+        writeControlInput(inputHash, this.velocitiesInputConnection);
+    }
+    
+    @Override
+    public synchronized void setVerticalSpeed(double targetSpeed) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.VELOCITIES_INPUT_FIELDS);
+                
+        inputHash.put(FlightGearPlaneFields.VERTICALSPEED_FIELD, String.valueOf(targetSpeed));
+        
+        LOGGER.info("Setting vertical speed to {}", targetSpeed);
+        
+        writeControlInput(inputHash, this.velocitiesInputConnection);
+    }
+    
+    ///////////////
     
     public void shutdown() {
         
@@ -654,29 +622,59 @@ public class C172P extends FlightGearPlane{
         //shuts down telemetry thread
         super.shutdown();
         
-        //no io resources in the socket manager to shutdown
-
-        //FGM shutdown
-        //telnet client should be shutdown in the setup method but have another look anyway
-        if(fgTelnet != null && fgTelnet.isConnected()) {
-            //end simulator - needs streams to write commands
-            fgTelnet.exit();
-            
-            //disconnect streams
-            fgTelnet.disconnect();
-            
-            LOGGER.debug("FlightGear telnet connection shut down");
-        } 
-        else {
-            LOGGER.warn("FlightGear telnet connection was null at shutdown");
-        }
+        //close input sockets
+        try {
+			consumeablesInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing consumeables input socket", e);
+		}
+        try {
+			controlInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing control input socket", e);
+		}
+        try {
+			fdmInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing fdm input socket", e);
+		}
+        try {
+			orientationInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing orientation input socket", e);
+		}
+        try {
+			positionInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing position input socket", e);
+		}
+        try {
+			simInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing sim input socket", e);
+		}
+        try {
+			simFreezeInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing sim freeze input socket", e);
+		}
+        try {
+			simSpeedupInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing sim speedup input socket", e);
+		}
+        try {
+			velocitiesInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing velocities input socket", e);
+		}
         
         LOGGER.info("C172P Shutdown completed");
     }
 
     @Override
     protected String readTelemetryRaw() throws IOException {
-        return fgSockets.readTelemetry();
+        return socketsTelemetryConnection.readTelemetry();
         
     }
 
@@ -690,4 +688,47 @@ public class C172P extends FlightGearPlane{
         return getLevel_gal_us();
         
     }
+
+    ///////////////
+    //socket connection writing
+    
+	@Override
+	protected void writeConsumeablesInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.consumeablesInputConnection.writeControlInput(inputHash);
+	}
+
+	@Override
+	protected void writeControlInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.controlInputConnection.writeControlInput(inputHash);
+	}
+
+	@Override
+	protected void writeFdmInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.fdmInputConnection.writeControlInput(inputHash);
+	}
+
+	@Override
+	protected void writeOrientationInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.orientationInputConnection.writeControlInput(inputHash);
+	}
+
+	@Override
+	protected void writePositionInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.positionInputConnection.writeControlInput(inputHash);
+	}
+
+	@Override
+	protected void writeSimFreezeInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.simFreezeInputConnection.writeControlInput(inputHash);
+	}
+
+	@Override
+	protected void writeSimSpeedupInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.simSpeedupInputConnection.writeControlInput(inputHash);
+	}
+
+	@Override
+	protected void writeVelocitiesInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.velocitiesInputConnection.writeControlInput(inputHash);
+	}
 }

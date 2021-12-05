@@ -1,5 +1,7 @@
 package org.jason.flightgear.planes.c172p.app;
 
+import java.io.IOException;
+
 import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.jason.flightgear.flight.util.FlightUtilities;
 import org.jason.flightgear.planes.c172p.C172P;
@@ -16,7 +18,7 @@ public class SustainedFlight {
 	//0 => N, 90 => E
 	private final static int TARGET_HEADING = 180;
 	
-	private static void launch(C172P plane) {
+	private static void launch(C172P plane) throws IOException {
 		//assume start unpaused;
 		
 		plane.setPause(true);
@@ -31,7 +33,7 @@ public class SustainedFlight {
 		
 		int i = 0;
 		while( i < 50) {
-			FlightUtilities.airSpeedCheck(plane, 10, 100);
+			FlightUtilities.airSpeedCheck(plane, 10, 90);
 			
 			FlightUtilities.altitudeCheck(plane, 500, TARGET_ALTITUDE);
 			FlightUtilities.pitchCheck(plane, 4, 3.0);
@@ -47,18 +49,6 @@ public class SustainedFlight {
 				e.printStackTrace();
 			}
 		}
-		
-		//set while not paused. this functions more like a boost- 
-		//the plane can be acceled or deceled to the specified speed, 
-		//but then the fdm takes over and stabilizes the air speed
-//		plane.setAirSpeed(100);
-//		
-//		//initial drop. allow to level off
-//		try {
-//			Thread.sleep(40*1000);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
 		
 		//////
 		//initial check that we've leveled off
@@ -77,6 +67,8 @@ public class SustainedFlight {
 		return 
 			String.format("\nHeading: %f", plane.getHeading()) +
 			String.format("\nAir Speed: %f", plane.getAirSpeed()) +
+			String.format("\nThrottle: %f", plane.getThrottle()) +
+			String.format("\nMixture: %f", plane.getMixture()) +
 			String.format("\nFuel level: %f", plane.getFuelLevel()) +
 			String.format("\nEngine running: %d", plane.getEngineRunning()) + 
 			String.format("\nAltitude: %f", plane.getAltitude()) +
@@ -84,7 +76,7 @@ public class SustainedFlight {
 			String.format("\nLongitude: %f", plane.getLongitude());
 	}
 	
-	public static void main(String [] args) {
+	public static void main(String [] args) throws IOException {
 		C172P plane = null;
 		
 		try {
@@ -101,18 +93,10 @@ public class SustainedFlight {
 				e1.printStackTrace();
 			}
 			
-			//c172p tracks hard and i haven't figured out how to solve this with the autopilot
-			//double trueHeading = (TARGET_HEADING + EXPECTED_TRACK);
-			double trueHeading = (TARGET_HEADING);
-			
-//			if(trueHeading < 0) {
-//				trueHeading += 360;
-//			} else {
-//				trueHeading %= 360;
-//			}
+			double currentHeading = (TARGET_HEADING);
 			
 			//head north
-			plane.setHeading(trueHeading);
+			plane.setHeading(currentHeading);
 			
 			//TODO: check if engine running, plane is in the air, speed is not zero
 			//
@@ -135,9 +119,10 @@ public class SustainedFlight {
 				
 			int minFuelGal = 4;
 			
-			
-						
 			plane.setBatterySwitch(false);
+			
+			plane.setMixture(0.95);
+			plane.setThrottle(0.95);
 			
 			//i'm in a hurry and a c172p only goes so fast
 			plane.setSpeedUp(8);
@@ -148,9 +133,7 @@ public class SustainedFlight {
 			
 			while(running && cycles < maxCycles) {
 				
-				logger.info("======================\nCycle {} start. Target heading: {} ", cycles, trueHeading);
-				
-				
+				logger.info("======================\nCycle {} start. Target heading: {} ", cycles, currentHeading);
 				
 				//check altitude first, if we're in a nose dive that needs to be corrected first
 				FlightUtilities.altitudeCheck(plane, 500, TARGET_ALTITUDE);
@@ -162,9 +145,9 @@ public class SustainedFlight {
 				FlightUtilities.rollCheck(plane, 4, 0.0);
 				
 				//check heading last-ish, correct pitch/roll first otherwise the plane will probably drift off heading quickly
-				FlightUtilities.headingCheck(plane, 8, trueHeading);
+				FlightUtilities.headingCheck(plane, 8, currentHeading);
 				
-				FlightUtilities.airSpeedCheck(plane, 20, 100);
+				//FlightUtilities.airSpeedCheck(plane, 10, 90);
 				
 				//check fuel last last. easy to refuel
 				if(plane.getFuelLevel() < minFuelGal) {
@@ -173,10 +156,6 @@ public class SustainedFlight {
 				
 				logger.info("Telemetry Read: {}", telemetryReadOut(plane));
 				
-	//			plane.setPause(true);
-	//			plane.forceStabilize(TARGET_HEADING, TARGET_ALTITUDE, 0, 3, 0);
-	//			plane.setPause(false);
-				
 				try {
 					Thread.sleep(cycleSleep);
 				} catch (InterruptedException e) {
@@ -184,16 +163,16 @@ public class SustainedFlight {
 				}
 				
 				if(cycles % 100 == 0) {
-					trueHeading += 30;
-					trueHeading %= 360;
+					currentHeading += 30;
+					currentHeading %= 360;
 				}
 				
 				cycles++;
 				
 				logger.info("Cycle end\n======================");
 			}
-		} catch (FlightGearSetupException e1) {
-			e1.printStackTrace();
+		} catch (FlightGearSetupException e) {
+			e.printStackTrace();
 		}
 		finally {
 			if(plane != null) {

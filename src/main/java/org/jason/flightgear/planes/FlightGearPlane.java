@@ -7,7 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.jason.flightgear.flight.Position;
+import org.jason.flightgear.connection.sockets.FlightGearInputConnection;
+import org.jason.flightgear.flight.PlanePosition;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -21,6 +22,8 @@ public abstract class FlightGearPlane {
     private final static int TELEMETRY_READ_TRAILING_SLEEP = 250;
     private final static int TELEMETRY_WRITE_WAIT_SLEEP = 100;
     
+    private final static int POST_PAUSE_SLEEP = 250;
+    
     private boolean runTelemetryThread;
     
     private Thread telemetryThread;
@@ -33,7 +36,12 @@ public abstract class FlightGearPlane {
     //reading telemetry from socket
     protected AtomicBoolean stateReading;
     
+    protected NetworkConfig networkConfig;
+
     public FlightGearPlane() {
+    	
+    	networkConfig = new NetworkConfig();
+    	
         //linkedhashmap to match the xml schema loaded into the simulator
         currentState = Collections.synchronizedMap(new LinkedHashMap<String, String>());
         
@@ -182,7 +190,6 @@ public abstract class FlightGearPlane {
             //TODO: make this not awful
 
             try {
-                //telemetryRead = fgSockets.readTelemetry();
                 telemetryRead = readTelemetryRaw();
                 
                 if(telemetryRead != null) {
@@ -220,56 +227,160 @@ public abstract class FlightGearPlane {
         LOGGER.debug("readTelemetry returning");
     }
     
+    /////////////////
+    
     protected abstract String readTelemetryRaw() throws IOException;
     
-    protected abstract void writeControlInput(LinkedHashMap<String, String> inputHash, int port);
+    protected abstract void writeControlInput(LinkedHashMap<String, String> inputHash, FlightGearInputConnection socketConnection) throws IOException;
     
+    /////////////////
+    
+    protected abstract void writeConsumeablesInput(LinkedHashMap<String, String> inputHash) throws IOException;
+    protected abstract void writeControlInput(LinkedHashMap<String, String> inputHash) throws IOException;
+    protected abstract void writeFdmInput(LinkedHashMap<String, String> inputHash) throws IOException;
+    protected abstract void writeOrientationInput(LinkedHashMap<String, String> inputHash) throws IOException;
+    protected abstract void writePositionInput(LinkedHashMap<String, String> inputHash) throws IOException;
+    protected abstract void writeSimFreezeInput(LinkedHashMap<String, String> inputHash) throws IOException;
+    protected abstract void writeSimSpeedupInput(LinkedHashMap<String, String> inputHash) throws IOException;
+    protected abstract void writeVelocitiesInput(LinkedHashMap<String, String> inputHash) throws IOException;
+
     //////////////////
+    //May not be generic, since planes may have multiple tanks, so the subclass handles this details. 
     //expected FG property setters/getters
     //defined in plane subclass since socket io is managed there
     
-    public abstract void setFuelTankLevel(double fuelTankCapacity);
+    public abstract void setFuelTankLevel(double fuelTankCapacity) throws IOException;
     
     public abstract double getFuelLevel();
 
-    /**
-     * May not be generic, since planes may have multiple tanks, so the subclass handles this details. 
-     */
     public abstract double getFuelTankCapacity();
     
-    public abstract void setPause(boolean isPaused);
-
-    public abstract void setAltitude(double targetAltitude);
+    //////////////////
     
-    public abstract void setLatitude(double targetLatitude);
-    
-    public abstract void setLongitude(double targetLongitude);
-    
-    public abstract void setRoll(double targetRoll);
-    
-    public abstract void setHeading(double targetHeading);
-    
-    public abstract void setPitch(double targetPitch);
-
-    public abstract void setSpeedUp(double targetSpeedup);
-    
-    public abstract void setAirSpeed(double targetSpeed);
-    
-    public abstract void setVerticalSpeed(double targetSpeed);
-    
+    /**
+     * May not be generic, since planes may have multiple engines, so the subclass handles the details. 
+     */
     public abstract boolean isEngineRunning();
+    
+    //////////////////
+    //generic position
+    
+    public abstract void setLatitude(double targetLatitude) throws IOException;
+    
+    public abstract void setLongitude(double targetLongitude) throws IOException;
+    
+    public abstract void setAltitude(double targetAltitude) throws IOException;
+    
+    //////////////////
+    //generic orientation
+    
+    /**
+     * 
+     * 
+     * @param heading    Degrees from north, clockwise. 0=360 => North. 90 => East. 180 => South. 270 => West 
+     * @throws IOException 
+     */
+    public synchronized void setHeading(double heading) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_INPUT_FIELDS);
+        
+        //get telemetry hash
+        
+        inputHash.put(FlightGearPlaneFields.HEADING_FIELD, String.valueOf(heading));
+        
+        LOGGER.info("Setting heading to {}", heading);
+        
+        writeOrientationInput(inputHash);
+    }
+    
+    public synchronized void setPitch(double targetPitch) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_INPUT_FIELDS);
+        
+        inputHash.put(FlightGearPlaneFields.PITCH_FIELD, String.valueOf(targetPitch));
+        
+        LOGGER.info("Setting pitch to {}", targetPitch);
+        
+        writeOrientationInput(inputHash);
+    }
+    
+    public synchronized void setRoll(double targetRoll) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_INPUT_FIELDS);
+                
+        inputHash.put(FlightGearPlaneFields.ROLL_FIELD, String.valueOf(targetRoll));
+        
+        LOGGER.info("Setting roll to {}", targetRoll);
+        
+        writeOrientationInput(inputHash);
+    }
+    
+    //////////////////
+    //generic velocity
+    
+    public abstract void setAirSpeed(double targetSpeed) throws IOException;
+    
+    public abstract void setVerticalSpeed(double targetSpeed) throws IOException;
+    
+    //////////////////
+    //generic sim management
+    
+    public synchronized void setPause(boolean isPaused) throws IOException {
+
+        // TODO: check telemetry if already paused
+
+        // resolve sim_freeze port
+        // if(controlInputs.containsKey(PAUSE_INPUT)) {
+        // FlightGearInput input = controlInputs.get(PAUSE_INPUT);
+
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.SIM_FREEZE_FIELDS);
+
+        // oh get fucked. requires an int value for the bool, despite the schema specifying a bool.
+        if (isPaused) {
+            LOGGER.info("Pausing simulation");
+            inputHash.put(FlightGearPlaneFields.SIM_FREEZE_CLOCK_FIELD, FlightGearPlaneFields.SIM_FREEZE_TRUE);
+            inputHash.put(FlightGearPlaneFields.SIM_FREEZE_MASTER_FIELD, FlightGearPlaneFields.SIM_FREEZE_TRUE);
+        } else {
+            LOGGER.info("Unpausing simulation");
+            inputHash.put(FlightGearPlaneFields.SIM_FREEZE_CLOCK_FIELD, FlightGearPlaneFields.SIM_FREEZE_FALSE);
+            inputHash.put(FlightGearPlaneFields.SIM_FREEZE_MASTER_FIELD, FlightGearPlaneFields.SIM_FREEZE_FALSE);
+        }
+
+        // clock and master are the only two fields, no need to retrieve from the
+        // current state
+        // order matters. defined in input xml schema
+
+        // socket writes typically require pauses so telemetry/state aren't out of date
+        // however this is an exception
+        writeSimFreezeInput(inputHash);
+
+        // trailing sleep, so that the last real telemetry read arrives
+        try {
+            Thread.sleep(POST_PAUSE_SLEEP);
+        } catch (InterruptedException e) {
+            LOGGER.warn("setPause trailing sleep interrupted", e);
+        }
+    }
+    
+    public synchronized void setSpeedUp(double targetSpeedup) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.SIM_SPEEDUP_FIELDS);
+        
+        LOGGER.info("Setting speedup: {}", targetSpeedup);
+        
+        inputHash.put(FlightGearPlaneFields.SIM_SPEEDUP_FIELD, String.valueOf(targetSpeedup));
+        
+        writeSimSpeedupInput(inputHash);
+    }
     
     ///////////////////
     
     /**
      * Refill the fuel tanks to capacity
+     * @throws IOException 
      */
-    public synchronized void refillFuelTank() {
+    public synchronized void refillFuelTank() throws IOException {
         setFuelTankLevel(getFuelTankCapacity());
     }
     
-    public synchronized Position getPosition() {
-    	return new Position(getLatitude(), getLongitude(), getAltitude());
+    public synchronized PlanePosition getPosition() {
+    	return new PlanePosition(getLatitude(), getLongitude(), getAltitude());
     }
     
     ///////////////////
@@ -513,6 +624,8 @@ public abstract class FlightGearPlane {
     
     ///////////////////
     //sim
+    
+    public abstract void setParkingBrake(boolean brakeEnabled) throws IOException;
     
     public int getSimFreezeClock() {
         return Character.getNumericValue(getTelemetryField(FlightGearPlaneFields.SIM_FREEZE_CLOCK_FIELD).charAt(0));

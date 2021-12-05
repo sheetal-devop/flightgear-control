@@ -1,5 +1,7 @@
 package org.jason.flightgear.flight.util;
 
+import java.io.IOException;
+
 import org.jason.flightgear.planes.FlightGearPlane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,18 +47,17 @@ public class FlightUtilities {
 //        }
 //    }
     
-	public static void altitudeCheck(FlightGearPlane plane, int maxDifference, double targetAltitude) {
+	public static void altitudeCheck(FlightGearPlane plane, int maxDifference, double targetAltitude) throws IOException {
     	altitudeCheck(plane, maxDifference, targetAltitude, false);
     }
     
-    public static void altitudeCheck(FlightGearPlane plane, int maxDifference, double targetAltitude, boolean trailingSleep) {
+    public static void altitudeCheck(FlightGearPlane plane, int maxDifference, double targetAltitude, boolean trailingSleep) throws IOException {
         double currentAltitude = plane.getAltitude();
         
         LOGGER.info("Altitude check. Current {} vs target {}", currentAltitude, targetAltitude);
         
         //correct if too high or too low
-        if(targetAltitude - maxDifference > currentAltitude || 
-            targetAltitude + maxDifference < currentAltitude ) {
+        if( Math.abs(currentAltitude - targetAltitude ) > maxDifference) {
             
             LOGGER.info("Correcting altitude to target: {}", targetAltitude);
             
@@ -75,11 +76,11 @@ public class FlightUtilities {
         }
     }
     
-    public static void headingCheck(FlightGearPlane plane, int maxDifference, double targetHeading) {
+    public static void headingCheck(FlightGearPlane plane, int maxDifference, double targetHeading) throws IOException {
     	headingCheck(plane, maxDifference, targetHeading, false);
     }
     
-    public static void headingCheck(FlightGearPlane plane, int maxDifference, double targetHeading, boolean trailingSleep) {
+    public static void headingCheck(FlightGearPlane plane, int maxDifference, double targetHeading, boolean trailingSleep) throws IOException {
         
         double currentHeading = plane.getHeading();
         double currentHeadingSin = Math.sin( Math.toRadians(currentHeading) );
@@ -89,10 +90,6 @@ public class FlightUtilities {
         LOGGER.info("Heading check. Current {} vs target {}", currentHeading, targetHeading);
         
         double minHeadingSin = Math.sin( Math.toRadians(targetHeading - maxDifference) );
-//        if (minHeading < 0) {
-//            //-1 deg heading results in heading of 359
-//            minHeading += 360;
-//        }
         
         //target heading of 355 with a maxDifference of 10, is a min of 345 and a max of 5
         double maxHeadingSin = Math.sin( Math.toRadians(targetHeading + maxDifference) );
@@ -126,8 +123,6 @@ public class FlightUtilities {
             
             plane.setPause(true);
             plane.setHeading(finalHeading);
-            
-            
             plane.setPause(false);
             
             if(trailingSleep) {
@@ -141,11 +136,11 @@ public class FlightUtilities {
         }
     }
     
-    public static void pitchCheck(FlightGearPlane plane, int maxDifference, double targetPitch) {
+    public static void pitchCheck(FlightGearPlane plane, int maxDifference, double targetPitch) throws IOException {
     	pitchCheck(plane, maxDifference, targetPitch, false);
     }
     
-    public static void pitchCheck(FlightGearPlane plane, int maxDifference, double targetPitch, boolean trailingSleep) {
+    public static void pitchCheck(FlightGearPlane plane, int maxDifference, double targetPitch, boolean trailingSleep) throws IOException {
         //read pitch
         //if pitch is too far from target in +/- directions, set to target
         
@@ -155,7 +150,7 @@ public class FlightUtilities {
         
         LOGGER.info("Pitch check. Current {} vs target {}", currentPitch, targetPitch);
         
-        if( Math.abs(currentPitch) - Math.abs(targetPitch) > maxDifference) {
+        if( Math.abs(currentPitch - targetPitch) > maxDifference) {
             
             LOGGER.info("Correcting pitch to target: {}", targetPitch);
 
@@ -174,18 +169,18 @@ public class FlightUtilities {
         }
     }
     
-    public static void rollCheck(FlightGearPlane plane, int maxDifference, double targetRoll) {
+    public static void rollCheck(FlightGearPlane plane, int maxDifference, double targetRoll) throws IOException {
     	rollCheck(plane, maxDifference, targetRoll, false);
     }
     
-    public static void rollCheck(FlightGearPlane plane, int maxDifference, double targetRoll, boolean trailingSleep) {
+    public static void rollCheck(FlightGearPlane plane, int maxDifference, double targetRoll, boolean trailingSleep) throws IOException {
         double currentRoll = plane.getRoll();
         
         //roll is +180 to -180
         
         LOGGER.info("Roll check. Current {} vs target {}", currentRoll, targetRoll);
         
-        if( Math.abs(currentRoll) - Math.abs(targetRoll) > maxDifference) {
+        if( Math.abs(currentRoll - targetRoll) > maxDifference) {
             LOGGER.info("Correcting roll to target: {}", targetRoll);
             
             plane.setPause(true);
@@ -203,18 +198,29 @@ public class FlightUtilities {
         }
     }
     
-    public static void airSpeedCheck(FlightGearPlane plane, int maxDifference, double targetAirspeed) {
+    public static void airSpeedCheck(FlightGearPlane plane, int maxDifference, double targetAirspeed) throws IOException {
     	airSpeedCheck(plane, maxDifference, targetAirspeed, false);
     }
     
-    public static void airSpeedCheck(FlightGearPlane plane, int maxDifference, double targetAirspeed, boolean trailingSleep) {
+    /**
+     * Enforce an airspeed on a plane. Use sparingly, since boosting speed on an adjusting plane can destabilize flight.
+     * 
+     * @param plane
+     * @param maxDifference
+     * @param targetAirspeed
+     * @param trailingSleep
+     * @throws IOException
+     */
+    public static void airSpeedCheck(FlightGearPlane plane, int maxDifference, double targetAirspeed, boolean trailingSleep) throws IOException {
         double currentAirSpeed = plane.getAirSpeed();
         
-        //roll is +180 to -180
+		//set while not paused. this functions more like a boost- 
+		//the plane can be acceled or deceled to the specified speed, 
+		//but then the fdm takes over and stabilizes the air speed
         
         LOGGER.info("Airspeed check. Current {} vs target {}", currentAirSpeed, targetAirspeed);
         
-        if( Math.abs(currentAirSpeed) - Math.abs(targetAirspeed) > maxDifference) {
+        if( Math.abs(currentAirSpeed - targetAirspeed) > maxDifference) {
             LOGGER.info("Correcting airspeed to target: {}", targetAirspeed);
             
             plane.setPause(true);

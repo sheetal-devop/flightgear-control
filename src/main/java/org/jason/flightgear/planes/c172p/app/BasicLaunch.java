@@ -1,5 +1,7 @@
 package org.jason.flightgear.planes.c172p.app;
 
+import java.io.IOException;
+
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.flightgear.planes.c172p.C172P;
 
@@ -11,7 +13,7 @@ import org.jason.flightgear.planes.c172p.C172P;
  */
 public class BasicLaunch {
 	
-	private static void basicUpdatesApp(C172P plane) {
+	private static void basicUpdatesApp(C172P plane) throws IOException {
 		//assume start unpaused;
 		
 		plane.setPause(true);

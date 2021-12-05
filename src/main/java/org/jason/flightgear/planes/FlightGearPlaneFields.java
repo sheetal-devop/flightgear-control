@@ -294,7 +294,7 @@ public abstract class FlightGearPlaneFields {
 	public final static String SIM_FREEZE_TRUE = String.valueOf(SIM_FREEZE_INT_TRUE);
 	public final static String SIM_FREEZE_FALSE = String.valueOf(SIM_FREEZE_INT_FALSE);
 	
-	public final static String[] SIM_PAUSE_FIELDS = {
+	public final static String[] SIM_FREEZE_FIELDS = {
 		SIM_FREEZE_CLOCK_FIELD,
 		SIM_FREEZE_MASTER_FIELD
 	};

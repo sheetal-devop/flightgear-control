@@ -1,5 +1,7 @@
 package org.jason.flightgear.planes.c172p.app;
 
+import java.io.IOException;
+
 import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.jason.flightgear.planes.c172p.C172P;
 import org.slf4j.Logger;
@@ -26,8 +28,7 @@ public class SitRunningOnRunway {
             String.format("\nEngine running: %d", plane.getEngineRunning());
     }
     
-    public static void main(String [] args) {
-        
+    public static void main(String [] args) throws IOException {
         int maxRuntime = 20 * 60 * 1000;
         int runtime = 0;
         

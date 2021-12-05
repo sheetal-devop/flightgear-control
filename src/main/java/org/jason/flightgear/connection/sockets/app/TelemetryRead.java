@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-import org.jason.flightgear.connection.sockets.FlightGearSocketsConnection;
+import org.jason.flightgear.connection.sockets.FlightGearTelemetryConnection;
 
 /**
  * Simple telemetry read from the flightgear sockets telemetry port. Doesn't start or modify the state of the plane.
@@ -16,10 +16,10 @@ public class TelemetryRead {
 	private final static String FG_SOCKETS_HOST = "localhost";
 	private final static int FG_SOCKETS_TELEM_PORT = 6501;
 
-	private FlightGearSocketsConnection fgSocketsClient;
+	private FlightGearTelemetryConnection fgSocketsClient;
 	
 	public TelemetryRead() throws SocketException, UnknownHostException  {
-		fgSocketsClient = new FlightGearSocketsConnection(FG_SOCKETS_HOST, FG_SOCKETS_TELEM_PORT);
+		fgSocketsClient = new FlightGearTelemetryConnection(FG_SOCKETS_HOST, FG_SOCKETS_TELEM_PORT);
 	}
 	
 	public String readTelemetry() throws IOException {

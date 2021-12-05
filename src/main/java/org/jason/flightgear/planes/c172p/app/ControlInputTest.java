@@ -1,34 +1,39 @@
 package org.jason.flightgear.planes.c172p.app;
 
+import java.io.IOException;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
-import org.jason.flightgear.connection.sockets.FlightGearSocketsConnection;
+import org.jason.flightgear.connection.sockets.FlightGearInputConnection;
 import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.jason.flightgear.planes.c172p.C172P;
 
+/**
+ * Rotate the plane heading by 90 degrees a few times. Visually verify in simulator
+ * 
+ * @author jason
+ *
+ */
 public class ControlInputTest {
 	
 	private final static String FG_SOCKETS_HOST = "localhost";
 	private final static String FG_SOCKET_PROTOCOL_VAR_SEP = ",";
 	private final static String FG_SOCKET_PROTOCOL_LINE_SEP = "\n";
 	
-	private final static int FG_SOCKETS_TELEM_PORT = 6501;
-	//private final static int FG_SOCKETS_INPUT_PORT = 6601;
+	private final static String INPUT_KEY = "/orientation/heading-deg";
 	
-	private final static int FG_SOCKETS_ORIENTATION_INPUT_PORT = 6603;
+	private final static int FG_SOCKETS_ORIENTATION_INPUT_PORT = 6604;
 
-	private LinkedHashMap<String, String> controlSchema;
+	private LinkedHashMap<String, String> orientationSchema;
 
-	
-	private FlightGearSocketsConnection fgSocketsClient;
+	private FlightGearInputConnection fgSocketsClient;
 	
 	private C172P plane;
 	
 	public ControlInputTest() throws FlightGearSetupException, SocketException, UnknownHostException {
-		fgSocketsClient = new FlightGearSocketsConnection(FG_SOCKETS_HOST, FG_SOCKETS_TELEM_PORT);
+		fgSocketsClient = new FlightGearInputConnection(FG_SOCKETS_HOST, FG_SOCKETS_ORIENTATION_INPUT_PORT);
 		
 		plane = new C172P();
 		
@@ -38,7 +43,7 @@ public class ControlInputTest {
 	private void loadControlSchema() {
 
 		//key order definitely matters
-		controlSchema = new LinkedHashMap<String, String>();
+		orientationSchema = new LinkedHashMap<String, String>();
 //		controlSchema.put("/consumables/fuel/tank/level-gal_us", "");
 //		controlSchema.put("/consumables/fuel/tank/water-contamination", "");
 //		controlSchema.put("/consumables/fuel/tank[1]/level-gal_us", "");
@@ -53,14 +58,14 @@ public class ControlInputTest {
 //		controlSchema.put("/controls/flight/speedbrake", "");
 //		controlSchema.put("/controls/gear/brake-parking", "");
 //		controlSchema.put("/controls/gear/gear-down", "");
-		controlSchema.put("/orientation/alpha-deg", "");
-		controlSchema.put("/orientation/beta-deg", "");
-		controlSchema.put("/orientation/heading-deg", "");
-		controlSchema.put("/orientation/heading-magnetic-deg", "");
-		controlSchema.put("/orientation/pitch-deg", "");
-		controlSchema.put("/orientation/roll-deg", "");
-		controlSchema.put("/orientation/track-magnetic-deg", "");
-		controlSchema.put("/orientation/yaw-deg", "");
+//		controlSchema.put("/orientation/alpha-deg", "");
+//		controlSchema.put("/orientation/beta-deg", "");
+		orientationSchema.put("/orientation/heading-deg", "");
+//		controlSchema.put("/orientation/heading-magnetic-deg", "");
+		orientationSchema.put("/orientation/pitch-deg", "0");
+		orientationSchema.put("/orientation/roll-deg", "0");
+//		controlSchema.put("/orientation/track-magnetic-deg", "");
+//		controlSchema.put("/orientation/yaw-deg", "");
 //		controlSchema.put("/position/altitude-ft", "");
 //		controlSchema.put("/position/ground-elev-ft", "");
 //		controlSchema.put("/position/latitude-deg", "");
@@ -74,11 +79,11 @@ public class ControlInputTest {
 //		controlSchema.put("/velocities/vertical-speed-fps", "");
 	}
 	
-	public LinkedHashMap<String, String> copyControlSchema() {
-		return new LinkedHashMap<String, String>(controlSchema);
+	private LinkedHashMap<String, String> copyControlSchema() {
+		return new LinkedHashMap<String, String>(orientationSchema);
 	}
 	
-	public void writeInput(LinkedHashMap<String, String> inputHash) {
+	private void writeInput(LinkedHashMap<String, String> inputHash) throws IOException {
 		
 		boolean validFieldCount = true;
 		
@@ -87,11 +92,14 @@ public class ControlInputTest {
 		
 		//foreach key, write the value into a simple unquoted csv string. fail socket write on missing values
 		for( Entry<String, String> entry : inputHash.entrySet()) {
-			if(controlSchema.containsKey(entry.getKey())) {
+			if(orientationSchema.containsKey(entry.getKey())) {
 				if(!entry.getValue().equals( "" )) {
+					System.out.println("Value present for key: " + entry.getKey());
 					controlInput.append(entry.getValue());
 				}
 				else {
+					System.out.println("Unknown value for key: " + entry.getKey());
+					
 					//field count check later
 					validFieldCount = false;
 					break;
@@ -109,16 +117,11 @@ public class ControlInputTest {
 		if(validFieldCount) {
 			int controlInputFields = controlInput.toString().split(FG_SOCKET_PROTOCOL_VAR_SEP).length;
 			
-			//System.out.println
-			
-			if( controlInputFields - 1 == controlSchema.size())
-			{
-				//debug output
-				
+			if( controlInputFields - 1 == orientationSchema.size())
+			{				
 				System.out.println("Writing control input: " + controlInput.toString());
 				
-				fgSocketsClient.writeControlInput(controlSchema, FG_SOCKETS_ORIENTATION_INPUT_PORT);
-				
+				fgSocketsClient.writeControlInput(inputHash);
 			}
 			else
 			{
@@ -138,83 +141,56 @@ public class ControlInputTest {
 		}
 	}
 	
-	public void changeHeading90DegCC() {
+	public void rotatePlane() throws IOException {
 		//"/orientation/heading-deg": 279.981689,
-		
-		//get current heading
-		
+				
 		LinkedHashMap<String, String> myInput = copyControlSchema();
 		
-		//myInput.put("/position/altitude-ft", "1000");
 		myInput.put("/orientation/heading-deg", "90");
 		writeInput(myInput);
 		
-		//check visually
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		
-		//myInput.put("/position/altitude-ft", "1000");
-		myInput.put("/orientation/heading-deg", "180");
+		myInput.put(INPUT_KEY, "180");
 		writeInput(myInput);
 		
-		//check visually
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		
-		//myInput.put("/position/altitude-ft", "1000");
-		myInput.put("/orientation/heading-deg", "270");
+		myInput.put(INPUT_KEY, "270");
 		writeInput(myInput);
 		
-		//check visually
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		
-		//myInput.put("/position/altitude-ft", "1000");
 		myInput.put("/orientation/heading-deg", "0");
 		writeInput(myInput);
-		
-		//check visually
-		try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		//myInput.put("/position/altitude-ft", "1000");
-		myInput.put("/orientation/heading-deg", "0");
-		writeInput(myInput);
-		
 	}
 	
 	public static void main(String[] args) throws FlightGearSetupException, SocketException, UnknownHostException {
 		
-		//fork execution of shell script and wait for telnet port to open
-		//use shell script because we may want to run it from elsewhere
-		
-		
-		ControlInputTest plane = null;
+		ControlInputTest app = null;
 		
 		try {
-			plane = new ControlInputTest();
+			app = new ControlInputTest();
 			
-			//rotate plane 90 degrees
-			plane.changeHeading90DegCC();
-			
-			
-			//try 4 times confirm heading each time
-
+			//rotate plane 90 degrees a few times
+			app.rotatePlane();
+		} catch (IOException e) {
+			e.printStackTrace();
 		} finally {
-			if (plane != null) {
-				plane.shutdown();
+			if (app != null) {
+				app.shutdown();
 			}
 		}
 	}
