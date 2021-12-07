@@ -11,11 +11,6 @@
             <name>level-gal_us</name>
             <type>float</type>
          </chunk>
-         <chunk>
-            <node>/consumables/fuel/tank/water-contamination</node>
-            <name>water-contamination</name>
-            <type>float</type>
-         </chunk>
     </input>
   </generic>
  </PropertyList>

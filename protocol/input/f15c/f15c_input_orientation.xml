@@ -7,23 +7,8 @@
  
          <!-- orientation -->
          <chunk>
-            <node>/orientation/alpha-deg</node>
-            <name>alpha-deg</name>
-            <type>float</type>
-         </chunk>
-         <chunk>
-            <node>/orientation/beta-deg</node>
-            <name>beta-deg</name>
-            <type>float</type>
-         </chunk>
-         <chunk>
             <node>/orientation/heading-deg</node>
             <name>heading-deg</name>
-            <type>float</type>
-         </chunk>
-         <chunk>
-            <node>/orientation/heading-magnetic-deg</node>
-            <name>heading-magnetic-deg</name>
             <type>float</type>
          </chunk>
          <chunk>
@@ -34,16 +19,6 @@
          <chunk>
             <node>/orientation/roll-deg</node>
             <name>roll-deg</name>
-            <type>float</type>
-         </chunk>
-         <chunk>
-            <node>/orientation/track-magnetic-deg</node>
-            <name>track-magnetic-deg</name>
-            <type>float</type>
-         </chunk>
-         <chunk>
-            <node>/orientation/yaw-deg</node>
-            <name>yaw-deg</name>
             <type>float</type>
          </chunk>
   

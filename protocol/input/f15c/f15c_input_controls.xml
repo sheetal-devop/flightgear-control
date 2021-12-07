@@ -12,12 +12,22 @@
             <type>bool</type>
          </chunk>
          <chunk>
-            <node>/controls/engines/current-engine/mixture</node>
+            <node>/controls/engines/engine[0]/cutoff</node>
+            <name>cutoff</name>
+            <type>bool</type>
+         </chunk>
+         <chunk>
+            <node>/controls/engines/engine[1]/cutoff</node>
+            <name>cutoff</name>
+            <type>bool</type>
+         </chunk>
+         <chunk>
+            <node>/controls/engines/engine/mixture</node>
             <name>mixture</name>
             <type>float</type>
          </chunk>
          <chunk>
-            <node>/controls/engines/current-engine/throttle</node>
+            <node>/controls/engines/engine/throttle</node>
             <name>throttle</name>
             <type>float</type>
          </chunk>

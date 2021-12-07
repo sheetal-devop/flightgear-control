@@ -5,11 +5,6 @@
         <line_separator>newline</line_separator>
         <var_separator>,</var_separator>
  
-          <chunk>
-            <node>/sim/model/c172p/brake-parking</node>
-            <name>brake-parking</name>
-            <type>float</type>
-         </chunk>
          <chunk>
             <node>/sim/freeze/clock</node>
             <name>clock</name>

@@ -11,7 +11,7 @@ import org.jason.flightgear.connection.sockets.FlightGearTelemetryConnection;
 import org.jason.flightgear.connection.telnet.FlightGearTelnetConnection;
 import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.jason.flightgear.planes.FlightGearPlane;
-import org.jason.flightgear.planes.FlightGearPlaneFields;
+import org.jason.flightgear.planes.FlightGearFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -336,12 +336,12 @@ public class C172P extends FlightGearPlane{
         
         //TODO: check if paused
         
-        LinkedHashMap<String, String> orientationFields = copyStateFields(FlightGearPlaneFields.ORIENTATION_INPUT_FIELDS);
+        LinkedHashMap<String, String> orientationFields = copyStateFields(FlightGearFields.ORIENTATION_INPUT_FIELDS);
         
         setPause(true);
-        orientationFields.put(FlightGearPlaneFields.HEADING_FIELD, String.valueOf(heading) ) ;
-        orientationFields.put(FlightGearPlaneFields.PITCH_FIELD, String.valueOf(pitch) );
-        orientationFields.put(FlightGearPlaneFields.ROLL_FIELD, String.valueOf(roll) );
+        orientationFields.put(FlightGearFields.HEADING_FIELD, String.valueOf(heading) ) ;
+        orientationFields.put(FlightGearFields.PITCH_FIELD, String.valueOf(pitch) );
+        orientationFields.put(FlightGearFields.ROLL_FIELD, String.valueOf(roll) );
 
         //TODO: altitude check?
         
@@ -474,14 +474,14 @@ public class C172P extends FlightGearPlane{
     }
     
     public synchronized void setDamageEnabled(boolean damageEnabled) throws IOException {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.FDM_INPUT_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.FDM_INPUT_FIELDS);
         
         //requires an int value for the bool
         if(!damageEnabled) {
-            inputHash.put(FlightGearPlaneFields.FDM_DAMAGE_FIELD, FlightGearPlaneFields.FDM_DAMAGE_ENABLED_FALSE);
+            inputHash.put(FlightGearFields.FDM_DAMAGE_FIELD, FlightGearFields.FDM_DAMAGE_ENABLED_FALSE);
         }
         else {
-            inputHash.put(FlightGearPlaneFields.FDM_DAMAGE_FIELD, FlightGearPlaneFields.FDM_DAMAGE_ENABLED_TRUE);
+            inputHash.put(FlightGearFields.FDM_DAMAGE_FIELD, FlightGearFields.FDM_DAMAGE_ENABLED_TRUE);
         }
         
         LOGGER.info("Toggling damage enabled: {}", damageEnabled);
@@ -493,9 +493,9 @@ public class C172P extends FlightGearPlane{
     
     @Override
     public synchronized void setAltitude(double targetAltitude) throws IOException {        
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.POSITION_INPUT_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.POSITION_INPUT_FIELDS);
         
-        inputHash.put(FlightGearPlaneFields.ALTITUDE_FIELD, String.valueOf(targetAltitude));
+        inputHash.put(FlightGearFields.ALTITUDE_FIELD, String.valueOf(targetAltitude));
         
         LOGGER.info("Setting altitude to {}", targetAltitude);
         
@@ -504,9 +504,9 @@ public class C172P extends FlightGearPlane{
     
     @Override
     public synchronized void setLatitude(double targetLatitude) throws IOException {        
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.POSITION_INPUT_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.POSITION_INPUT_FIELDS);
         
-        inputHash.put(FlightGearPlaneFields.LATITUDE_FIELD, String.valueOf(targetLatitude));
+        inputHash.put(FlightGearFields.LATITUDE_FIELD, String.valueOf(targetLatitude));
         
         LOGGER.info("Setting latitude to {}", targetLatitude);
         
@@ -515,9 +515,9 @@ public class C172P extends FlightGearPlane{
     
     @Override
     public synchronized void setLongitude(double targetLongitude) throws IOException {        
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.POSITION_INPUT_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.POSITION_INPUT_FIELDS);
         
-        inputHash.put(FlightGearPlaneFields.LONGITUDE_FIELD, String.valueOf(targetLongitude));
+        inputHash.put(FlightGearFields.LONGITUDE_FIELD, String.valueOf(targetLongitude));
         
         LOGGER.info("Setting longitude to {}", targetLongitude);
         
@@ -547,9 +547,9 @@ public class C172P extends FlightGearPlane{
     
     @Override
     public synchronized void setAirSpeed(double targetSpeed) throws IOException {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.VELOCITIES_INPUT_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.VELOCITIES_INPUT_FIELDS);
                 
-        inputHash.put(FlightGearPlaneFields.AIRSPEED_FIELD, String.valueOf(targetSpeed));
+        inputHash.put(FlightGearFields.AIRSPEED_FIELD, String.valueOf(targetSpeed));
         
         LOGGER.info("Setting air speed to {}", targetSpeed);
         
@@ -558,9 +558,9 @@ public class C172P extends FlightGearPlane{
     
     @Override
     public synchronized void setVerticalSpeed(double targetSpeed) throws IOException {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.VELOCITIES_INPUT_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.VELOCITIES_INPUT_FIELDS);
                 
-        inputHash.put(FlightGearPlaneFields.VERTICALSPEED_FIELD, String.valueOf(targetSpeed));
+        inputHash.put(FlightGearFields.VERTICALSPEED_FIELD, String.valueOf(targetSpeed));
         
         LOGGER.info("Setting vertical speed to {}", targetSpeed);
         

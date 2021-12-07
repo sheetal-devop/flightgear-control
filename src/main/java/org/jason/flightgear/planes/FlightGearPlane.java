@@ -354,11 +354,11 @@ public abstract class FlightGearPlane {
      * @throws IOException 
      */
     public synchronized void setHeading(double heading) throws IOException {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_INPUT_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.ORIENTATION_INPUT_FIELDS);
         
         //get telemetry hash
         
-        inputHash.put(FlightGearPlaneFields.HEADING_FIELD, String.valueOf(heading));
+        inputHash.put(FlightGearFields.HEADING_FIELD, String.valueOf(heading));
         
         LOGGER.info("Setting heading to {}", heading);
         
@@ -366,9 +366,9 @@ public abstract class FlightGearPlane {
     }
     
     public synchronized void setPitch(double targetPitch) throws IOException {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_INPUT_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.ORIENTATION_INPUT_FIELDS);
         
-        inputHash.put(FlightGearPlaneFields.PITCH_FIELD, String.valueOf(targetPitch));
+        inputHash.put(FlightGearFields.PITCH_FIELD, String.valueOf(targetPitch));
         
         LOGGER.info("Setting pitch to {}", targetPitch);
         
@@ -376,9 +376,9 @@ public abstract class FlightGearPlane {
     }
     
     public synchronized void setRoll(double targetRoll) throws IOException {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_INPUT_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.ORIENTATION_INPUT_FIELDS);
                 
-        inputHash.put(FlightGearPlaneFields.ROLL_FIELD, String.valueOf(targetRoll));
+        inputHash.put(FlightGearFields.ROLL_FIELD, String.valueOf(targetRoll));
         
         LOGGER.info("Setting roll to {}", targetRoll);
         
@@ -396,8 +396,8 @@ public abstract class FlightGearPlane {
     //generic sim management
     
     public synchronized boolean isPaused() {
-    	return getSimFreezeClock() == FlightGearPlaneFields.SIM_FREEZE_INT_TRUE &&
-    			getSimFreezeMaster() == FlightGearPlaneFields.SIM_FREEZE_INT_TRUE;
+    	return getSimFreezeClock() == FlightGearFields.SIM_FREEZE_INT_TRUE &&
+    			getSimFreezeMaster() == FlightGearFields.SIM_FREEZE_INT_TRUE;
     }
     
     /**
@@ -410,17 +410,17 @@ public abstract class FlightGearPlane {
 
         // TODO: check telemetry if already paused
 
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.SIM_FREEZE_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.SIM_FREEZE_FIELDS);
 
         // oh get fucked. requires an int value for the bool, despite the schema specifying a bool.
         if (isPaused) {
             LOGGER.info("Pausing simulation");
-            inputHash.put(FlightGearPlaneFields.SIM_FREEZE_CLOCK_FIELD, FlightGearPlaneFields.SIM_FREEZE_TRUE);
-            inputHash.put(FlightGearPlaneFields.SIM_FREEZE_MASTER_FIELD, FlightGearPlaneFields.SIM_FREEZE_TRUE);
+            inputHash.put(FlightGearFields.SIM_FREEZE_CLOCK_FIELD, FlightGearFields.SIM_FREEZE_TRUE);
+            inputHash.put(FlightGearFields.SIM_FREEZE_MASTER_FIELD, FlightGearFields.SIM_FREEZE_TRUE);
         } else {
             LOGGER.info("Unpausing simulation");
-            inputHash.put(FlightGearPlaneFields.SIM_FREEZE_CLOCK_FIELD, FlightGearPlaneFields.SIM_FREEZE_FALSE);
-            inputHash.put(FlightGearPlaneFields.SIM_FREEZE_MASTER_FIELD, FlightGearPlaneFields.SIM_FREEZE_FALSE);
+            inputHash.put(FlightGearFields.SIM_FREEZE_CLOCK_FIELD, FlightGearFields.SIM_FREEZE_FALSE);
+            inputHash.put(FlightGearFields.SIM_FREEZE_MASTER_FIELD, FlightGearFields.SIM_FREEZE_FALSE);
         }
 
         // clock and master are the only two fields, no need to retrieve from the
@@ -440,11 +440,11 @@ public abstract class FlightGearPlane {
     }
     
     public synchronized void setSpeedUp(double targetSpeedup) throws IOException {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.SIM_SPEEDUP_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.SIM_SPEEDUP_FIELDS);
         
         LOGGER.info("Setting speedup: {}", targetSpeedup);
         
-        inputHash.put(FlightGearPlaneFields.SIM_SPEEDUP_FIELD, String.valueOf(targetSpeedup));
+        inputHash.put(FlightGearFields.SIM_SPEEDUP_FIELD, String.valueOf(targetSpeedup));
         
         writeSimSpeedupInput(inputHash);
     }
@@ -467,239 +467,239 @@ public abstract class FlightGearPlane {
     //environment
     
     public double getDewpoint() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.DEWPOINT_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.DEWPOINT_FIELD));
     }
     
     public double getEffectiveVisibility() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.EFFECTIVE_VISIBILITY_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.EFFECTIVE_VISIBILITY_FIELD));
     }
     
     public double getPressure() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.PRESSURE_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.PRESSURE_FIELD));
     }
     
     public double getRelativeHumidity() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.RELATIVE_HUMIDITY_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.RELATIVE_HUMIDITY_FIELD));
     }
     
     public double getTemperature() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.TEMPERATURE_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.TEMPERATURE_FIELD));
     }
     
     public double getVisibility() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.VISIBILITY_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.VISIBILITY_FIELD));
     }
     
     public double getWindFromDown() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.WIND_FROM_DOWN_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.WIND_FROM_DOWN_FIELD));
     }
     
     public double getWindFromEast() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.WIND_FROM_EAST_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.WIND_FROM_EAST_FIELD));
     }
     
     public double getWindFromNorth() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.WIND_FROM_NORTH_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.WIND_FROM_NORTH_FIELD));
     }
     
     public double getWindspeed() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.WINDSPEED_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.WINDSPEED_FIELD));
     }
     
     ///////////////////
     //fdm
     
     public int getDamageRepairing() {
-        return Character.getNumericValue( getTelemetryField(FlightGearPlaneFields.FDM_DAMAGE_REPAIRING_FIELD).charAt(0));
+        return Character.getNumericValue( getTelemetryField(FlightGearFields.FDM_DAMAGE_REPAIRING_FIELD).charAt(0));
     }
     
     public boolean isDamageRepairing() {
-        return getDamageRepairing() == FlightGearPlaneFields.FDM_DAMAGE_REPAIRING_INT_TRUE;
+        return getDamageRepairing() == FlightGearFields.FDM_DAMAGE_REPAIRING_INT_TRUE;
     }
     
     //fbx
     public double getFbxAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBX_AERO_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBX_AERO_FIELD));
     }
     
     public double getFbxExternalForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBX_EXTERNAL_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBX_EXTERNAL_FIELD));
     }
     
     public double getFbxGearForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBX_GEAR_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBX_GEAR_FIELD));
     }
     
     public double getFbxPropForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBX_PROP_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBX_PROP_FIELD));
     }
     
     public double getFbxTotalForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBX_TOTAL_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBX_TOTAL_FIELD));
     }
     
     public double getFbxWeightForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBX_WEIGHT_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBX_WEIGHT_FIELD));
     }
     
     //fby
     public double getFbyAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBY_AERO_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBY_AERO_FIELD));
     }
     
     public double getFbyExternalForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBY_EXTERNAL_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBY_EXTERNAL_FIELD));
     }
     
     public double getFbyGearForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBY_GEAR_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBY_GEAR_FIELD));
     }
     
     public double getFbyPropForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBY_PROP_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBY_PROP_FIELD));
     }
     
     public double getFbyTotalForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBY_TOTAL_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBY_TOTAL_FIELD));
     }
     
     public double getFbyWeightForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBY_WEIGHT_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBY_WEIGHT_FIELD));
     }
     
     //fbz
     public double getFbzAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBZ_AERO_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBZ_AERO_FIELD));
     }
     
     public double getFbzExternalForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBZ_EXTERNAL_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBZ_EXTERNAL_FIELD));
     }
     
     public double getFbzGearForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBZ_GEAR_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBZ_GEAR_FIELD));
     }
     
     public double getFbzPropForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBZ_PROP_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBZ_PROP_FIELD));
     }
     
     public double getFbzTotalForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBZ_TOTAL_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBZ_TOTAL_FIELD));
     }
     
     public double getFbzWeightForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FBZ_WEIGHT_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FBZ_WEIGHT_FIELD));
     }
     
     //fsx
     public double getFsxAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FSX_AERO_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FSX_AERO_FIELD));
     }
     
     //fsy
     public double getFsyAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FSY_AERO_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FSY_AERO_FIELD));
     }
     
     //fsz
     public double getFszAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FSZ_AERO_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FSZ_AERO_FIELD));
     }
     
     //fwy
     public double getFwyAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FWY_AERO_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FWY_AERO_FIELD));
     }
     
     //fwz
     public double getFwzAeroForce() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_FWZ_AERO_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_FWZ_AERO_FIELD));
     }
     
     //load factor
     public double getLoadFactor() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_LOAD_FACTOR_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_LOAD_FACTOR_FIELD));
     }
     
     public double getLodNorm() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_LOD_NORM_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_LOD_NORM_FIELD));
     }
     
     //damage
     
     public int getDamage() {
-        return Character.getNumericValue(getTelemetryField(FlightGearPlaneFields.FDM_DAMAGE_FIELD).charAt(0));
+        return Character.getNumericValue(getTelemetryField(FlightGearFields.FDM_DAMAGE_FIELD).charAt(0));
     }
     
     public boolean isDamageEnabled() {
-        return getDamage() == FlightGearPlaneFields.FDM_DAMAGE_ENABLED_INT_TRUE;
+        return getDamage() == FlightGearFields.FDM_DAMAGE_ENABLED_INT_TRUE;
     }
 
     public double getLeftWingDamage() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_LEFT_WING_DAMAGE_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_LEFT_WING_DAMAGE_FIELD));
     }
     
     public double getRightWingDamage() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.FDM_RIGHT_WING_DAMAGE_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_RIGHT_WING_DAMAGE_FIELD));
     }
     
     ///////////////////
     //orientation
     
     public double getAlpha() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.ALPHA_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.ALPHA_FIELD));
     }
     
     public double getBeta() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.BETA_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.BETA_FIELD));
     }
     
     public double getHeading() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.HEADING_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.HEADING_FIELD));
     }
     
     public double getHeadingMag() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.HEADING_MAG_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.HEADING_MAG_FIELD));
     }
     
     public double getPitch() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.PITCH_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.PITCH_FIELD));
     }
     
     public double getRoll() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.ROLL_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.ROLL_FIELD));
     }
     
     public double getTrack() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.TRACK_MAG_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.TRACK_MAG_FIELD));
     }
     
     public double getYaw() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.YAW_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.YAW_FIELD));
     }
     
     public double getYawRate() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.YAW_RATE_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.YAW_RATE_FIELD));
     }
 
     ///////////////////
     //position
     
     public double getAltitude() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.ALTITUDE_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.ALTITUDE_FIELD));
     }
     
     public double getGroundElevation() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.GROUND_ELEVATION_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.GROUND_ELEVATION_FIELD));
     }
     
     public double getLatitude() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.LATITUDE_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.LATITUDE_FIELD));
     }
     
     public double getLongitude() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.LONGITUDE_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.LONGITUDE_FIELD));
     }
     
     ///////////////////
@@ -708,52 +708,52 @@ public abstract class FlightGearPlane {
     public abstract void setParkingBrake(boolean brakeEnabled) throws IOException;
     
     public int getSimFreezeClock() {
-        return Character.getNumericValue(getTelemetryField(FlightGearPlaneFields.SIM_FREEZE_CLOCK_FIELD).charAt(0));
+        return Character.getNumericValue(getTelemetryField(FlightGearFields.SIM_FREEZE_CLOCK_FIELD).charAt(0));
     }
     
     public int getSimFreezeMaster() {
-        return Character.getNumericValue(getTelemetryField(FlightGearPlaneFields.SIM_FREEZE_MASTER_FIELD).charAt(0));
+        return Character.getNumericValue(getTelemetryField(FlightGearFields.SIM_FREEZE_MASTER_FIELD).charAt(0));
     }
     
     public double getSimSpeedUp() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_SPEEDUP_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.SIM_SPEEDUP_FIELD));
     }
     
     public double getTimeElapsed() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_TIME_ELAPSED_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.SIM_TIME_ELAPSED_FIELD));
     }
     
     public double getLocalDaySeconds() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_LOCAL_DAY_SECONDS_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.SIM_LOCAL_DAY_SECONDS_FIELD));
     }
     
     public double getMpClock() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.SIM_MP_CLOCK_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.SIM_MP_CLOCK_FIELD));
     }
     
     ///////////////////
     //velocities
     public double getAirSpeed() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.AIRSPEED_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.AIRSPEED_FIELD));
     }
     
     public double getGroundSpeed() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.GROUNDSPEED_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.GROUNDSPEED_FIELD));
     }
     
     public double getVerticalSpeed() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.VERTICALSPEED_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.VERTICALSPEED_FIELD));
     }
     
     public double getUBodySpeed() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.U_BODY_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.U_BODY_FIELD));
     }
     
     public double getVBodySpeed() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.V_BODY_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.V_BODY_FIELD));
     }
     
     public double getWBodySpeed() {
-        return Double.parseDouble(getTelemetryField(FlightGearPlaneFields.W_BODY_FIELD));
+        return Double.parseDouble(getTelemetryField(FlightGearFields.W_BODY_FIELD));
     }
 }

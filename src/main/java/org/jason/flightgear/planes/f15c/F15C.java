@@ -6,34 +6,34 @@ import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
-import org.jason.flightgear.connection.sockets.FlightGearSocketsConnection;
+import org.jason.flightgear.connection.sockets.FlightGearInputConnection;
+import org.jason.flightgear.connection.sockets.FlightGearTelemetryConnection;
 import org.jason.flightgear.connection.telnet.FlightGearTelnetConnection;
 import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.jason.flightgear.planes.FlightGearPlane;
-import org.jason.flightgear.planes.FlightGearPlaneFields;
+import org.jason.flightgear.planes.FlightGearFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class F15C extends FlightGearPlane {
-
-    private final static Logger LOGGER = LoggerFactory.getLogger(F15C.class);
+public class F15C extends FlightGearPlane{
     
-    //TODO: read from config file
-    private final static int SOCKETS_INPUT_CONSUMABLES_PORT = 6601;
-    private final static int SOCKETS_INPUT_CONTROLS_PORT = 6602;
-    private final static int SOCKETS_INPUT_FDM_PORT = 6603;
-    private final static int SOCKETS_INPUT_ORIENTATION_PORT = 6604;
-    private final static int SOCKETS_INPUT_POSITION_PORT = 6605;
-    private final static int SOCKETS_INPUT_SIM_PORT = 6606;
-    private final static int SOCKETS_INPUT_SIM_FREEZE_PORT = 6607;
-    private final static int SOCKETS_INPUT_SIM_SPEEDUP_PORT = 6608;
-    private final static int SOCKETS_INPUT_VELOCITIES_PORT = 6609;
+    private final static Logger LOGGER = LoggerFactory.getLogger(F15C.class);
 
     private final static int AUTOSTART_COMPLETION_SLEEP = 5000;
-    private final static int POST_PAUSE_SLEEP = 250;
     
-    private FlightGearTelnetConnection fgTelnet;
-    private FlightGearSocketsConnection fgSockets;
+    private final static int SOCKET_WRITE_WAIT_SLEEP = 100;
+    
+    private FlightGearTelemetryConnection socketsTelemetryConnection;
+    
+    private FlightGearInputConnection consumeablesInputConnection;
+    private FlightGearInputConnection controlInputConnection;
+    private FlightGearInputConnection fdmInputConnection;
+    private FlightGearInputConnection orientationInputConnection;
+    private FlightGearInputConnection positionInputConnection;
+    private FlightGearInputConnection simInputConnection;
+    private FlightGearInputConnection simFreezeInputConnection;
+    private FlightGearInputConnection simSpeedupInputConnection;
+    private FlightGearInputConnection velocitiesInputConnection;
                
     public F15C() throws FlightGearSetupException {
         this(new F15CConfig());
@@ -44,10 +44,10 @@ public class F15C extends FlightGearPlane {
         
         LOGGER.info("Loading F15C...");
         
-        //setup the socket and telnet connections. start the telemetry retrieval thread.
+        //setup known ports, and the telemetry socket. start the telemetry retrieval thread.
         setup(config);
         
-        //TODO: implement. possibly add to superclass
+        //TODO: implement. possibly add to superclass. depends on superclass init and setup
         launchSimulator();
                 
         LOGGER.info("F15C setup completed");
@@ -60,28 +60,42 @@ public class F15C extends FlightGearPlane {
     private void setup(F15CConfig config) throws FlightGearSetupException {
         LOGGER.info("setup called");
         
+        //TODO: invoke port setters in superclass per config
+        //networkConfig.setConsumeablesPort(config.getConsumeablesPort);
+        
+        try {
+        	LOGGER.info("Establishing input socket connections.");
+        	
+        	consumeablesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getConsumeablesPort());
+			controlInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getControlsPort());
+			fdmInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getFdmPort());
+			orientationInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getOrientationPort());
+			positionInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getPositionPort());
+			simInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimPort());
+			simFreezeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimFreezePort());
+			simSpeedupInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimSpeedupPort());
+			velocitiesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getVelocitiesPort());
+			
+			LOGGER.info("Input socket connections established.");
+		} catch (SocketException | UnknownHostException e) {
+            LOGGER.error("Exception occurred establishing control input connections", e);
+            
+            throw new FlightGearSetupException(e);
+		}
+        
         //TODO: check that any dynamic config reads result in all control input ports being defined
         
         //TODO: consider a separate function so this can be started/restarted externally
         //launch thread to update telemetry
 
         try {
-            fgSockets = new FlightGearSocketsConnection(config.getSocketsHostname(), config.getSocketsPort());
+            socketsTelemetryConnection = new FlightGearTelemetryConnection(networkConfig.getTelemetryOutputHost(), networkConfig.getTelemetryOutputPort());
             
             //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
-            //
             launchTelemetryThread();
-            
-            fgTelnet = new FlightGearTelnetConnection(config.getTelnetHostname(), config.getTelnetPort());
-
-        } catch (SocketException | UnknownHostException | InvalidTelnetOptionException e) {
+        } catch (SocketException | UnknownHostException e) {
             
             LOGGER.error("Exception occurred during setup", e);
-            
-            throw new FlightGearSetupException(e);
-        } catch (IOException e) {
-            
-            LOGGER.error("IOException occurred during setup", e);
             
             throw new FlightGearSetupException(e);
         }
@@ -89,155 +103,454 @@ public class F15C extends FlightGearPlane {
         LOGGER.info("setup returning");
     }
     
-    public void startupPlane() throws Exception {
+    public void startupPlane() throws FlightGearSetupException {
         
-        LOGGER.info("Starting up the plane");
-        
-        //may not need to wait on state read/write
-        
-        //nasal script to autostart from f15c menu
-        fgTelnet.runNasal("aircraft.quickstart();");
-        
-        LOGGER.info("Startup nasal script executed. Sleeping for completion.");
-        
-        //startup may be asynchronous so we have to wait for the next prompt 
+        LOGGER.info("Starting up the F15C");
+                
+        FlightGearTelnetConnection planeStartupTelnetSession = null; 
+		//nasal script to autostart from F15C menu
         try {
-            Thread.sleep(AUTOSTART_COMPLETION_SLEEP);
-        } catch (InterruptedException e) {
-            LOGGER.warn("Startup wait interrupted", e);
+        	planeStartupTelnetSession = new FlightGearTelnetConnection(networkConfig.getTelnetHost(), networkConfig.getTelnetPort());
+        	
+            //execute the startup nasal script
+            planeStartupTelnetSession.runNasal("aircraft.quickstart();");
+            
+            LOGGER.debug("Startup nasal script was executed. Sleeping for completion.");
+            
+            //startup may be asynchronous so we have to wait for the next prompt 
+            //TODO: maybe run another telnet command as a check
+            try {
+                Thread.sleep(AUTOSTART_COMPLETION_SLEEP);
+            } catch (InterruptedException e) {
+                LOGGER.warn("Startup wait interrupted", e);
+            }        
+            
+            LOGGER.debug("Startup nasal script execution completed");
+        } catch (IOException | InvalidTelnetOptionException e) {
+            LOGGER.error("Exception running startup nasal script", e);
+            throw new FlightGearSetupException("Could not execute startup nasal script");
+        } finally {
+            //disconnect the telnet connection because we only use it to run the nasal script
+            //to start the plane. it's not used again.
+            if(planeStartupTelnetSession.isConnected()) {
+                planeStartupTelnetSession.disconnect();
+            }
         }
         
-        //disconnect the telnet connection because we only use it to run the nasal script
-        //to start the plane. it's not used again.
-        fgTelnet.disconnect();
-
-        //TODO: verify from telemetry read engines are running
-        //from currentstate
+        int startupWait = 0;
+        int sleep = 250;
         
+        while(!this.isEngineRunning() && startupWait < AUTOSTART_COMPLETION_SLEEP) {
+            LOGGER.debug("Waiting for engine to complete startup");
+            try {
+                Thread.sleep(sleep);
+            } catch (InterruptedException e) {
+                LOGGER.warn("Engine startup wait interrupted", e);
+            }
+            
+            startupWait += sleep;
+        }
+        
+        if(!this.isEngineRunning()) {
+            throw new FlightGearSetupException("Engine was not running after startup. Bailing out. Not literally.");
+        }
+    
         LOGGER.info("Startup completed");
     }
     
     /**
-     * public so that high-level input (advanced maneuvers) can be written in one update externally
+     * Write an input hash to a simulator input socket.
      * 
      * @param inputHash
      * @param port
+     * @throws IOException 
      */
     @Override
-    protected synchronized void writeControlInput(LinkedHashMap<String, String> inputHash, int port) {
-//        while(stateReading.get()) {
-//            try {
-//                logger.debug("Waiting for state reading to complete");
-//                Thread.sleep(100);
-//            } catch (InterruptedException e) {
-//                logger.warn("writeSocketInput: Socket write wait interrupted", e);
-//            }
-//        }
+    protected synchronized void writeControlInput(LinkedHashMap<String, String> inputHash, FlightGearInputConnection socketConnection) throws IOException {
+        //wait for state write to finish. don't care about state reads
+        //may not actually need this since this is a synchronized function
+        //TODO: test^^^
+        while(stateWriting.get()) {
+            try {
+                LOGGER.debug("writeSocketInput: Waiting for previous state write to complete");
+                Thread.sleep(SOCKET_WRITE_WAIT_SLEEP);
+            } catch (InterruptedException e) {
+                LOGGER.warn("writeSocketInput: Socket write wait interrupted", e);
+            }
+        }
         
-        //TODO: check if paused, and pause if not
-        //expect pause before and after invocation of this
+        try {
+            stateWriting.set(true);
+            socketConnection.writeControlInput(inputHash);
+        }
+        finally {
+            stateWriting.set(false);
+        }
+    }
+    
+    //////////////
+    //telemetry accessors
+    
+    ///////////////////
+    //consumables
+    
+    public double getCapacity_gal_us() {
+        return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_CAPACITY_FIELD));
+    }
+    
+    public double getLevel_gal_us() {
+        return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_LEVEL_FIELD));
+    }
+   
+    ///////////////////
+    //controls
+    
+    public int getBatterySwitch() {
+        return Character.getNumericValue( getTelemetryField(F15CFields.BATTERY_SWITCH_FIELD).charAt(0));
+    }
+    
+    public boolean isBatterySwitchEnabled() {
+        return getBatterySwitch() == F15CFields.BATTERY_SWITCH_INT_TRUE;
+    }
+    
+    public int getEngine0Cutoff() {
+    	return Character.getNumericValue( getTelemetryField(F15CFields.ENGINE_0_CUTOFF_FIELD).charAt(0));
+    }
+    
+    public boolean isEngine0Cutoff() {
+        return getEngine0Cutoff() == F15CFields.ENGINE_CUTOFF_INT_TRUE;
+    }
+    
+    public boolean isEngine1Cutoff() {
+        return getEngine1Cutoff() == F15CFields.ENGINE_CUTOFF_INT_TRUE;
+    }
+    
+    public int getEngine1Cutoff() {
+    	return Character.getNumericValue( getTelemetryField(F15CFields.ENGINE_0_CUTOFF_FIELD).charAt(0));
+    }
+    
+    public double getMixture() {
+        return Double.parseDouble(getTelemetryField(F15CFields.MIXTURE_FIELD));
+    }
+    
+    public double getThrottle() {
+        return Double.parseDouble(getTelemetryField(F15CFields.THROTTLE_FIELD));
+    }
+    
+    public double getAileron() {
+        return Double.parseDouble(getTelemetryField(F15CFields.AILERON_FIELD));
+    }
+    
+    public int getAutoCoordination() {
+        return Integer.parseInt(getTelemetryField(F15CFields.AUTO_COORDINATION_FIELD));
+    }
+    
+    public double getAutoCoordinationFactor() {
+        return Double.parseDouble(getTelemetryField(F15CFields.AUTO_COORDINATION_FACTOR_FIELD));
+    }
+    
+    public double getElevator() {
+        return Double.parseDouble(getTelemetryField(F15CFields.ELEVATOR_FIELD));
+    }
+    
+    public double getFlaps() {
+        return Double.parseDouble(getTelemetryField(F15CFields.FLAPS_FIELD));
+    }
+    
+    public double getRudder() {
+        return Double.parseDouble(getTelemetryField(F15CFields.RUDDER_FIELD));
+    }
+    
+    public double getSpeedbrake() {
+        return Double.parseDouble(getTelemetryField(F15CFields.SPEED_BRAKE_FIELD));
+    }
+    
+    public int getParkingBrakeEnabled() {
+        //TODO: this and other fields can be missing if the protocol files are incorrect- safeguard against.
         
-        //TODO: wait for stateread to end
+        //returned as a double like 0.000000, just look at the first character
+        return Character.getNumericValue( getTelemetryField(F15CFields.PARKING_BRAKE_FIELD).charAt(0));
+    }
+    
+    public boolean isParkingBrakeEnabled() {
+        return getParkingBrakeEnabled() == F15CFields.PARKING_BRAKE_INT_TRUE;
+    }
+    
+    public int getParkingBrake() {       
+        return Character.getNumericValue(getTelemetryField(F15CFields.PARKING_BRAKE_FIELD).charAt(0));
+    }
+    
+    public int getGearDown() {
+        return Character.getNumericValue( getTelemetryField(F15CFields.GEAR_DOWN_FIELD).charAt(0));
+    }
+    
+    public boolean isGearDown() {
+        return getGearDown() == F15CFields.GEAR_DOWN_INT_TRUE;
+    }
+    
+    ///////////////////
+    //engine - really only care about engine 1 for now
+
+    public double getExhaustGasTemperature() {
+        return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_1_EXHAUST_GAS_TEMPERATURE_FIELD));
+    }
+    
+    public double getExhaustGasTemperatureNormalization() {
+        return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_1_EXHAUST_GAS_TEMPERATURE_NORM_FIELD));
+    }
+    
+    public double getFuelFlow() {
+        return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_1_FUEL_FLOW_FIELD));
+    }
+    
+    public double getOilPressure() {
+        return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_1_OIL_PRESSURE_FIELD));
+    }
+    
+    /**
+     * The state of engine 1 (and not engine 0) determines the running and cutoff states.
+     * 
+     * @return
+     */
+    public int getEngineRunning() {
+        return Character.getNumericValue( getTelemetryField(F15CFields.ENGINE_1_RUNNING_FIELD).charAt(0));
+    }
+    
+    /**
+     *	
+     */
+    @Override
+    public boolean isEngineRunning() {
+        return getEngineRunning() == F15CFields.ENGINE_RUNNING_INT_TRUE;
+    }
+    
+    ///////////////////
+    //sim
+    
+    //////////////
+    //telemetry modifiers
+    
+    public void forceStabilize(double heading, double altitude, double roll, double pitch) throws IOException {
         
-        //TODO: lock on write
-        fgSockets.writeControlInput(inputHash, port);
+        LOGGER.info("forceStabilize called");
         
-        //TODO: unpause if pause issued in this function
+        //TODO: check if paused
+        
+        LinkedHashMap<String, String> orientationFields = copyStateFields(FlightGearFields.ORIENTATION_INPUT_FIELDS);
+        
+        setPause(true);
+        orientationFields.put(FlightGearFields.HEADING_FIELD, String.valueOf(heading) ) ;
+        orientationFields.put(FlightGearFields.PITCH_FIELD, String.valueOf(pitch) );
+        orientationFields.put(FlightGearFields.ROLL_FIELD, String.valueOf(roll) );
+
+        //TODO: altitude check?
+        
+        writeControlInput(orientationFields, this.orientationInputConnection);
+
+        setPause(false);
     }
     
     @Override
-    public double getAltitude() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public void setPause(boolean isPaused) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setAltitude(double targetAltitude) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void setPitch(double targetPitch) {
-        //TODO: check if paused
+    public synchronized void setFuelTankLevel(double amount) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONSUMABLES_INPUT_FIELDS);
         
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.ORIENTATION_FIELDS);
-        
-        inputHash.put(FlightGearPlaneFields.PITCH_FIELD, String.valueOf(targetPitch));
-        
-        LOGGER.info("Setting pitch to {}", targetPitch);
-        
-        writeControlInput(inputHash, SOCKETS_INPUT_ORIENTATION_PORT);
-    }
-
-    @Override
-    public double getRoll() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public void setRoll(double targetRoll) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    protected String readTelemetryRaw() throws IOException {
-        return fgSockets.readTelemetry();
-    }
-
-    @Override
-    public void setFuelTankLevel(double amount) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONSUMABLES_FIELDS);
-        
+        inputHash.put(F15CFields.FUEL_TANK_LEVEL_FIELD, String.valueOf(amount));
         inputHash.put(F15CFields.FUEL_TANK_0_LEVEL_FIELD, String.valueOf(amount));
         inputHash.put(F15CFields.FUEL_TANK_1_LEVEL_FIELD, String.valueOf(amount));
         inputHash.put(F15CFields.FUEL_TANK_2_LEVEL_FIELD, String.valueOf(amount));
         
         LOGGER.info("Setting fuel tank level: {}", amount);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_CONSUMABLES_PORT);
+        writeControlInput(inputHash, this.consumeablesInputConnection);   
     }
-
-    @Override
-    public double getFuelLevel() {
-        // TODO Auto-generated method stub
-        return 0;
+    
+    public synchronized void setBatterySwitch(boolean switchOn) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        if(switchOn) {
+            inputHash.put(F15CFields.BATTERY_SWITCH_FIELD, F15CFields.BATTERY_SWITCH_TRUE);
+        }
+        else {
+            inputHash.put(F15CFields.BATTERY_SWITCH_FIELD, F15CFields.BATTERY_SWITCH_FALSE);
+        }
+        
+        LOGGER.info("Setting battery switch to {}", switchOn);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
     }
-
-    @Override
-    public double getFuelTankCapacity() {
-        // TODO Auto-generated method stub
-        return 0;
+    
+    public synchronized void setEngine0Cutoff(boolean cutoffState) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        if(cutoffState) {
+            inputHash.put(F15CFields.ENGINE_0_CUTOFF_FIELD, F15CFields.ENGINE_CUTOFF_TRUE);
+        }
+        else {
+            inputHash.put(F15CFields.ENGINE_0_CUTOFF_FIELD, F15CFields.ENGINE_CUTOFF_FALSE);
+        }
+        
+        LOGGER.info("Setting engine 0 cutoff to {}", cutoffState);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
     }
+    
+    public synchronized void setEngine1Cutoff(boolean cutoffState) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        if(cutoffState) {
+            inputHash.put(F15CFields.ENGINE_1_CUTOFF_FIELD, F15CFields.ENGINE_CUTOFF_TRUE);
+        }
+        else {
+            inputHash.put(F15CFields.ENGINE_1_CUTOFF_FIELD, F15CFields.ENGINE_CUTOFF_FALSE);
+        }
+        
+        LOGGER.info("Setting engine 1 cutoff to {}", cutoffState);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
+    
+    public synchronized void setElevator(double orientation) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.ELEVATOR_FIELD, String.valueOf(orientation));
 
-    public synchronized void setDamageEnabled(boolean damageEnabled) {
-        LinkedHashMap<String, String> inputHash = new LinkedHashMap<String, String>();
+        LOGGER.info("Setting elevator to {}", orientation);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
+    public synchronized void setAileron(double orientation) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.AILERON_FIELD, String.valueOf(orientation));
+
+        LOGGER.info("Setting aileron to {}", orientation);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
+    public synchronized void setAutoCoordination(boolean enabled) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        if(enabled) {
+            inputHash.put(F15CFields.AUTO_COORDINATION_FIELD, F15CFields.AUTO_COORDINATION_TRUE);
+        }
+        else {
+            inputHash.put(F15CFields.AUTO_COORDINATION_FIELD, F15CFields.AUTO_COORDINATION_FALSE);
+        }
+
+        LOGGER.info("Setting autocoordination to {}", enabled);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
+    public synchronized void setFlaps(double orientation) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.FLAPS_FIELD, String.valueOf(orientation));
+
+        LOGGER.info("Setting flaps to {}", orientation);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
+    public synchronized void setRudder(double orientation) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.RUDDER_FIELD, String.valueOf(orientation));
+
+        LOGGER.info("Setting rudder to {}", orientation);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
+    public synchronized void setThrottle(double throttle ) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.THROTTLE_FIELD, String.valueOf(throttle));
+        
+        LOGGER.info("Setting throttle to {}", throttle);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
+    public synchronized void setMixture(double mixture ) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.MIXTURE_FIELD, String.valueOf(mixture));
+        
+        LOGGER.info("Setting mixture to {}", mixture);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
+    public synchronized void resetControlSurfaces() throws IOException {
+        
+        LOGGER.info("Resetting control surfaces");
+        
+        setElevator(F15CFields.ELEVATOR_DEFAULT);
+        setAileron(F15CFields.AILERON_DEFAULT);
+        setFlaps(F15CFields.FLAPS_DEFAULT);
+        setRudder(F15CFields.RUDDER_DEFAULT);
+        
+        LOGGER.info("Reset of control surfaces completed");
+    }
+    
+    public synchronized void setDamageEnabled(boolean damageEnabled) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.FDM_INPUT_FIELDS);
         
         //requires an int value for the bool
         if(!damageEnabled) {
-            inputHash.put(FlightGearPlaneFields.FDM_DAMAGE_FIELD, FlightGearPlaneFields.FDM_DAMAGE_ENABLED_FALSE);
+            inputHash.put(FlightGearFields.FDM_DAMAGE_FIELD, FlightGearFields.FDM_DAMAGE_ENABLED_FALSE);
         }
         else {
-            inputHash.put(FlightGearPlaneFields.FDM_DAMAGE_FIELD, FlightGearPlaneFields.FDM_DAMAGE_ENABLED_TRUE);
+            inputHash.put(FlightGearFields.FDM_DAMAGE_FIELD, FlightGearFields.FDM_DAMAGE_ENABLED_TRUE);
         }
         
         LOGGER.info("Toggling damage enabled: {}", damageEnabled);
         
         //socket writes typically require pauses so telemetry/state aren't out of date
         //however this is an exception
-        writeControlInput(inputHash, SOCKETS_INPUT_FDM_PORT);
+        writeControlInput(inputHash, this.fdmInputConnection);
     }
-
-    public synchronized void setParkingBrake(boolean brakeEnabled) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_FIELDS);
+    
+    @Override
+    public synchronized void setAltitude(double targetAltitude) throws IOException {        
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.POSITION_INPUT_FIELDS);
+        
+        inputHash.put(FlightGearFields.ALTITUDE_FIELD, String.valueOf(targetAltitude));
+        
+        LOGGER.info("Setting altitude to {}", targetAltitude);
+        
+        writeControlInput(inputHash, this.positionInputConnection);
+    }
+    
+    @Override
+    public synchronized void setLatitude(double targetLatitude) throws IOException {        
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.POSITION_INPUT_FIELDS);
+        
+        inputHash.put(FlightGearFields.LATITUDE_FIELD, String.valueOf(targetLatitude));
+        
+        LOGGER.info("Setting latitude to {}", targetLatitude);
+        
+        writeControlInput(inputHash, this.positionInputConnection);
+    }
+    
+    @Override
+    public synchronized void setLongitude(double targetLongitude) throws IOException {        
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.POSITION_INPUT_FIELDS);
+        
+        inputHash.put(FlightGearFields.LONGITUDE_FIELD, String.valueOf(targetLongitude));
+        
+        LOGGER.info("Setting longitude to {}", targetLongitude);
+        
+        writeControlInput(inputHash, this.positionInputConnection);
+    }
+    
+    @Override
+    public synchronized void setParkingBrake(boolean brakeEnabled) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
             
         //visual: in the cockpit, if the brake arm is:
         //pushed in => brake is not engaged (disabled => 0)
@@ -253,140 +566,147 @@ public class F15C extends FlightGearPlane {
         
         LOGGER.info("Setting parking brake to {}", brakeEnabled);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
-    }
-
-    public synchronized void setElevator(double orientation) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_FIELDS);
-        
-        inputHash.put(F15CFields.ELEVATOR_FIELD, String.valueOf(orientation));
-
-        LOGGER.info("Setting elevator to {}", orientation);
-        
-        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, this.controlInputConnection);
     }
     
-    public synchronized void setAileron(double orientation) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_FIELDS);
+    @Override
+    public synchronized void setAirSpeed(double targetSpeed) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.VELOCITIES_INPUT_FIELDS);
+                
+        inputHash.put(FlightGearFields.AIRSPEED_FIELD, String.valueOf(targetSpeed));
         
-        inputHash.put(F15CFields.AILERON_FIELD, String.valueOf(orientation));
-
-        LOGGER.info("Setting aileron to {}", orientation);
+        LOGGER.info("Setting air speed to {}", targetSpeed);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, this.velocitiesInputConnection);
     }
     
-    public synchronized void setAutoCoordination(boolean enabled) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_FIELDS);
+    @Override
+    public synchronized void setVerticalSpeed(double targetSpeed) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.VELOCITIES_INPUT_FIELDS);
+                
+        inputHash.put(FlightGearFields.VERTICALSPEED_FIELD, String.valueOf(targetSpeed));
         
-        if(enabled) {
-            inputHash.put(F15CFields.AUTO_COORDINATION_FIELD, F15CFields.AUTO_COORDINATION_TRUE);
-        }
-        else {
-            inputHash.put(F15CFields.AUTO_COORDINATION_FIELD, F15CFields.AUTO_COORDINATION_FALSE);
-        }
-
-        LOGGER.info("Setting autocoordination to {}", enabled);
+        LOGGER.info("Setting vertical speed to {}", targetSpeed);
         
-        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
+        writeControlInput(inputHash, this.velocitiesInputConnection);
     }
     
-    public synchronized void setFlaps(double orientation) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_FIELDS);
-        
-        inputHash.put(F15CFields.FLAPS_FIELD, String.valueOf(orientation));
-
-        LOGGER.info("Setting flaps to {}", orientation);
-        
-        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
-    }
+    ///////////////
     
-    public synchronized void setRudder(double orientation) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_FIELDS);
+    public void shutdown() {
         
-        inputHash.put(F15CFields.RUDDER_FIELD, String.valueOf(orientation));
-
-        LOGGER.info("Setting rudder to {}", orientation);
+        LOGGER.info("F15C Shutdown invoked");
         
-        writeControlInput(inputHash, SOCKETS_INPUT_CONTROLS_PORT);
-    }
-    
-    public synchronized void resetControlSurfaces() {
+        //shuts down telemetry thread
+        super.shutdown();
         
-        LOGGER.info("Resetting control surfaces");
+        //close input sockets
+        try {
+			consumeablesInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing consumeables input socket", e);
+		}
+        try {
+			controlInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing control input socket", e);
+		}
+        try {
+			fdmInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing fdm input socket", e);
+		}
+        try {
+			orientationInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing orientation input socket", e);
+		}
+        try {
+			positionInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing position input socket", e);
+		}
+        try {
+			simInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing sim input socket", e);
+		}
+        try {
+			simFreezeInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing sim freeze input socket", e);
+		}
+        try {
+			simSpeedupInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing sim speedup input socket", e);
+		}
+        try {
+			velocitiesInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing velocities input socket", e);
+		}
         
-        setElevator(F15CFields.ELEVATOR_DEFAULT);
-        setAileron(F15CFields.AILERON_DEFAULT);
-        setFlaps(F15CFields.FLAPS_DEFAULT);
-        setRudder(F15CFields.RUDDER_DEFAULT);
-        
-        LOGGER.info("Reset of control surfaces completed");
-    }
-    
-    public synchronized void setSpeedUp(double speedup) {
-        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.SIM_SPEEDUP_FIELDS);
-        
-        inputHash.put(FlightGearPlaneFields.SIM_SPEEDUP_FIELD, String.valueOf(speedup));
-        
-        LOGGER.info("Setting speedup: {}", speedup);        
-        
-        writeControlInput(inputHash, SOCKETS_INPUT_SIM_SPEEDUP_PORT);
-    }
-
-    public int getEngineRunning() {
-        return Character.getNumericValue( getTelemetry().get(F15CFields.ENGINE_RUNNING_FIELD).charAt(0));
-    }
-    
-    public boolean isEngineRunning() {
-        return getEngineRunning() == F15CFields.ENGINE_RUNNING_INT_TRUE;
-    }
-    public double getSimSpeedUp() {
-        return Double.parseDouble(getTelemetry().get(FlightGearPlaneFields.SIM_SPEEDUP_FIELD));
-    }
-    
-    public double getTimeElapsed() {
-        return Double.parseDouble(getTelemetry().get(FlightGearPlaneFields.SIM_TIME_ELAPSED_FIELD));
-    }
-    
-    public double getLocalDaySeconds() {
-        return Double.parseDouble(getTelemetry().get(FlightGearPlaneFields.SIM_LOCAL_DAY_SECONDS_FIELD));
-    }
-
-    public double getFuelFlow() {
-        return Double.parseDouble(getTelemetry().get(F15CFields.ENGINE_FUEL_FLOW_FIELD));
-    }
-    
-    public double getOilPressure() {
-        return Double.parseDouble(getTelemetry().get(F15CFields.ENGINE_OIL_PRESSURE_FIELD));
+        LOGGER.info("F15C Shutdown completed");
     }
 
     @Override
-    public void setHeading(double targetHeading) {
-        // TODO Auto-generated method stub
+    protected String readTelemetryRaw() throws IOException {
+        return socketsTelemetryConnection.readTelemetry();
         
     }
 
     @Override
-    public void setLatitude(double targetLatitude) {
-        // TODO Auto-generated method stub
-        
+    public synchronized double getFuelTankCapacity() {
+        return this.getCapacity_gal_us();
     }
 
     @Override
-    public void setLongitude(double targetLongitude) {
-        // TODO Auto-generated method stub
+    public synchronized double getFuelLevel() {
+        return getLevel_gal_us();
         
     }
 
-    @Override
-    public void setAirSpeed(double targetSpeed) {
-        // TODO Auto-generated method stub
-        
-    }
+    ///////////////
+    //socket connection writing
+    
+	@Override
+	protected void writeConsumeablesInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.consumeablesInputConnection.writeControlInput(inputHash);
+	}
 
-    @Override
-    public void setVerticalSpeed(double targetSpeed) {
-        // TODO Auto-generated method stub
-        
-    }    
+	@Override
+	protected void writeControlInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.controlInputConnection.writeControlInput(inputHash);
+	}
+
+	@Override
+	protected void writeFdmInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.fdmInputConnection.writeControlInput(inputHash);
+	}
+
+	@Override
+	protected void writeOrientationInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.orientationInputConnection.writeControlInput(inputHash);
+	}
+
+	@Override
+	protected void writePositionInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.positionInputConnection.writeControlInput(inputHash);
+	}
+
+	@Override
+	protected void writeSimFreezeInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.simFreezeInputConnection.writeControlInput(inputHash);
+	}
+
+	@Override
+	protected void writeSimSpeedupInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.simSpeedupInputConnection.writeControlInput(inputHash);
+	}
+
+	@Override
+	protected void writeVelocitiesInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.velocitiesInputConnection.writeControlInput(inputHash);
+	}
 }

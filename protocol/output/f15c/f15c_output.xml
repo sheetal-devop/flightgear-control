@@ -21,7 +21,7 @@
             <node>/consumables/fuel/total-fuel-gal_us</node>
             <name>total-fuel-gal_us</name>
             <type>float</type>
-            <format>"/consumables/fuel/total-fuel-gal_us: %f,</format>
+            <format>"/consumables/fuel/total-fuel-gal_us": %f,</format>
          </chunk>
          <!-- control -->
          <chunk>
@@ -29,6 +29,18 @@
             <name>battery-switch</name>
             <type>bool</type>
             <format>"/controls/electric/battery-switch": %d,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/engines/engine[0]/cutoff</node>
+            <name>cutoff</name>
+            <type>bool</type>
+            <format>"/controls/engines/engine[0]/cutoff": %d,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/engines/engine[1]/cutoff</node>
+            <name>cutoff</name>
+            <type>bool</type>
+            <format>"/controls/engines/engine[1]/cutoff": %d,</format>
          </chunk>
          <chunk>
             <node>/controls/engines/engine/mixture</node>
@@ -110,28 +122,10 @@
          </chunk>
          <!-- engines - two engines on the f15c -->
          <chunk>
-            <node>/engines/engine/egt-degf</node>
+            <node>/engines/engine[0]/egt-degf</node>
             <name>egt-degf</name>
             <type>float</type>
-            <format>"/engines/engine/egt-degf": %f,</format>
-         </chunk>
-         <chunk>
-            <node>/engines/engine/egt-norm</node>
-            <name>egt-norm</name>
-            <type>float</type>
-            <format>"/engines/engine/egt-norm": %f,</format>
-         </chunk>
-         <chunk>
-            <node>/engines/engine/oil-pressure-psi</node>
-            <name>oil-pressure-psi</name>
-            <type>float</type>
-            <format>"/engines/engine/oil-pressure-psi": %f,</format>
-         </chunk>
-         <chunk>
-            <node>/engines/engine/running</node>
-            <name>running</name>
-            <type>bool</type>
-            <format>"/engines/engine/running": %d,</format>
+            <format>"/engines/engine/egt-degf[0]": %f,</format>
          </chunk>
          <chunk>
             <node>/engines/engine[1]/egt-degf</node>
@@ -140,16 +134,46 @@
             <format>"/engines/engine[1]/egt-degf": %f,</format>
          </chunk>
          <chunk>
+            <node>/engines/engine[0]/egt-norm</node>
+            <name>egt-norm</name>
+            <type>float</type>
+            <format>"/engines/engine[0]/egt-norm": %f,</format>
+         </chunk>
+         <chunk>
             <node>/engines/engine[1]/egt-norm</node>
             <name>egt-norm</name>
             <type>float</type>
             <format>"/engines/engine[1]/egt-norm": %f,</format>
          </chunk>
          <chunk>
+            <node>/engines/engine[0]/fuel-flow-gph</node>
+            <name>fuel-flow-gph</name>
+            <type>float</type>
+            <format>"/engines/engine[0]/fuel-flow-gph": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/engines/engine[1]/fuel-flow-gph</node>
+            <name>fuel-flow-gph</name>
+            <type>float</type>
+            <format>"/engines/engine[1]/fuel-flow-gph": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/engines/engine[0]/oil-pressure-psi</node>
+            <name>oil-pressure-psi</name>
+            <type>float</type>
+            <format>"/engines/engine[0]/oil-pressure-psi": %f,</format>
+         </chunk>
+         <chunk>
             <node>/engines/engine[1]/oil-pressure-psi</node>
             <name>oil-pressure-psi</name>
             <type>float</type>
             <format>"/engines/engine[1]/oil-pressure-psi": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/engines/engine[0]/running</node>
+            <name>running</name>
+            <type>bool</type>
+            <format>"/engines/engine[0]/running": %d,</format>
          </chunk>
          <chunk>
             <node>/engines/engine[1]/running</node>

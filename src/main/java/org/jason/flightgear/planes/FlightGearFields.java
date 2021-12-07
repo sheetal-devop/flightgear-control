@@ -1,8 +1,14 @@
 package org.jason.flightgear.planes;
 
-public abstract class FlightGearPlaneFields {
+/**
+ * Fields common for multiple planes and the simulator/environments.
+ * 
+ * @author jason
+ *
+ */
+public abstract class FlightGearFields {
 
-	private FlightGearPlaneFields() {}
+	private FlightGearFields() {}
 
 	/////////////
 	// environment

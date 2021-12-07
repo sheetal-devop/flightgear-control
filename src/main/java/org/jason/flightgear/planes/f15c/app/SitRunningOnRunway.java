@@ -1,96 +1,117 @@
 package org.jason.flightgear.planes.f15c.app;
 
-import org.apache.commons.net.telnet.InvalidTelnetOptionException;
+import java.io.IOException;
+
+import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.jason.flightgear.planes.f15c.F15C;
 import org.jason.flightgear.planes.f15c.F15CFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SitRunningOnRunway {
-        
-    private static Logger logger = LoggerFactory.getLogger(SitRunningOnRunway.class);
-    
-    private static boolean isEngineRunning(F15C plane) {
-        return plane.getEngineRunning() == F15CFields.ENGINE_RUNNING_INT_TRUE;
-    }
-    
-    public static void main(String [] args) throws InvalidTelnetOptionException, Exception {
-        
-        StringBuilder telemetryRead;
-        
-        //20 minutes
+
+	private final static Logger LOGGER = LoggerFactory.getLogger(SitRunningOnRunway.class);
+
+	private final static int POST_STARTUP_SLEEP = 3000;
+
+	private static String telemetryReadOut(F15C plane) {
+
+		return String.format("\nFuel level: %f", plane.getFuelLevel())
+				+ String.format("\nTime Elapsed: %f", plane.getTimeElapsed())
+				+ String.format("\nTime Local: %f", plane.getLocalDaySeconds())
+				+ String.format("\nFuel flow: %f", plane.getFuelFlow())
+				+ String.format("\nOil pressure: %f", plane.getOilPressure())
+				+ String.format("\nThrottle: %f", plane.getThrottle())
+				+ String.format("\nMixture: %f", plane.getMixture())
+				+ String.format("\nEngine running: %d", plane.getEngineRunning());
+	}
+
+	public static void main(String [] args) throws IOException {
         int maxRuntime = 20 * 60 * 1000;
-        
         int runtime = 0;
         
         //need a low sleep time because we'll crank up the simulator time reference
-        int runtimeSleep = 100;
+        int runtimeSleep = 250;
         
-        F15C plane = new F15C();
+        F15C plane = null;
         
-        //a full fuel tank will take a while
-        plane.setFuelTankLevel(50);
-        
-        plane.setDamageEnabled(false);
-        
-        plane.startupPlane();
-
-        //so the plane doesn't move
-        plane.setParkingBrake(true);
-        
-        //wait for startup to complete and telemetry reads to arrive
-        
-        while( !isEngineRunning(plane) ) {
-            try {
-                logger.info("Waiting for f15c engine to start");
-                Thread.sleep(runtimeSleep);
-            } catch (InterruptedException e) {
-                logger.warn("Engine start sleep interrupted", e);
-            }            
-        }
-        
-        //fast
-        plane.setSpeedUp(32);
-        
-        while( isEngineRunning(plane) && runtime < maxRuntime ) {
+        try {
+            plane = new F15C();
             
-            logger.info("======================\nCycle start.");
+            //refill in case a previous run emptied it
+            plane.refillFuelTank();
+            
+            //a clean sim starts with the engines running, and we don't want that
+            plane.setEngine0Cutoff(true);
+            plane.setEngine1Cutoff(true);
+            
+            //start the engine up to start consuming stuff
+            plane.startupPlane();
+            
+            //probably not going to happen but do it anyway
+            plane.setDamageEnabled(false);
+            
+            //so the plane doesn't move- not that it really matters.
+            plane.setParkingBrake(true);
+            
+            if(plane.getParkingBrake() != F15CFields.PARKING_BRAKE_INT_TRUE) {
+            	throw new FlightGearSetupException("Parking brake failed to set");
+            }
                         
-            telemetryRead = new StringBuilder();
+            //engine should be running at this point but it's not ready  
+            //wait for startup to complete and telemetry reads to arrive
+            Thread.sleep(POST_STARTUP_SLEEP);
             
-            //engine should be running and consuming consumables
-            telemetryRead.append("\n=======")
-                .append("\nFuel level: ")
-                .append(plane.getFuelLevel())
-                .append("\nTime Elapsed: ")
-                .append(plane.getTimeElapsed())
-                .append("\nTime Local: ")
-                .append(plane.getLocalDaySeconds())
-                .append("\nFuel flow: ")
-                .append(plane.getFuelLevel())
-                .append("\nOil pressure: ")
-                .append(plane.getOilPressure())
-                .append("\nOil temperature: ")
-                .append(plane.getOilPressure())
-                .append("\nEngine running: ")
-                .append(plane.getEngineRunning())
-                .append("\n=======\n");
+            //at high throttle fuel goes fairly quickly
+            plane.setFuelTankLevel(40);
             
-            logger.info("Telemetry Read: {}", telemetryRead.toString());
+            //stop short of 100% or it will overwhelm the parking brake
+            plane.setThrottle(0.25);
+            plane.setThrottle(0.5);
+            plane.setThrottle(0.75);
+            plane.setThrottle(0.90);
+                        
+            //speed up time in the simulator
+            //full tank 16x - 353s
+            plane.setSpeedUp(16);
             
-            try {
-                Thread.sleep(runtimeSleep);
-            } catch (InterruptedException e) {
-                logger.warn("Runtime sleep interrupted", e);
+            long startTime = System.currentTimeMillis();
+            
+            while( plane.isEngineRunning() && runtime < maxRuntime ) {
+                
+                LOGGER.debug("======================\nCycle start.");
+                            
+                LOGGER.info("Telemetry Read: {}", telemetryReadOut(plane));
+                
+                try {
+                    Thread.sleep(runtimeSleep);
+                } catch (InterruptedException e) {
+                    LOGGER.warn("Runtime sleep interrupted", e);
+                }
+                
+                runtime += runtimeSleep;
+                
+                LOGGER.debug("Cycle end\n======================");
             }
             
-            runtime += runtimeSleep;
+            LOGGER.debug("Exiting runtime loop");
             
-            logger.info("Cycle end\n======================");
+            //at higher speedups the simulator window is unusable, so return it to something usable
+            plane.setSpeedUp(1);
+            
+            LOGGER.info("Final Telemetry Read: {}", telemetryReadOut(plane));
+            
+            LOGGER.info("Completed burnout in {}s", (System.currentTimeMillis() - startTime)/1000);
+            
+        } catch (FlightGearSetupException e) {
+            LOGGER.error("FlightGearSetupException caught", e);
+        } catch (InterruptedException e) {
+            LOGGER.error("InterruptedException caught", e);
         }
-        
-        logger.info("Exiting runtime loop. Engine running: {}", isEngineRunning(plane));
-        
-        plane.shutdown();
-    }
+        finally {
+            if(plane != null) {
+                plane.shutdown();
+            }
+        }
+	}
 }

@@ -32,7 +32,6 @@
     <!-- loggers -->
     <logger name="org.jason.flightgear" level="DEBUG" />
     <logger name="org.jason.flightgear.planes" level="TRACE" />
-    <logger name="org.jason.flightgear.planes.c172p" level="TRACE" />
     <logger name="org.jason.flightgear.connection.sockets" level="DEBUG" />
     
 
