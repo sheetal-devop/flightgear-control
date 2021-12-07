@@ -65,6 +65,19 @@ public abstract class FlightGearPlane {
             }
         };
         telemetryThread.start();
+        
+        //wait for the first read to arrive
+        while(currentState.size() == 0) {
+        	LOGGER.debug("Waiting for first telemetry read to complete after thread start");
+        	
+            try {
+                Thread.sleep(TELEMETRY_WRITE_WAIT_SLEEP);
+            } catch (InterruptedException e) {
+                LOGGER.warn("getTelemetry: Socket read wait interrupted", e);
+            }
+        }
+        
+        LOGGER.debug("launchTelemetryThread returning");
     }
     
     protected LinkedHashMap<String, String> copyStateFields(String[] fields) {
@@ -97,8 +110,9 @@ public abstract class FlightGearPlane {
                 
         //TODO: time this out, trigger some kind of reset or clean update
         while(stateWriting.get()) {
+            LOGGER.trace("Waiting for state writing to complete");
+
             try {
-                LOGGER.trace("Waiting for state writing to complete");
                 Thread.sleep(TELEMETRY_WRITE_WAIT_SLEEP);
             } catch (InterruptedException e) {
                 LOGGER.warn("getTelemetry: Socket read wait interrupted", e);
@@ -124,8 +138,9 @@ public abstract class FlightGearPlane {
         
         //TODO: time this out, trigger some kind of reset or clean update
         while(stateWriting.get()) {
+            LOGGER.trace("Waiting for state writing to complete");
+
             try {
-                LOGGER.trace("Waiting for state writing to complete");
                 Thread.sleep(TELEMETRY_WRITE_WAIT_SLEEP);
             } catch (InterruptedException e) {
                 LOGGER.warn("getTelemetry: Socket read wait interrupted", e);
@@ -172,15 +187,18 @@ public abstract class FlightGearPlane {
     //internal telemetry retrieval thread
     private void readTelemetry() {
         
-        //TODO: enable pause on sim freeze
+        //enable pause on sim freeze? how would we know when the simulator was unpaused without an update?
         String telemetryRead = null;
         while(runningTelemetryThread()) {
             
+        	LOGGER.trace("Begin telemetry read cycle");
+        	
             //wait for any state read operations to finish
             //TODO: max wait on this
             while(stateReading.get()) {
+                LOGGER.trace("Waiting for state reading to complete");
+
                 try {
-                    LOGGER.trace("Waiting for state reading to complete");
                     Thread.sleep(TELEMETRY_READ_WAIT_SLEEP);
                 } catch (InterruptedException e) {
                     LOGGER.warn("Polling state read sleep interrupted", e);
@@ -223,6 +241,8 @@ public abstract class FlightGearPlane {
                 } catch (InterruptedException e) {
                     LOGGER.warn("Trailing state read sleep interrupted", e);
                 }
+                
+            	LOGGER.trace("End telemetry read cycle");
             }
         }
         
@@ -375,13 +395,20 @@ public abstract class FlightGearPlane {
     //////////////////
     //generic sim management
     
+    public synchronized boolean isPaused() {
+    	return getSimFreezeClock() == FlightGearPlaneFields.SIM_FREEZE_INT_TRUE &&
+    			getSimFreezeMaster() == FlightGearPlaneFields.SIM_FREEZE_INT_TRUE;
+    }
+    
+    /**
+     * Pause the simulator. Does not consider existing state.
+     * 
+     * @param isPaused true to pause, false to unpause. 
+     * @throws IOException
+     */
     public synchronized void setPause(boolean isPaused) throws IOException {
 
         // TODO: check telemetry if already paused
-
-        // resolve sim_freeze port
-        // if(controlInputs.containsKey(PAUSE_INPUT)) {
-        // FlightGearInput input = controlInputs.get(PAUSE_INPUT);
 
         LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearPlaneFields.SIM_FREEZE_FIELDS);
 
