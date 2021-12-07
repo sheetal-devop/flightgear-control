@@ -135,7 +135,10 @@ public class FlightGearTelemetryConnection {
                 cleanOutput.append(line);
                 telemetryLineCount++;
             } else {
-                LOGGER.warn("Dropping malformed telemetry line: {}", line);
+            	//only care about these warnings if we're looking at trace level stuff
+            	if(LOGGER.isTraceEnabled()) {
+            		LOGGER.warn("Dropping malformed telemetry line: {}", line);
+            	}
             }
         }
         
