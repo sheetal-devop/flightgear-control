@@ -147,6 +147,8 @@ public class C172P extends FlightGearPlane{
             } catch (InterruptedException e) {
                 LOGGER.warn("Engine startup wait interrupted", e);
             }
+            
+            startupWait += sleep;
         }
         
         if(!this.isEngineRunning()) {
@@ -330,7 +332,7 @@ public class C172P extends FlightGearPlane{
     
     public void forceStabilize(double heading, double altitude, double roll, double pitch) throws IOException {
         
-        LOGGER.info("forceStablize called");
+        LOGGER.info("forceStabilize called");
         
         //TODO: check if paused
         
