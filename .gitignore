@@ -22,4 +22,6 @@ gradle-app.setting
 
 scripts/updateProtocolFiles.sh
 
-test-output/
+/test-output/
+
+/flights
