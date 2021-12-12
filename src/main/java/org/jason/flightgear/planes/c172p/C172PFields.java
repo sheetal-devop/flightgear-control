@@ -189,5 +189,17 @@ public abstract class C172PFields {
 		SIM_PARKING_BRAKE_FIELD
 	};
 	
-
+	public final static String[] SIM_INPUT_FIELDS = SIM_FIELDS;
+	
+	/////////////
+	// System
+	
+	public final static String BATTERY_CHARGE_FIELD = "/systems/electrical/battery-charge-percent";
+	public final static String BATTERY_CHARGE_FIELD_DESC = "The battery charge";
+	
+	public final static String[] SYSTEM_FIELDS = {
+		BATTERY_CHARGE_FIELD
+	};
+	
+	public final static String[] SYSTEM_INPUT_FIELDS = SYSTEM_FIELDS;
 }

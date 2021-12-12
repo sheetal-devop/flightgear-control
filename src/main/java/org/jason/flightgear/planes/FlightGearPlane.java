@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.flightgear.connection.sockets.FlightGearInputConnection;
 import org.jason.flightgear.connection.telnet.FlightGearTelnetConnection;
-import org.jason.flightgear.flight.PlanePosition;
+import org.jason.flightgear.flight.WaypointPosition;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -315,6 +315,7 @@ public abstract class FlightGearPlane {
     protected abstract void writePositionInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeSimFreezeInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeSimSpeedupInput(LinkedHashMap<String, String> inputHash) throws IOException;
+    protected abstract void writeSystemInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeVelocitiesInput(LinkedHashMap<String, String> inputHash) throws IOException;
 
     //////////////////
@@ -459,8 +460,8 @@ public abstract class FlightGearPlane {
         setFuelTankLevel(getFuelTankCapacity());
     }
     
-    public synchronized PlanePosition getPosition() {
-    	return new PlanePosition(getLatitude(), getLongitude(), getAltitude());
+    public synchronized WaypointPosition getPosition() {
+    	return new WaypointPosition(getLatitude(), getLongitude(), getAltitude());
     }
     
     ///////////////////

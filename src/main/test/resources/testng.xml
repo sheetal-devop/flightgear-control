@@ -1,0 +1,9 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+
+<suite name="flightgear-control test suite">
+    <test name = "Unit">
+	    <classes>
+	        <class name="org.jason.test.WaypointUtilitiesTest"/>
+	    </classes>
+    </test>
+</suite>

@@ -1,7 +1,15 @@
 ext { 
     libs = [
-        'commons-net:commons-net:3.8.0',
-        'org.json:json:20210307',
-        'ch.qos.logback:logback-classic:1.2.3'
+        flightgear_control: [
+            'commons-net:commons-net:3.8.0',
+            'org.json:json:20210307',
+            'ch.qos.logback:logback-classic:1.2.3',
+        ],
+        geotools: [
+            'org.geotools:gt-referencing:26.1.01'
+        ],
+        flightgear_control_test: [
+            'org.testng:testng:7.4.0'
+        ]
     ]
 }

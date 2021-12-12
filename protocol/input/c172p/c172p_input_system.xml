@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+ <PropertyList>
+ <generic>
+    <input>
+        <line_separator>newline</line_separator>
+        <var_separator>,</var_separator>
+          <chunk>
+            <node>/systems/electrical/battery-charge-percent</node>
+            <name>battery-charge-percent</name>
+            <type>float</type>
+         </chunk>
+    </input>
+  </generic>
+ </PropertyList>

@@ -540,6 +540,13 @@
             <type>float</type>
             <format>"/sim/time/mp-clock-sec": %f,</format>
          </chunk>
+         <!-- system -->
+         <chunk>
+            <node>/systems/electrical/battery-charge-percent</node>
+            <name>battery-charge-percent</name>
+            <type>float</type>
+            <format>"/systems/electrical/battery-charge-percent": %f,</format>
+         </chunk>
          <!-- velocities -->
          <chunk>
             <node>/velocities/airspeed-kt</node>

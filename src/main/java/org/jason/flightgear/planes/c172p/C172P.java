@@ -33,6 +33,7 @@ public class C172P extends FlightGearPlane{
     private FlightGearInputConnection simInputConnection;
     private FlightGearInputConnection simFreezeInputConnection;
     private FlightGearInputConnection simSpeedupInputConnection;
+    private FlightGearInputConnection systemInputConnection;
     private FlightGearInputConnection velocitiesInputConnection;
                
     public C172P() throws FlightGearSetupException {
@@ -74,6 +75,7 @@ public class C172P extends FlightGearPlane{
 			simInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimPort());
 			simFreezeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimFreezePort());
 			simSpeedupInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimSpeedupPort());
+			systemInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSystemPort());
 			velocitiesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getVelocitiesPort());
 			
 			LOGGER.info("Input socket connections established.");
@@ -327,14 +329,19 @@ public class C172P extends FlightGearPlane{
         return Character.getNumericValue(getTelemetryField(C172PFields.SIM_PARKING_BRAKE_FIELD).charAt(0));
     }
     
+    ///////////////////
+    //system
+    
+    public double getBatteryCharge() {
+        return Double.parseDouble(getTelemetryField(C172PFields.BATTERY_CHARGE_FIELD));
+    }
+    
     //////////////
     //telemetry modifiers
     
-    public void forceStabilize(double heading, double altitude, double roll, double pitch) throws IOException {
+    public void forceStabilize(double heading, double roll, double pitch) throws IOException {
         
         LOGGER.info("forceStabilize called");
-        
-        //TODO: check if paused
         
         LinkedHashMap<String, String> orientationFields = copyStateFields(FlightGearFields.ORIENTATION_INPUT_FIELDS);
         
@@ -342,8 +349,6 @@ public class C172P extends FlightGearPlane{
         orientationFields.put(FlightGearFields.HEADING_FIELD, String.valueOf(heading) ) ;
         orientationFields.put(FlightGearFields.PITCH_FIELD, String.valueOf(pitch) );
         orientationFields.put(FlightGearFields.ROLL_FIELD, String.valueOf(roll) );
-
-        //TODO: altitude check?
         
         writeControlInput(orientationFields, this.orientationInputConnection);
 
@@ -441,7 +446,7 @@ public class C172P extends FlightGearPlane{
         writeControlInput(inputHash, this.controlInputConnection);
     }
     
-    public synchronized void setThrottle(double throttle ) throws IOException {
+    public synchronized void setThrottle(double throttle) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         inputHash.put(C172PFields.THROTTLE_FIELD, String.valueOf(throttle));
@@ -451,7 +456,7 @@ public class C172P extends FlightGearPlane{
         writeControlInput(inputHash, this.controlInputConnection);
     }
     
-    public synchronized void setMixture(double mixture ) throws IOException {
+    public synchronized void setMixture(double mixture) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
         
         inputHash.put(C172PFields.MIXTURE_FIELD, String.valueOf(mixture));
@@ -526,7 +531,7 @@ public class C172P extends FlightGearPlane{
     
     @Override
     public synchronized void setParkingBrake(boolean brakeEnabled) throws IOException {
-        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.SIM_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.SIM_INPUT_FIELDS);
             
         //visual: in the cockpit, if the brake arm is:
         //pushed in => brake is not engaged (disabled => 0)
@@ -543,6 +548,23 @@ public class C172P extends FlightGearPlane{
         LOGGER.info("Setting parking brake to {}", brakeEnabled);
         
         writeControlInput(inputHash, this.simInputConnection);
+    }
+    
+    public synchronized void setBatteryCharge(double charge) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.SYSTEM_INPUT_FIELDS);
+        
+        //guard rails
+        if(charge > 1d) {
+        	charge = 1d;
+        } else if(charge < 0d) {
+        	charge = 0d;
+        }
+        
+        inputHash.put(C172PFields.BATTERY_CHARGE_FIELD, String.valueOf(charge));
+        
+        LOGGER.info("Setting battery charge to {}", charge);
+        
+        writeControlInput(inputHash, this.systemInputConnection);
     }
     
     @Override
@@ -618,6 +640,11 @@ public class C172P extends FlightGearPlane{
 			LOGGER.error("Exception closing sim speedup input socket", e);
 		}
         try {
+			systemInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing system input socket", e);
+		}
+        try {
 			velocitiesInputConnection.close();
 		} catch (IOException e) {
 			LOGGER.error("Exception closing velocities input socket", e);
@@ -679,6 +706,11 @@ public class C172P extends FlightGearPlane{
 	@Override
 	protected void writeSimSpeedupInput(LinkedHashMap<String, String> inputHash) throws IOException {
 		this.simSpeedupInputConnection.writeControlInput(inputHash);
+	}
+	
+	@Override
+	protected void writeSystemInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.systemInputConnection.writeControlInput(inputHash);
 	}
 
 	@Override

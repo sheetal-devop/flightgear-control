@@ -6,13 +6,23 @@ sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
 repositories {
-    jcenter()
-    mavenCentral() 
+    maven {
+        url "https://maven.geo-solutions.it/"
+    }
+    maven {
+        url "https://repo.osgeo.org/repository/release/"
+    }
+    mavenCentral()
+    
+    jcenter() 
 }
 
 dependencies {
 
-    compile libs
+    compile libs.flightgear_control
+    compile libs.geotools
+    
+    testCompile libs.flightgear_control_test
 }
 
 ext {
@@ -24,6 +34,11 @@ sourceSets {
     main {
         java {
             srcDir 'src/main/java'
+        }
+    }
+    test {
+        java {
+            srcDir 'src/main/test'
         }
     }
 }

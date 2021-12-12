@@ -704,9 +704,16 @@ public class F15C extends FlightGearPlane{
 	protected void writeSimSpeedupInput(LinkedHashMap<String, String> inputHash) throws IOException {
 		this.simSpeedupInputConnection.writeControlInput(inputHash);
 	}
+	
+	@Override
+	protected void writeSystemInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		// None as of now
+	}
 
 	@Override
 	protected void writeVelocitiesInput(LinkedHashMap<String, String> inputHash) throws IOException {
 		this.velocitiesInputConnection.writeControlInput(inputHash);
 	}
+
+
 }

@@ -18,7 +18,8 @@ public class NetworkConfig {
     private final static int DEFAULT_SOCKETS_INPUT_SIM_PORT = 6606;
     private final static int DEFAULT_SOCKETS_INPUT_SIM_FREEZE_PORT = 6607;
     private final static int DEFAULT_SOCKETS_INPUT_SIM_SPEEDUP_PORT = 6608;
-    private final static int DEFAULT_SOCKETS_INPUT_VELOCITIES_PORT = 6609;
+    private final static int DEFAULT_SOCKETS_INPUT_SYSTEM_PORT = 6609;
+    private final static int DEFAULT_SOCKETS_INPUT_VELOCITIES_PORT = 6610;
 
 	private String telemetryOutputHost;
 	private int telemetryOutputPort;
@@ -37,6 +38,7 @@ public class NetworkConfig {
     private int simInputPort;
     private int simFreezeInputPort;
     private int simSpeedupInputPort;
+    private int systemInputPort;
     private int velocitiesInputPort;
     
 	public NetworkConfig() {
@@ -57,6 +59,7 @@ public class NetworkConfig {
 		simInputPort = DEFAULT_SOCKETS_INPUT_SIM_PORT;
 		simFreezeInputPort = DEFAULT_SOCKETS_INPUT_SIM_FREEZE_PORT;
 		simSpeedupInputPort = DEFAULT_SOCKETS_INPUT_SIM_SPEEDUP_PORT;
+		systemInputPort = DEFAULT_SOCKETS_INPUT_SYSTEM_PORT;
 		velocitiesInputPort = DEFAULT_SOCKETS_INPUT_VELOCITIES_PORT;
 	}
 	
@@ -162,6 +165,14 @@ public class NetworkConfig {
 
 	public void setSimSpeedupPort(int simSpeedupPort) {
 		this.simSpeedupInputPort = simSpeedupPort;
+	}
+	
+	public int getSystemPort() {
+		return systemInputPort;
+	}
+
+	public void setSystemPort(int systemPort) {
+		this.systemInputPort = systemPort;
 	}
 
 	public int getVelocitiesPort() {

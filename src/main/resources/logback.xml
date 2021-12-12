@@ -30,11 +30,10 @@
     </appender>
 
     <!-- loggers -->
-    <logger name="org.jason.flightgear" level="DEBUG" />
-    <logger name="org.jason.flightgear.planes" level="TRACE" />
-    <logger name="org.jason.flightgear.connection.sockets" level="DEBUG" />
+    <logger name="org.jason.flightgear" level="INFO" />
+    <logger name="org.jason.flightgear.planes" level="INFO" />
+    <logger name="org.jason.flightgear.connection.sockets" level="INFO" />
     
-
     <root level="INFO">
         <appender-ref ref="${consoleAppenderName}" />
         <appender-ref ref="${fileAppenderName}" />

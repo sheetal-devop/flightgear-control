@@ -47,7 +47,6 @@ public class TelnetTelemetryTest {
         {
             System.err.println("Error registering option handlers: " + e.getMessage());
         } catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         
@@ -60,7 +59,6 @@ public class TelnetTelemetryTest {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
@@ -76,7 +74,6 @@ public class TelnetTelemetryTest {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
             
@@ -115,7 +112,6 @@ public class TelnetTelemetryTest {
             
             tc.disconnect();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
         
