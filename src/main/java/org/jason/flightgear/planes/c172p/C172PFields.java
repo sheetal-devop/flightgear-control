@@ -13,24 +13,40 @@ public abstract class C172PFields {
 	/////////////
 	// consumables
 
-	public final static String FUEL_TANK_CAPACITY_FIELD = "/consumables/fuel/tank/capacity-gal_us";
-	public final static String FUEL_TANK_CAPACITY_FIELD_DESC = "Fuel tank capacity in gallons";
+	public final static String FUEL_TANK_0_CAPACITY_FIELD = "/consumables/fuel/tank/capacity-gal_us";
+	public final static String FUEL_TANK_0_CAPACITY_FIELD_DESC = "Fuel tank 0 capacity in gallons";
 	
-	public final static String FUEL_TANK_LEVEL_FIELD = "/consumables/fuel/tank/level-gal_us";
-	public final static String FUEL_TANK_LEVEL_FIELD_DESC = "Fuel level in gallons";
+	public final static String FUEL_TANK_0_LEVEL_FIELD = "/consumables/fuel/tank/level-gal_us";
+	public final static String FUEL_TANK_0_LEVEL_FIELD_DESC = "Fuel tank 0 level in gallons";
 	
-	public final static String WATER_CONTAMINATION_FIELD = "/consumables/fuel/tank/water-contamination";
-	public final static String WATER_CONTAMINATION_FIELD_DESC = "Water contamination in the main fuel tank";
+	public final static String FUEL_TANK_0_WATER_CONTAMINATION_FIELD = "/consumables/fuel/tank/water-contamination";
+	public final static String FUEL_TANK_0_WATER_CONTAMINATION_FIELD_DESC = "Water contamination amount in fuel tank 0";
+	
+	public final static String FUEL_TANK_1_CAPACITY_FIELD = "/consumables/fuel/tank[1]/capacity-gal_us";
+	public final static String FUEL_TANK_1_CAPACITY_FIELD_DESC = "Fuel tank 1 capacity in gallons";
+	
+	public final static String FUEL_TANK_1_LEVEL_FIELD = "/consumables/fuel/tank[1]/level-gal_us";
+	public final static String FUEL_TANK_1_LEVEL_FIELD_DESC = "Fuel tank 1 level in gallons";
+	
+	public final static String FUEL_TANK_1_WATER_CONTAMINATION_FIELD = "/consumables/fuel/tank[1]/water-contamination";
+	public final static String FUEL_TANK_1_WATER_CONTAMINATION_FIELD_DESC = "Water contamination amount in fuel tank 1";
+	
+
 	
 	public final static String[] CONSUMABLES_FIELDS = {
-		FUEL_TANK_CAPACITY_FIELD,
-		FUEL_TANK_LEVEL_FIELD,
-		WATER_CONTAMINATION_FIELD
+		FUEL_TANK_0_CAPACITY_FIELD,
+		FUEL_TANK_0_LEVEL_FIELD,
+		FUEL_TANK_0_WATER_CONTAMINATION_FIELD,
+		FUEL_TANK_1_CAPACITY_FIELD,
+		FUEL_TANK_1_LEVEL_FIELD,
+		FUEL_TANK_1_WATER_CONTAMINATION_FIELD
 	};
 	
 	public final static String[] CONSUMABLES_INPUT_FIELDS = {
-		FUEL_TANK_LEVEL_FIELD,
-		WATER_CONTAMINATION_FIELD
+		FUEL_TANK_0_LEVEL_FIELD,
+		FUEL_TANK_0_WATER_CONTAMINATION_FIELD,
+		FUEL_TANK_1_LEVEL_FIELD,
+		FUEL_TANK_1_WATER_CONTAMINATION_FIELD
 	};
 	
 	/////////////

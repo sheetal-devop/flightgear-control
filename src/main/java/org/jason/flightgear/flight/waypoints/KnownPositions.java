@@ -50,7 +50,7 @@ public abstract class KnownPositions {
 	public final static WaypointPosition SUGARLOAF = new WaypointPosition(45.05333, -70.30800, "Sugarloaf");
 
 	//Team alma maters
-	public final static WaypointPosition RIT = new WaypointPosition(49.31004, -123.08439, "RIT");
+	public final static WaypointPosition RIT = new WaypointPosition(43.08458, -77.67998, "RIT");
 	public final static WaypointPosition UNIV_OREGON = new WaypointPosition(44.04488, -123.07260, "University of Oregon");
 	public final static WaypointPosition RUTGERS_UNIV = new WaypointPosition(40.50081, -74.44726, "Rutgers University");
 	public final static WaypointPosition DREXEL_UNIV = new WaypointPosition(39.95667, -75.18970, "Drexel University");

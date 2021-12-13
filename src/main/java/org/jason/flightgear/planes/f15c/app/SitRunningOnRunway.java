@@ -39,7 +39,7 @@ public class SitRunningOnRunway {
             plane = new F15C();
             
             //refill in case a previous run emptied it
-            plane.refillFuelTank();
+            plane.refillFuel();
             
             //a clean sim starts with the engines running, and we don't want that
             plane.setEngine0Cutoff(true);
@@ -63,7 +63,7 @@ public class SitRunningOnRunway {
             Thread.sleep(POST_STARTUP_SLEEP);
             
             //at high throttle fuel goes fairly quickly
-            plane.setFuelTankLevel(40);
+            plane.setFuelTank0Level(40);
             
             //stop short of 100% or it will overwhelm the parking brake
             plane.setThrottle(0.25);

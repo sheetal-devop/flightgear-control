@@ -85,7 +85,7 @@ public class SustainedFlight {
 			plane.setDamageEnabled(false);
 			
 			//in case we get a previously lightly-used environment
-			plane.refillFuelTank();
+			plane.refillFuel();
 			
 			try {
 				Thread.sleep(10000);
@@ -151,7 +151,7 @@ public class SustainedFlight {
 				
 				//check fuel last last. easy to refuel
 				if(plane.getFuelLevel() < minFuelGal) {
-					plane.refillFuelTank();
+					plane.refillFuel();
 				}
 				
 				logger.info("Telemetry Read: {}", telemetryReadOut(plane));

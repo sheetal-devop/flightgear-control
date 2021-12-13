@@ -4,6 +4,7 @@
     <test name = "Unit">
 	    <classes>
 	        <class name="org.jason.test.WaypointUtilitiesTest"/>
+	        <class name="org.jason.test.WaypointManagerTest"/>
 	    </classes>
     </test>
 </suite>

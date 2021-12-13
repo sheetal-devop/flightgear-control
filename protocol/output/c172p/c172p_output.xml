@@ -29,6 +29,24 @@
             <type>float</type>
             <format>"/consumables/fuel/tank/water-contamination": %f,</format>
          </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[1]/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[1]/capacity-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[1]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[1]/level-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[1]/water-contamination</node>
+            <name>water-contamination</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[1]/water-contamination": %f,</format>
+         </chunk>
          <!-- control -->
          <chunk>
             <node>/controls/electric/battery-switch</node>

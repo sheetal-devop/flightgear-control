@@ -41,7 +41,7 @@ public class SitRunningOnRunway {
             plane = new C172P();
             
             //refill in case a previous run emptied it
-            plane.refillFuelTank();
+            plane.refillFuel();
             
             //start the engine up to start consuming stuff
             plane.startupPlane();
@@ -59,7 +59,7 @@ public class SitRunningOnRunway {
             Thread.sleep(POST_STARTUP_SLEEP);
             
             //a full fuel tank will take a while
-            plane.setFuelTankLevel(5);
+            plane.setFuelTank0Level(5);
             
             //throttle and mixture up to consume faster
             //mixture has to be set first, then the throttle

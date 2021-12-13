@@ -5,6 +5,8 @@
 #for visuals use larger geometry: --geometry=1024x768\
 #for apps user smaller geometry: --geometry=320x200\
 
+#set /sim/time to noon in summer to avoid icing problems in colder climates
+
 fgfs \
  --verbose\
  --prop:/nasal/local_weather/enabled=false\
@@ -34,11 +36,13 @@ fgfs \
  --disable-ai-traffic\
  --disable-sound\
  --disable-real-weather-fetch\
- --geometry=640x480\
+ --geometry=1024x768\
  --texture-filtering=4\
  --disable-anti-alias-hud\
  --enable-auto-coordination\
  --prop:/sim/rendering/multithreading-mode=AutomaticSelection\
+ --prop:/sim/time/gmt=2021-07-03T20:00:00\
+ --prop:/engines/active-engine/winter-kit-installed=true\
  --allow-nasal-from-sockets\
  --turbulence=0.0\
  --wind=0\@0

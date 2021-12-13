@@ -3,6 +3,7 @@ package org.jason.test;
 import java.math.BigDecimal;
 
 import org.jason.flightgear.flight.WaypointPosition;
+import org.jason.flightgear.flight.waypoints.KnownPositions;
 import org.jason.flightgear.flight.waypoints.WaypointUtilities;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -11,11 +12,9 @@ public class WaypointUtilitiesTest {
 
 	@Test (enabled = false)
 	public void testDistanceBetween() {
-		//lonsdale quay
-		WaypointPosition p1 = new WaypointPosition(49.31004, -123.08439);
-		
-		//RIT
-		WaypointPosition p2 = new WaypointPosition(43.08389, -77.67956);
+
+		WaypointPosition p1 = KnownPositions.LONSDALE_QUAY;
+		WaypointPosition p2 = KnownPositions.RIT;
 		
 		//2185.377 miles converted to feet
 		double expected = 2185.377 * 5280;
@@ -33,16 +32,13 @@ public class WaypointUtilitiesTest {
 	@Test
 	public void testDistanceBetweenGPSCoordinates() {
 		
-		double errorMargin = 20d;
+		double errorMargin = 100d;
 		
-		//lonsdale quay
-		WaypointPosition p1 = new WaypointPosition(49.31004, -123.08439);
+		WaypointPosition p1 = KnownPositions.LONSDALE_QUAY;
+		WaypointPosition p2 = KnownPositions.RIT;
 		
-		//RIT
-		WaypointPosition p2 = new WaypointPosition(43.08389, -77.67956);
-		
-		//2185.377 miles converted to feet
-		double expected = 2185.377 * 5280;
+		//2185.267 miles converted to feet
+		double expected = 2185.267 * 5280;
 		
 		double actual = WaypointUtilities.distanceBetweenPositions(p1, p2);
 		
@@ -52,7 +48,8 @@ public class WaypointUtilitiesTest {
 
 		double difference = Math.abs( actual - expected);
 		
-		Assert.assertTrue( difference < errorMargin, "Difference is less than errorMargin: " + errorMargin ) ;
+		Assert.assertTrue( difference < errorMargin, 
+				"Difference is less than errorMargin " + errorMargin +": " + new BigDecimal(difference).toPlainString() ) ;
 	}
 	
 	@Test
@@ -79,5 +76,4 @@ public class WaypointUtilitiesTest {
 		
 		Assert.assertTrue( difference < errorMargin, "Difference is less than errorMargin: " + errorMargin ) ;
 	}
-	
 }

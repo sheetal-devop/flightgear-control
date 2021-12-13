@@ -350,8 +350,7 @@ public class F15C extends FlightGearPlane{
         setPause(false);
     }
     
-    @Override
-    public synchronized void setFuelTankLevel(double amount) throws IOException {
+    public synchronized void setFuelTank0Level(double amount) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONSUMABLES_INPUT_FIELDS);
         
         inputHash.put(F15CFields.FUEL_TANK_LEVEL_FIELD, String.valueOf(amount));
@@ -713,6 +712,12 @@ public class F15C extends FlightGearPlane{
 	@Override
 	protected void writeVelocitiesInput(LinkedHashMap<String, String> inputHash) throws IOException {
 		this.velocitiesInputConnection.writeControlInput(inputHash);
+	}
+
+	@Override
+	public void refillFuel() throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
 
 

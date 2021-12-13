@@ -323,7 +323,7 @@ public abstract class FlightGearPlane {
     //expected FG property setters/getters
     //defined in plane subclass since socket io is managed there
     
-    public abstract void setFuelTankLevel(double fuelTankCapacity) throws IOException;
+    //public abstract void setFuelTank0Level(double fuelTankCapacity) throws IOException;
     
     public abstract double getFuelLevel();
 
@@ -440,6 +440,12 @@ public abstract class FlightGearPlane {
         }
     }
     
+    /**
+     * The speed at which the flight dynamics model is run.
+     * 
+     * @param targetSpeedup	Speedup factor. Acceptable values are 0.5,1,2,4,8,16,32. 32 is pretty slow. 
+     * @throws IOException
+     */
     public synchronized void setSpeedUp(double targetSpeedup) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.SIM_SPEEDUP_FIELDS);
         
@@ -453,15 +459,13 @@ public abstract class FlightGearPlane {
     ///////////////////
     
     /**
-     * Refill the fuel tanks to capacity
+     * Refill necessary fuel tanks to capacity
      * @throws IOException 
      */
-    public synchronized void refillFuelTank() throws IOException {
-        setFuelTankLevel(getFuelTankCapacity());
-    }
+    public abstract void refillFuel() throws IOException;
     
     public synchronized WaypointPosition getPosition() {
-    	return new WaypointPosition(getLatitude(), getLongitude(), getAltitude());
+    	return new WaypointPosition(getLatitude(), getLongitude(), getAltitude(), "Current position");
     }
     
     ///////////////////

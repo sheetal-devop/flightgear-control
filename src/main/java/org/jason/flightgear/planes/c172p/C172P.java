@@ -196,16 +196,28 @@ public class C172P extends FlightGearPlane{
     ///////////////////
     //consumables
     
-    public double getCapacity_gal_us() {
-        return Double.parseDouble(getTelemetryField(C172PFields.FUEL_TANK_CAPACITY_FIELD));
+    public double getFuelTank0Capacity() {
+        return Double.parseDouble(getTelemetryField(C172PFields.FUEL_TANK_0_CAPACITY_FIELD));
     }
     
-    public double getLevel_gal_us() {
-        return Double.parseDouble(getTelemetryField(C172PFields.FUEL_TANK_LEVEL_FIELD));
+    public double getFuelTank0Level() {
+        return Double.parseDouble(getTelemetryField(C172PFields.FUEL_TANK_0_LEVEL_FIELD));
     }
     
-    public double getWaterContamination() {
-        return Double.parseDouble(getTelemetryField(C172PFields.WATER_CONTAMINATION_FIELD));
+    public double getFuelTank0WaterContamination() {
+        return Double.parseDouble(getTelemetryField(C172PFields.FUEL_TANK_0_WATER_CONTAMINATION_FIELD));
+    }
+    
+    public double getFuelTank1Capacity() {
+        return Double.parseDouble(getTelemetryField(C172PFields.FUEL_TANK_1_CAPACITY_FIELD));
+    }
+    
+    public double getFuelTank1Level() {
+        return Double.parseDouble(getTelemetryField(C172PFields.FUEL_TANK_1_LEVEL_FIELD));
+    }
+    
+    public double getFuelTank1WaterContamination() {
+        return Double.parseDouble(getTelemetryField(C172PFields.FUEL_TANK_1_WATER_CONTAMINATION_FIELD));
     }
     
     ///////////////////
@@ -355,23 +367,42 @@ public class C172P extends FlightGearPlane{
         setPause(false);
     }
     
-    @Override
-    public synchronized void setFuelTankLevel(double amount) throws IOException {
+    public synchronized void setFuelTank0Level(double amount) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_INPUT_FIELDS);
         
-        inputHash.put(C172PFields.FUEL_TANK_LEVEL_FIELD, String.valueOf(amount));
+        inputHash.put(C172PFields.FUEL_TANK_0_LEVEL_FIELD, String.valueOf(amount));
         
-        LOGGER.info("Setting fuel tank level: {}", amount);
+        LOGGER.info("Setting fuel tank 0 level: {}", amount);
         
         writeControlInput(inputHash, this.consumeablesInputConnection);
     }
     
-    public synchronized void setFuelTankWaterContamination(double amount) throws IOException {
+    public synchronized void setFuelTank1Level(double amount) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_INPUT_FIELDS);
         
-        inputHash.put(C172PFields.WATER_CONTAMINATION_FIELD, "" + amount);
+        inputHash.put(C172PFields.FUEL_TANK_1_LEVEL_FIELD, String.valueOf(amount));
         
-        LOGGER.info("Setting fuel tank water contamination: {}", amount);
+        LOGGER.info("Setting fuel tank 1 level: {}", amount);
+        
+        writeControlInput(inputHash, this.consumeablesInputConnection);
+    }
+    
+    public synchronized void setFuelTank0WaterContamination(double amount) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_INPUT_FIELDS);
+        
+        inputHash.put(C172PFields.FUEL_TANK_0_WATER_CONTAMINATION_FIELD, String.valueOf(amount));
+        
+        LOGGER.info("Setting fuel tank 0 water contamination: {}", amount);
+        
+        writeControlInput(inputHash, this.consumeablesInputConnection);   
+    }
+    
+    public synchronized void setFuelTank1WaterContamination(double amount) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_INPUT_FIELDS);
+        
+        inputHash.put(C172PFields.FUEL_TANK_1_WATER_CONTAMINATION_FIELD, String.valueOf(amount));
+        
+        LOGGER.info("Setting fuel tank  water contamination: {}", amount);
         
         writeControlInput(inputHash, this.consumeablesInputConnection);   
     }
@@ -659,16 +690,40 @@ public class C172P extends FlightGearPlane{
         
     }
 
-    @Override
-    public synchronized double getFuelTankCapacity() {
-        return this.getCapacity_gal_us();
-    }
+//    @Override
+//    public synchronized double getFuelTankCapacity() {
+//        return this.getFuelTank0Capacity();
+//    }
+//
+//    @Override
+//    public synchronized double getFuelLevel() {
+//        return getFuelTank0Level();
+//        
+//    }
+    
+	@Override
+	public double getFuelLevel() {
+		return 0;
+	}
 
-    @Override
-    public synchronized double getFuelLevel() {
-        return getLevel_gal_us();
-        
-    }
+	@Override
+	public double getFuelTankCapacity() {
+		return 0;
+	}
+
+	@Override
+	public void refillFuel() throws IOException {
+		refillFuelTank0();
+		refillFuelTank1();
+	}
+	
+	public void refillFuelTank0() throws IOException {
+		this.setFuelTank0Level(this.getFuelTank0Capacity());
+	}
+	
+	public void refillFuelTank1() throws IOException {
+		this.setFuelTank1Level(this.getFuelTank1Capacity());
+	}
 
     ///////////////
     //socket connection writing

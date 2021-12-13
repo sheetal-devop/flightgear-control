@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class WaypointFlight {
 		
-	private static Logger logger = LoggerFactory.getLogger(WaypointFlight.class);
+	private final static Logger LOGGER = LoggerFactory.getLogger(WaypointFlight.class);
 	
 	private final static int TARGET_ALTITUDE = 9000;
 	
@@ -75,7 +75,7 @@ public class WaypointFlight {
 		
 		//increase throttle
 		plane.setPause(true);
-		plane.setThrottle(0.85);
+		plane.setThrottle(0.95);
 		plane.setPause(false);
 	}
 	
@@ -90,9 +90,12 @@ public class WaypointFlight {
 			String.format("\nTarget bearing: %f", targetBearing) +
 			String.format("\nCurrent Heading: %f", plane.getHeading()) +
 			String.format("\nAir Speed: %f", plane.getAirSpeed()) +
-			String.format("\nFuel level: %f", plane.getFuelLevel()) +
+			String.format("\nFuel tank 0 level: %f", plane.getFuelTank0Level()) +
+			String.format("\nFuel tank 1 level: %f", plane.getFuelTank1Level()) +
 			String.format("\nBattery level: %f", plane.getBatteryCharge()) +
 			String.format("\nEngine running: %d", plane.getEngineRunning()) + 
+			String.format("\nEngine rpms: %f", plane.getEngineRpms()) + 
+			String.format("\nEnv Temp: %f", plane.getTemperature()) + 
 			String.format("\nThrottle: %f", plane.getThrottle()) +
 			String.format("\nMixture: %f", plane.getMixture()) +
 			String.format("\nAltitude: %f", plane.getAltitude()) +
@@ -112,42 +115,46 @@ public class WaypointFlight {
 		
 		//local tour
 		//C172P script launches from YVR
-		waypointManager.addWaypoint(KnownPositions.STANLEY_PARK);
-		waypointManager.addWaypoint(KnownPositions.LONSDALE_QUAY);
-		waypointManager.addWaypoint(KnownPositions.WEST_LION);
-		waypointManager.addWaypoint(KnownPositions.MT_SEYMOUR);
-		waypointManager.addWaypoint(KnownPositions.BURNABY_8RINKS);
-		// loop again
-		waypointManager.addWaypoint(KnownPositions.VAN_INTER_AIRPORT_YVR);
-		waypointManager.addWaypoint(KnownPositions.STANLEY_PARK);
-		waypointManager.addWaypoint(KnownPositions.LONSDALE_QUAY);
-		waypointManager.addWaypoint(KnownPositions.WEST_LION);
-		waypointManager.addWaypoint(KnownPositions.MT_SEYMOUR);
-		waypointManager.addWaypoint(KnownPositions.BURNABY_8RINKS);
-		waypointManager.addWaypoint(KnownPositions.VAN_INTER_AIRPORT_YVR);
+//		waypointManager.addWaypoint(KnownPositions.STANLEY_PARK);
+//		waypointManager.addWaypoint(KnownPositions.LONSDALE_QUAY);
+//		waypointManager.addWaypoint(KnownPositions.WEST_LION);
+//		waypointManager.addWaypoint(KnownPositions.MT_SEYMOUR);
+//		waypointManager.addWaypoint(KnownPositions.BURNABY_8RINKS);
+//		// loop again
+//		waypointManager.addWaypoint(KnownPositions.VAN_INTER_AIRPORT_YVR);
+//		waypointManager.addWaypoint(KnownPositions.STANLEY_PARK);
+//		waypointManager.addWaypoint(KnownPositions.LONSDALE_QUAY);
+//		waypointManager.addWaypoint(KnownPositions.WEST_LION);
+//		waypointManager.addWaypoint(KnownPositions.MT_SEYMOUR);
+//		waypointManager.addWaypoint(KnownPositions.BURNABY_8RINKS);
+//		waypointManager.addWaypoint(KnownPositions.VAN_INTER_AIRPORT_YVR);
 		
 		//bc tour
 		//C172P script launches from YVR
-//		waypointManager.addWaypoint(KnownPositions.ABBOTSFORD);
-//		waypointManager.addWaypoint(KnownPositions.PRINCETON);
-//		waypointManager.addWaypoint(KnownPositions.PENTICTON);
-//		waypointManager.addWaypoint(KnownPositions.KELOWNA);
-//		waypointManager.addWaypoint(KnownPositions.KAMLOOPS);
-//		waypointManager.addWaypoint(KnownPositions.REVELSTOKE);
-//		waypointManager.addWaypoint(KnownPositions.HUNDRED_MI_HOUSE);
-//		waypointManager.addWaypoint(KnownPositions.PRINCE_GEORGE);
-//		waypointManager.addWaypoint(KnownPositions.DAWSON_CREEK);
-//		waypointManager.addWaypoint(KnownPositions.FORT_NELSON);
-//		waypointManager.addWaypoint(KnownPositions.JADE_CITY);
-//		waypointManager.addWaypoint(KnownPositions.DEASE_LAKE);
-//		waypointManager.addWaypoint(KnownPositions.HAZELTON);
-//		waypointManager.addWaypoint(KnownPositions.PRINCE_RUPERT);
-//		waypointManager.addWaypoint(KnownPositions.BELLA_BELLA);
-//		waypointManager.addWaypoint(KnownPositions.PORT_HARDY);
-//		waypointManager.addWaypoint(KnownPositions.TOFINO);
-//		waypointManager.addWaypoint(KnownPositions.VICTORIA);
-//		waypointManager.addWaypoint(KnownPositions.VAN_INTER_AIRPORT_YVR);
+		waypointManager.addWaypoint(KnownPositions.ABBOTSFORD);
+		waypointManager.addWaypoint(KnownPositions.PRINCETON);
+		waypointManager.addWaypoint(KnownPositions.PENTICTON);
+		waypointManager.addWaypoint(KnownPositions.KELOWNA);
+		waypointManager.addWaypoint(KnownPositions.KAMLOOPS);
+		waypointManager.addWaypoint(KnownPositions.REVELSTOKE);
+		waypointManager.addWaypoint(KnownPositions.HUNDRED_MI_HOUSE);
+		waypointManager.addWaypoint(KnownPositions.PRINCE_GEORGE);
+		waypointManager.addWaypoint(KnownPositions.DAWSON_CREEK);
+		waypointManager.addWaypoint(KnownPositions.FORT_NELSON);
+		waypointManager.addWaypoint(KnownPositions.JADE_CITY);
+		waypointManager.addWaypoint(KnownPositions.DEASE_LAKE);
+		waypointManager.addWaypoint(KnownPositions.HAZELTON);
+		waypointManager.addWaypoint(KnownPositions.PRINCE_RUPERT);
+		waypointManager.addWaypoint(KnownPositions.BELLA_BELLA);
+		waypointManager.addWaypoint(KnownPositions.PORT_HARDY);
+		waypointManager.addWaypoint(KnownPositions.TOFINO);
+		waypointManager.addWaypoint(KnownPositions.VICTORIA);
+		waypointManager.addWaypoint(KnownPositions.VAN_INTER_AIRPORT_YVR);
 		
+		//for fun, mix it up
+//		List<WaypointPosition> reverseOrder = waypointManager.getWaypoints();
+//		Collections.reverse( reverseOrder );
+//		waypointManager.setWaypoints( reverseOrder );
 
 		
 		WaypointPosition startingWaypoint = waypointManager.getNextWaypoint();
@@ -159,7 +166,7 @@ public class WaypointFlight {
 			
 			
 			//in case we get a previously lightly-used environment
-			plane.refillFuelTank();
+			plane.refillFuel();
 			plane.setBatteryCharge(1.0);
 			
 			try {
@@ -170,10 +177,11 @@ public class WaypointFlight {
 			
 			//figure out the heading of our first waypoint based upon our current position
 			WaypointPosition startPosition = plane.getPosition();
-			double initialHeading = WaypointUtilities.getHeadingToTarget(startPosition, startingWaypoint);			
+			double initialBearing = WaypointUtilities.getHeadingToTarget(startPosition, startingWaypoint);			
 			
-			//head north
-			plane.setHeading(initialHeading);
+			//point the plane at our first waypoint
+			LOGGER.info("First waypoint is {} and initial target bearing is {}", startingWaypoint.toString(), initialBearing);
+			plane.setHeading(initialBearing);
 			
 			//TODO: check if engine running, plane is in the air, speed is not zero
 			
@@ -194,7 +202,8 @@ public class WaypointFlight {
 			//i'm in a hurry and a c172p only goes so fast
 			plane.setSpeedUp(8);
 		
-			double minFuelGal = 4.0;
+			//not much of a min, but both tanks largely filled means even weight and more stable flight
+			double minFuelGal = 12.0;
 			double minBatteryCharge = 0.25;
 			
 			//needs to be tuned depending on aircraft speed, sim speedup, and waypoint closeness
@@ -210,16 +219,16 @@ public class WaypointFlight {
 				//possibly slow the simulator down if the next waypoint is close.
 				//it's possible that hard and frequent course adjustments are needed
 				
-				logger.info("Headed to next waypoint: {}", nextWaypoint.toString());
+				LOGGER.info("Headed to next waypoint: {}", nextWaypoint.toString());
 				
 				nextWaypointBearing = WaypointUtilities.calcBearingToGPSCoordinates(plane.getPosition(), nextWaypoint);
 				
-				logger.info("Bearing to next waypoint: {}", nextWaypointBearing);
+				LOGGER.info("Bearing to next waypoint: {}", nextWaypointBearing);
 				
 				waypointFlightCycles = 0;
 				while( !WaypointUtilities.hasArrivedAtWaypoint(plane.getPosition(), nextWaypoint) ) {
 				
-					logger.info("======================\nCycle {} start.", waypointFlightCycles);
+					LOGGER.info("======================\nCycle {} start.", waypointFlightCycles);
 
 					flightLog.add(plane.getPosition());
 					
@@ -227,7 +236,7 @@ public class WaypointFlight {
 						//reset bearing incase we've drifted
 						nextWaypointBearing = WaypointUtilities.calcBearingToGPSCoordinates(plane.getPosition(), nextWaypoint);
 						
-						logger.info("Recalculating bearing to waypoint: {}", nextWaypointBearing);
+						LOGGER.info("Recalculating bearing to waypoint: {}", nextWaypointBearing);
 					}
 					
 					// check altitude first, if we're in a nose dive that needs to be corrected first
@@ -248,12 +257,26 @@ public class WaypointFlight {
 						
 						FlightUtilities.headingCheck(plane, 4, nextWaypointBearing);
 					}
+					
+					if(!plane.isEngineRunning()) {
+						LOGGER.error("Engine found not running. Attempting to restart.");
+						plane.startupPlane();
+						
+						//increase throttle
+						plane.setPause(true);
+						plane.setThrottle(0.95);
+						plane.setPause(false);
+					}
 
 					//FlightUtilities.airSpeedCheck(plane, 20, 100);
 
 					// check fuel last last. easy to refuel
-					if (plane.getFuelLevel() < minFuelGal) {
-						plane.refillFuelTank();
+					if (plane.getFuelTank0Level() < minFuelGal) {
+						plane.refillFuelTank0();
+					}
+					
+					if (plane.getFuelTank1Level() < minFuelGal) {
+						plane.refillFuelTank1();
 					}
 					
 					//check battery level
@@ -261,16 +284,16 @@ public class WaypointFlight {
 						plane.setBatteryCharge(0.9);
 					}
 
-					logger.info("Telemetry Read: {}", telemetryReadOut(plane, nextWaypoint, nextWaypointBearing));
-					logger.info("\nCycle {} end\n======================", waypointFlightCycles);
+					LOGGER.info("Telemetry Read: {}", telemetryReadOut(plane, nextWaypoint, nextWaypointBearing));
+					LOGGER.info("\nCycle {} end\n======================", waypointFlightCycles);
 					
 					waypointFlightCycles++;
 				}
 				
-				logger.info("Arrived at waypoint {}!", nextWaypoint.toString());
+				LOGGER.info("Arrived at waypoint {}!", nextWaypoint.toString());
 			}
 			
-			logger.info("No more waypoints. Trip is finished!");
+			LOGGER.info("No more waypoints. Trip is finished!");
 		} catch (FlightGearSetupException e) {
 			e.printStackTrace();
 		}
