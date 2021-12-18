@@ -1,4 +1,4 @@
-package org.jason.flightgear.planes.f15c;
+package org.jason.flightgear.aircraft.f15c;
 
 /**
  * Property field names, descriptions, collections

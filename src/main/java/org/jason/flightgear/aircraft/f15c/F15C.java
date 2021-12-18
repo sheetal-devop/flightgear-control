@@ -1,4 +1,4 @@
-package org.jason.flightgear.planes.f15c;
+package org.jason.flightgear.aircraft.f15c;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -6,16 +6,16 @@ import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
+import org.jason.flightgear.aircraft.FlightGearAircraft;
+import org.jason.flightgear.aircraft.FlightGearFields;
 import org.jason.flightgear.connection.sockets.FlightGearInputConnection;
 import org.jason.flightgear.connection.sockets.FlightGearTelemetryConnection;
 import org.jason.flightgear.connection.telnet.FlightGearTelnetConnection;
 import org.jason.flightgear.exceptions.FlightGearSetupException;
-import org.jason.flightgear.planes.FlightGearPlane;
-import org.jason.flightgear.planes.FlightGearFields;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class F15C extends FlightGearPlane{
+public class F15C extends FlightGearAircraft{
     
     private final static Logger LOGGER = LoggerFactory.getLogger(F15C.class);
 

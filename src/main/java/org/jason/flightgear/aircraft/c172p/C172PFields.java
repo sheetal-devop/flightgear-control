@@ -1,4 +1,4 @@
-package org.jason.flightgear.planes.c172p;
+package org.jason.flightgear.aircraft.c172p;
 
 /**
  * Property field names, descriptions, collections

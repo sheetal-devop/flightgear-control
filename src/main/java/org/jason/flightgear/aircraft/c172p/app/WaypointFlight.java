@@ -1,8 +1,9 @@
-package org.jason.flightgear.planes.c172p.app;
+package org.jason.flightgear.aircraft.c172p.app;
 
 import java.io.IOException;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
+import org.jason.flightgear.aircraft.c172p.C172P;
 import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.jason.flightgear.flight.WaypointPosition;
 import org.jason.flightgear.flight.util.FlightLog;
@@ -10,7 +11,6 @@ import org.jason.flightgear.flight.util.FlightUtilities;
 import org.jason.flightgear.flight.waypoints.KnownPositions;
 import org.jason.flightgear.flight.waypoints.WaypointManager;
 import org.jason.flightgear.flight.waypoints.WaypointUtilities;
-import org.jason.flightgear.planes.c172p.C172P;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

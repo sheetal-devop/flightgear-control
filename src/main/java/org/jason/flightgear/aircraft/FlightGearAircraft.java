@@ -1,4 +1,4 @@
-package org.jason.flightgear.planes;
+package org.jason.flightgear.aircraft;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -16,9 +16,9 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class FlightGearPlane {
+public abstract class FlightGearAircraft {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(FlightGearPlane.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(FlightGearAircraft.class);
     
     private final static int TELEMETRY_READ_WAIT_SLEEP = 100;
     private final static int TELEMETRY_READ_TRAILING_SLEEP = 250;
@@ -40,7 +40,7 @@ public abstract class FlightGearPlane {
     
     protected NetworkConfig networkConfig;
 
-    public FlightGearPlane() {
+    public FlightGearAircraft() {
     	
     	networkConfig = new NetworkConfig();
     	

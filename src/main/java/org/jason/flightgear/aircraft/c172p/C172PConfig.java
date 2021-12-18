@@ -1,4 +1,4 @@
-package org.jason.flightgear.planes.c172p;
+package org.jason.flightgear.aircraft.c172p;
 
 //TODO: refactor with changes to FlightGearPlane host/port configuration
 public class C172PConfig {

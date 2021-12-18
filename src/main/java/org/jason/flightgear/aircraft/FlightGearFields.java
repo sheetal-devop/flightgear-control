@@ -1,4 +1,4 @@
-package org.jason.flightgear.planes;
+package org.jason.flightgear.aircraft;
 
 /**
  * Fields common for multiple planes and the simulator/environments.

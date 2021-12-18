@@ -1,4 +1,4 @@
-package org.jason.flightgear.planes.c172p.app;
+package org.jason.flightgear.aircraft.c172p.app;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -6,9 +6,9 @@ import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
+import org.jason.flightgear.aircraft.c172p.C172P;
 import org.jason.flightgear.connection.sockets.FlightGearInputConnection;
 import org.jason.flightgear.exceptions.FlightGearSetupException;
-import org.jason.flightgear.planes.c172p.C172P;
 
 /**
  * Rotate the plane heading by 90 degrees a few times. Visually verify in simulator

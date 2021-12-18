@@ -2,7 +2,7 @@ package org.jason.flightgear.flight.util;
 
 import java.io.IOException;
 
-import org.jason.flightgear.planes.FlightGearPlane;
+import org.jason.flightgear.aircraft.FlightGearAircraft;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,11 +47,11 @@ public class FlightUtilities {
 //        }
 //    }
     
-	public static void altitudeCheck(FlightGearPlane plane, int maxDifference, double targetAltitude) throws IOException {
+	public static void altitudeCheck(FlightGearAircraft plane, int maxDifference, double targetAltitude) throws IOException {
     	altitudeCheck(plane, maxDifference, targetAltitude, false);
     }
     
-    public static void altitudeCheck(FlightGearPlane plane, int maxDifference, double targetAltitude, boolean trailingSleep) throws IOException {
+    public static void altitudeCheck(FlightGearAircraft plane, int maxDifference, double targetAltitude, boolean trailingSleep) throws IOException {
         double currentAltitude = plane.getAltitude();
         
         LOGGER.info("Altitude check. Current {} vs target {}", currentAltitude, targetAltitude);
@@ -76,11 +76,11 @@ public class FlightUtilities {
         }
     }
     
-    public static void headingCheck(FlightGearPlane plane, int maxDifference, double targetHeading) throws IOException {
+    public static void headingCheck(FlightGearAircraft plane, int maxDifference, double targetHeading) throws IOException {
     	headingCheck(plane, maxDifference, targetHeading, false);
     }
     
-    public static void headingCheck(FlightGearPlane plane, int maxDifference, double targetHeading, boolean trailingSleep) throws IOException {
+    public static void headingCheck(FlightGearAircraft plane, int maxDifference, double targetHeading, boolean trailingSleep) throws IOException {
         
         double currentHeading = plane.getHeading();
         double currentHeadingSin = Math.sin( Math.toRadians(currentHeading) );
@@ -136,11 +136,11 @@ public class FlightUtilities {
         }
     }
     
-    public static void pitchCheck(FlightGearPlane plane, int maxDifference, double targetPitch) throws IOException {
+    public static void pitchCheck(FlightGearAircraft plane, int maxDifference, double targetPitch) throws IOException {
     	pitchCheck(plane, maxDifference, targetPitch, false);
     }
     
-    public static void pitchCheck(FlightGearPlane plane, int maxDifference, double targetPitch, boolean trailingSleep) throws IOException {
+    public static void pitchCheck(FlightGearAircraft plane, int maxDifference, double targetPitch, boolean trailingSleep) throws IOException {
         //read pitch
         //if pitch is too far from target in +/- directions, set to target
         
@@ -169,11 +169,11 @@ public class FlightUtilities {
         }
     }
     
-    public static void rollCheck(FlightGearPlane plane, int maxDifference, double targetRoll) throws IOException {
+    public static void rollCheck(FlightGearAircraft plane, int maxDifference, double targetRoll) throws IOException {
     	rollCheck(plane, maxDifference, targetRoll, false);
     }
     
-    public static void rollCheck(FlightGearPlane plane, int maxDifference, double targetRoll, boolean trailingSleep) throws IOException {
+    public static void rollCheck(FlightGearAircraft plane, int maxDifference, double targetRoll, boolean trailingSleep) throws IOException {
         double currentRoll = plane.getRoll();
         
         //roll is +180 to -180
@@ -198,7 +198,7 @@ public class FlightUtilities {
         }
     }
     
-    public static void airSpeedCheck(FlightGearPlane plane, int maxDifference, double targetAirspeed) throws IOException {
+    public static void airSpeedCheck(FlightGearAircraft plane, int maxDifference, double targetAirspeed) throws IOException {
     	airSpeedCheck(plane, maxDifference, targetAirspeed, false);
     }
     
@@ -211,7 +211,7 @@ public class FlightUtilities {
      * @param trailingSleep
      * @throws IOException
      */
-    public static void airSpeedCheck(FlightGearPlane plane, int maxDifference, double targetAirspeed, boolean trailingSleep) throws IOException {
+    public static void airSpeedCheck(FlightGearAircraft plane, int maxDifference, double targetAirspeed, boolean trailingSleep) throws IOException {
         double currentAirSpeed = plane.getAirSpeed();
         
 		//set while not paused. this functions more like a boost- 

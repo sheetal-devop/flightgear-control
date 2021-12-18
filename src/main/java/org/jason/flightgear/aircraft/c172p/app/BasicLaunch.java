@@ -1,9 +1,9 @@
-package org.jason.flightgear.planes.c172p.app;
+package org.jason.flightgear.aircraft.c172p.app;
 
 import java.io.IOException;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
-import org.jason.flightgear.planes.c172p.C172P;
+import org.jason.flightgear.aircraft.c172p.C172P;
 
 /**
  * Start the plane and throw it into the air.
