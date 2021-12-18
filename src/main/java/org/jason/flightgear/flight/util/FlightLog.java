@@ -18,6 +18,14 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+/**
+ * Log waypoints and write a gpx file of a flight. Resulting gpx files can be very large 
+ * for long flights and not every mapping tool has a large size limit. This one 
+ * seems to work for larger ones http://www.mygpsfiles.com/app/
+ * 
+ * @author jason
+ *
+ */
 public class FlightLog extends ArrayList<WaypointPosition> {
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(FlightLog.class);
@@ -53,6 +61,8 @@ public class FlightLog extends ArrayList<WaypointPosition> {
 	        Element route = document.createElement("rte");
 	        
 	        //route points
+	        //optionally maybe write every 4th route point if we have a lot of points
+	        //online gpx mapping tools have low file size limits
 			this.forEach( (n) -> generateRoutePointNode(n, route) );
 			
 			root.appendChild(route);
