@@ -330,7 +330,7 @@ public class F15C extends FlightGearPlane{
     //////////////
     //telemetry modifiers
     
-    public void forceStabilize(double heading, double altitude, double roll, double pitch) throws IOException {
+    public void forceStabilize(double heading, double roll, double pitch) throws IOException {
         
         LOGGER.info("forceStabilize called");
         
