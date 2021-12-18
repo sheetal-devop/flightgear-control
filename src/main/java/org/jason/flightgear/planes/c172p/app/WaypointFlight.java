@@ -100,18 +100,17 @@ public class WaypointFlight {
 			String.format("\nMixture: %f", plane.getMixture()) +
 			String.format("\nAltitude: %f", plane.getAltitude()) +
 			String.format("\nLatitude: %f", plane.getLatitude()) + 
-			String.format("\nLongitude: %f", plane.getLongitude()					
-			);
+			String.format("\nLongitude: %f", plane.getLongitude());
 	}
 	
-	public static void main(String [] args) throws IOException {
+	public static void main(String [] args) {
 		C172P plane = null;
+		
+		long startTime = System.currentTimeMillis();
 		
 		FlightLog flightLog = new FlightLog();
 		 
 		WaypointManager waypointManager = new WaypointManager();
-		
-		
 		
 		//local tour
 		//C172P script launches from YVR
@@ -183,8 +182,7 @@ public class WaypointFlight {
 			LOGGER.info("First waypoint is {} and initial target bearing is {}", startingWaypoint.toString(), initialBearing);
 			plane.setHeading(initialBearing);
 			
-			//TODO: check if engine running, plane is in the air, speed is not zero
-			
+			//startup procedure to get the engines running
 			plane.startupPlane();
 	
 			//wait for startup to complete and telemetry reads to arrive
@@ -203,7 +201,7 @@ public class WaypointFlight {
 			plane.setSpeedUp(8);
 		
 			//not much of a min, but both tanks largely filled means even weight and more stable flight
-			double minFuelGal = 12.0;
+			double minFuelGal = 16.0;
 			double minBatteryCharge = 0.25;
 			
 			//needs to be tuned depending on aircraft speed, sim speedup, and waypoint closeness
@@ -267,15 +265,10 @@ public class WaypointFlight {
 						plane.setThrottle(0.95);
 						plane.setPause(false);
 					}
-
-					//FlightUtilities.airSpeedCheck(plane, 20, 100);
-
-					// check fuel last last. easy to refuel
-					if (plane.getFuelTank0Level() < minFuelGal) {
-						plane.refillFuelTank0();
-					}
 					
-					if (plane.getFuelTank1Level() < minFuelGal) {
+					//refill both tanks for balance
+					if (plane.getFuelTank0Level() < minFuelGal || plane.getFuelTank1Level() < minFuelGal) {
+						plane.refillFuelTank0();
 						plane.refillFuelTank1();
 					}
 					
@@ -296,6 +289,8 @@ public class WaypointFlight {
 			LOGGER.info("No more waypoints. Trip is finished!");
 		} catch (FlightGearSetupException e) {
 			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		finally {
 			if(plane != null) {
@@ -307,12 +302,13 @@ public class WaypointFlight {
 				} catch (IOException e) {
 					e.printStackTrace();
 				} catch (InvalidTelnetOptionException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 			
 			flightLog.writeGPXFile(System.getProperty("user.dir") + "/c172p_"+System.currentTimeMillis() + ".gpx");
 		}
+		
+		LOGGER.info("Completed course in: {}ms", (System.currentTimeMillis() - startTime));
 	}
 }
