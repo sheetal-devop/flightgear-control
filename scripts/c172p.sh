@@ -43,6 +43,7 @@ fgfs \
  --prop:/sim/rendering/multithreading-mode=AutomaticSelection\
  --prop:/sim/time/gmt=2021-07-03T20:00:00\
  --prop:/engines/active-engine/winter-kit-installed=true\
+ --prop:/engines/active-engine/complex-engine-procedures=false\
  --allow-nasal-from-sockets\
  --turbulence=0.0\
  --wind=0\@0
