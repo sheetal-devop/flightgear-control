@@ -1,7 +1,5 @@
 package org.jason.flightgear.flight.waypoints;
 
-import org.jason.flightgear.flight.WaypointPosition;
-
 /**
  * Lat/Lon to 5 digits precision. 
  * 

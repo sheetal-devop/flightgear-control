@@ -7,7 +7,6 @@ fgfs \
  --prop:/nasal/local_weather/enabled=false\
  --metar=XXXX 012345Z 15003KT 12SM SCT041 FEW200 20/08 Q1015 NOSIG\
  --prop:/environment/weather-scenario=Fair weather\
- --timeofday=noon\
  --disable-rembrandt\
  --aircraft=org.flightgear.fgaddon.stable_2018.f15c\
  --fog-fastest\

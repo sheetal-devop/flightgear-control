@@ -1,4 +1,4 @@
-package org.jason.flightgear.aircraft;
+package org.jason.flightgear.aircraft.config;
 
 public class NetworkConfig {
 
@@ -12,14 +12,16 @@ public class NetworkConfig {
 
     private final static int DEFAULT_SOCKETS_INPUT_CONSUMABLES_PORT = 6601;
     private final static int DEFAULT_SOCKETS_INPUT_CONTROLS_PORT = 6602;
-    private final static int DEFAULT_SOCKETS_INPUT_FDM_PORT = 6603;
-    private final static int DEFAULT_SOCKETS_INPUT_ORIENTATION_PORT = 6604;
-    private final static int DEFAULT_SOCKETS_INPUT_POSITION_PORT = 6605;
-    private final static int DEFAULT_SOCKETS_INPUT_SIM_PORT = 6606;
-    private final static int DEFAULT_SOCKETS_INPUT_SIM_FREEZE_PORT = 6607;
-    private final static int DEFAULT_SOCKETS_INPUT_SIM_SPEEDUP_PORT = 6608;
-    private final static int DEFAULT_SOCKETS_INPUT_SYSTEM_PORT = 6609;
-    private final static int DEFAULT_SOCKETS_INPUT_VELOCITIES_PORT = 6610;
+    private final static int DEFAULT_SOCKETS_INPUT_ENGINES_PORT = 6603;
+    private final static int DEFAULT_SOCKETS_INPUT_FDM_PORT = 6604;
+    private final static int DEFAULT_SOCKETS_INPUT_ORIENTATION_PORT = 6605;
+    private final static int DEFAULT_SOCKETS_INPUT_POSITION_PORT = 6606;
+    private final static int DEFAULT_SOCKETS_INPUT_SIM_PORT = 6607;
+    private final static int DEFAULT_SOCKETS_INPUT_SIM_FREEZE_PORT = 6608;
+    private final static int DEFAULT_SOCKETS_INPUT_SIM_SPEEDUP_PORT = 6609;
+    private final static int DEFAULT_SOCKETS_INPUT_SIM_TIME_PORT = 6610;
+    private final static int DEFAULT_SOCKETS_INPUT_SYSTEM_PORT = 6611;
+    private final static int DEFAULT_SOCKETS_INPUT_VELOCITIES_PORT = 6612;
 
 	private String telemetryOutputHost;
 	private int telemetryOutputPort;
@@ -32,13 +34,15 @@ public class NetworkConfig {
 
 	private int consumeablesInputPort;
     private int controlsInputPort;
+    private int enginesInputPort;
     private int fdmInputPort;
     private int orientationInputPort;
     private int positionInputPort;
     private int simInputPort;
     private int simFreezeInputPort;
     private int simSpeedupInputPort;
-    private int systemInputPort;
+    private int simTimeInputPort;
+    private int systemsInputPort;
     private int velocitiesInputPort;
     
 	public NetworkConfig() {
@@ -53,16 +57,18 @@ public class NetworkConfig {
 		
 		consumeablesInputPort = DEFAULT_SOCKETS_INPUT_CONSUMABLES_PORT;
 		controlsInputPort = DEFAULT_SOCKETS_INPUT_CONTROLS_PORT;
+		enginesInputPort = DEFAULT_SOCKETS_INPUT_ENGINES_PORT;
 		fdmInputPort = DEFAULT_SOCKETS_INPUT_FDM_PORT;
 		orientationInputPort = DEFAULT_SOCKETS_INPUT_ORIENTATION_PORT;
 		positionInputPort = DEFAULT_SOCKETS_INPUT_POSITION_PORT;
 		simInputPort = DEFAULT_SOCKETS_INPUT_SIM_PORT;
 		simFreezeInputPort = DEFAULT_SOCKETS_INPUT_SIM_FREEZE_PORT;
 		simSpeedupInputPort = DEFAULT_SOCKETS_INPUT_SIM_SPEEDUP_PORT;
-		systemInputPort = DEFAULT_SOCKETS_INPUT_SYSTEM_PORT;
+		simTimeInputPort = DEFAULT_SOCKETS_INPUT_SIM_TIME_PORT;
+		systemsInputPort = DEFAULT_SOCKETS_INPUT_SYSTEM_PORT;
 		velocitiesInputPort = DEFAULT_SOCKETS_INPUT_VELOCITIES_PORT;
 	}
-	
+
 	public String getTelemetryOutputHost() {
 		return telemetryOutputHost;
 	}
@@ -103,55 +109,63 @@ public class NetworkConfig {
 		this.socketInputHost = socketInputHost;
 	}
     
-    public int getConsumeablesPort() {
+    public int getConsumeablesInputPort() {
 		return consumeablesInputPort;
 	}
 
-	public void setConsumeablesPort(int consumeablesPort) {
-		this.consumeablesInputPort = consumeablesPort;
+	public void setConsumeablesInputPort(int port) {
+		this.consumeablesInputPort = port;
 	}
 
-	public int getControlsPort() {
+	public int getControlsInputPort() {
 		return controlsInputPort;
 	}
 
-	public void setControlsPort(int controlsPort) {
-		this.controlsInputPort = controlsPort;
+	public void setControlsInputPort(int port) {
+		this.controlsInputPort = port;
 	}
 
-	public int getFdmPort() {
+	public int getEnginesInputPort() {
+		return enginesInputPort;
+	}
+
+	public void setEnginesInputPort(int port) {
+		this.enginesInputPort = port;
+	}
+	
+	public int getFdmInputPort() {
 		return fdmInputPort;
 	}
 
-	public void setFdmPort(int fdmPort) {
-		this.fdmInputPort = fdmPort;
+	public void setFdmInputPort(int port) {
+		this.fdmInputPort = port;
 	}
 
-	public int getOrientationPort() {
+	public int getOrientationInputPort() {
 		return orientationInputPort;
 	}
 
-	public void setOrientationPort(int orientationPort) {
-		this.orientationInputPort = orientationPort;
+	public void setOrientationInputPort(int port) {
+		this.orientationInputPort = port;
 	}
 
-	public int getPositionPort() {
+	public int getPositionInputPort() {
 		return positionInputPort;
 	}
 
-	public void setPositionPort(int positionPort) {
-		this.positionInputPort = positionPort;
+	public void setPositionInputPort(int port) {
+		this.positionInputPort = port;
 	}
 
-	public int getSimPort() {
+	public int getSimInputPort() {
 		return simInputPort;
 	}
 
-	public void setSimPort(int simPort) {
-		this.simInputPort = simPort;
+	public void setSimInputPort(int port) {
+		this.simInputPort = port;
 	}
 
-	public int getSimFreezePort() {
+	public int getSimFreezeInputPort() {
 		return simFreezeInputPort;
 	}
 
@@ -163,23 +177,31 @@ public class NetworkConfig {
 		return simSpeedupInputPort;
 	}
 
-	public void setSimSpeedupPort(int simSpeedupPort) {
-		this.simSpeedupInputPort = simSpeedupPort;
+	public void setSimSpeedupInputPort(int port) {
+		this.simSpeedupInputPort = port;
 	}
 	
-	public int getSystemPort() {
-		return systemInputPort;
+	public int getSimTimeInputPort() {
+		return simTimeInputPort;
 	}
 
-	public void setSystemPort(int systemPort) {
-		this.systemInputPort = systemPort;
+	public void setSimTimeInputPort(int port) {
+		this.simTimeInputPort = port;
+	}
+	
+	public int getSystemsInputPort() {
+		return systemsInputPort;
 	}
 
-	public int getVelocitiesPort() {
+	public void setSystemsInputPort(int port) {
+		this.systemsInputPort = port;
+	}
+
+	public int getVelocitiesInputPort() {
 		return velocitiesInputPort;
 	}
 
-	public void setVelocitiesPort(int velocitiesPort) {
-		this.velocitiesInputPort = velocitiesPort;
+	public void setVelocitiesInputPort(int port) {
+		this.velocitiesInputPort = port;
 	}
 }

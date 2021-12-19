@@ -1,4 +1,4 @@
-package org.jason.flightgear.flight;
+package org.jason.flightgear.flight.waypoints;
 
 /**
  * Wrapper for a plane position in flight. 

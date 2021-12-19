@@ -141,51 +141,76 @@ public abstract class C172PFields {
 	public final static String[] CONTROL_INPUT_FIELDS = CONTROL_FIELDS;
 	
 	/////////////
-	// engine
+	// engines
 	
-	public final static String ENGINE_COWLING_AIR_TEMPERATURE_FIELD = "/engines/active-engine/cowling-air-temperature-degf";
-	public final static String ENGINE_COWLING_AIR_TEMPERATURE_DESC = "The engine cowling air temperature in fahrenheit";
-	
-	public final static String ENGINE_EXHAUST_GAS_TEMPERATURE_FIELD = "/engines/active-engine/egt-degf";
-	public final static String ENGINE_EXHAUST_GAS_TEMPERATURE_DESC = "The exhaust gas temperature in fahrenheit";
-	
-	public final static String ENGINE_EXHAUST_GAS_TEMPERATURE_NORM_FIELD = "/engines/active-engine/egt-norm";
-	public final static String ENGINE_EXHAUST_GAS_TEMPERATURE_NORM_DESC = "The exhaust gas temperature normalization in fahrenheit";
-	
-	public final static String ENGINE_FUEL_FLOW_FIELD = "/engines/active-engine/fuel-flow-gph";
-	public final static String ENGINE_FUEL_FLOW_DESC = "The engine fuel flow in gallons per hour";
-	
-	public final static String ENGINE_MP_OSI_FIELD = "/engines/active-engine/mp-osi";
-	public final static String ENGINE_MP_OSI_DESC = "The engine mp-osi. Not sure what this is. Possibly related to engine pistons";
-
-	public final static String ENGINE_OIL_PRESSURE_FIELD = "/engines/active-engine/oil-pressure-psi";
-	public final static String ENGINE_OIL_PRESSURE_DESC = "The engine oil pressure in psi";
-	
-	public final static String ENGINE_OIL_TEMPERATURE_FIELD = "/engines/active-engine/oil-temperature-degf";
-	public final static String ENGINE_OIL_TEMPERATURE_DESC = "The engine oil temperature in fahrenheit";
-
-	public final static String ENGINE_RPM_FIELD = "/engines/active-engine/rpm";
-	public final static String ENGINE_RPM_DESC = "The engine tachometer in rpm";
-	
-	public final static String ENGINE_RUNNING_FIELD = "/engines/active-engine/running";
-	public final static String ENGINE_RUNNING_DESC = "The engine running state";
+	public final static String ENGINES_COMPLEX_ENGINE_PROCEDURES = "/engines/active-engine/complex-engine-procedures";
+	public final static String ENGINES_COMPLEX_ENGINE_PROCEDURES_DESC = "Toggle complex engine procedures and failures for the C172P. Disable for easier flight management";
 	
 	//common values for these fields
-	public final static int ENGINE_RUNNING_INT_TRUE = 1;
-	public final static int ENGINE_RUNNING_INT_FALSE = 0;
-	public final static String ENGINE_RUNNING_TRUE = String.valueOf(ENGINE_RUNNING_INT_TRUE);
-	public final static String ENGINE_RUNNING_FALSE = String.valueOf(ENGINE_RUNNING_INT_FALSE);
+	public final static int ENGINES_COMPLEX_ENGINE_PROCEDURES_INT_TRUE = 1;
+	public final static int ENGINES_COMPLEX_ENGINE_PROCEDURES_INT_FALSE = 0;
+	public final static String ENGINES_COMPLEX_ENGINE_PROCEDURES_TRUE = String.valueOf(ENGINES_COMPLEX_ENGINE_PROCEDURES_INT_TRUE);
+	public final static String ENGINES_COMPLEX_ENGINE_PROCEDURES_FALSE = String.valueOf(ENGINES_COMPLEX_ENGINE_PROCEDURES_INT_FALSE);
+	
+	public final static String ENGINES_COWLING_AIR_TEMPERATURE_FIELD = "/engines/active-engine/cowling-air-temperature-degf";
+	public final static String ENGINES_COWLING_AIR_TEMPERATURE_DESC = "The engine cowling air temperature in fahrenheit";
+	
+	public final static String ENGINES_EXHAUST_GAS_TEMPERATURE_FIELD = "/engines/active-engine/egt-degf";
+	public final static String ENGINES_EXHAUST_GAS_TEMPERATURE_DESC = "The exhaust gas temperature in fahrenheit";
+	
+	public final static String ENGINES_EXHAUST_GAS_TEMPERATURE_NORM_FIELD = "/engines/active-engine/egt-norm";
+	public final static String ENGINES_EXHAUST_GAS_TEMPERATURE_NORM_DESC = "The exhaust gas temperature normalization in fahrenheit";
+	
+	public final static String ENGINES_FUEL_FLOW_FIELD = "/engines/active-engine/fuel-flow-gph";
+	public final static String ENGINES_FUEL_FLOW_DESC = "The engine fuel flow in gallons per hour";
+	
+	public final static String ENGINES_MP_OSI_FIELD = "/engines/active-engine/mp-osi";
+	public final static String ENGINES_MP_OSI_DESC = "The engine mp-osi. Not sure what this is. Possibly related to engine pistons";
+
+	public final static String ENGINES_OIL_PRESSURE_FIELD = "/engines/active-engine/oil-pressure-psi";
+	public final static String ENGINES_OIL_PRESSURE_DESC = "The engine oil pressure in psi";
+	
+	public final static String ENGINES_OIL_TEMPERATURE_FIELD = "/engines/active-engine/oil-temperature-degf";
+	public final static String ENGINES_OIL_TEMPERATURE_DESC = "The engine oil temperature in fahrenheit";
+
+	public final static String ENGINES_RPM_FIELD = "/engines/active-engine/rpm";
+	public final static String ENGINES_RPM_DESC = "The engine tachometer in rpm";
+	
+	public final static String ENGINES_RUNNING_FIELD = "/engines/active-engine/running";
+	public final static String ENGINES_RUNNING_DESC = "The engine running state";
+	
+	//common values for these fields
+	public final static int ENGINES_RUNNING_INT_TRUE = 1;
+	public final static int ENGINES_RUNNING_INT_FALSE = 0;
+	public final static String ENGINES_RUNNING_TRUE = String.valueOf(ENGINES_RUNNING_INT_TRUE);
+	public final static String ENGINES_RUNNING_FALSE = String.valueOf(ENGINES_RUNNING_INT_FALSE);
+	
+	public final static String ENGINES_WINTER_KIT_INSTALLED = "/engines/active-engine/winter-kit-installed";
+	public final static String ENGINES_WINTER_KIT_INSTALLED_DESC = "Toggle installation of the C172P winter kit. May help with icing issues.";
+	
+	//common values for these fields
+	public final static int ENGINES_WINTER_KIT_INSTALLED_INT_TRUE = 1;
+	public final static int ENGINES_WINTER_KIT_INSTALLED_INT_FALSE = 0;
+	public final static String ENGINES_WINTER_KIT_INSTALLED_TRUE = String.valueOf(ENGINES_WINTER_KIT_INSTALLED_INT_TRUE);
+	public final static String ENGINES_WINTER_KIT_INSTALLED_FALSE = String.valueOf(ENGINES_WINTER_KIT_INSTALLED_INT_FALSE);
 	
 	public final static String[] ENGINE_FIELDS = {
-		ENGINE_COWLING_AIR_TEMPERATURE_FIELD,
-		ENGINE_EXHAUST_GAS_TEMPERATURE_FIELD,
-		ENGINE_EXHAUST_GAS_TEMPERATURE_NORM_FIELD,
-		ENGINE_FUEL_FLOW_FIELD,
-		ENGINE_MP_OSI_FIELD,
-		ENGINE_OIL_PRESSURE_FIELD,
-		ENGINE_OIL_TEMPERATURE_FIELD,
-		ENGINE_RPM_FIELD,
-		ENGINE_RUNNING_FIELD
+		ENGINES_COMPLEX_ENGINE_PROCEDURES,
+		ENGINES_COWLING_AIR_TEMPERATURE_FIELD,
+		ENGINES_EXHAUST_GAS_TEMPERATURE_FIELD,
+		ENGINES_EXHAUST_GAS_TEMPERATURE_NORM_FIELD,
+		ENGINES_FUEL_FLOW_FIELD,
+		ENGINES_MP_OSI_FIELD,
+		ENGINES_OIL_PRESSURE_FIELD,
+		ENGINES_OIL_TEMPERATURE_FIELD,
+		ENGINES_RPM_FIELD,
+		ENGINES_RUNNING_FIELD,
+		ENGINES_WINTER_KIT_INSTALLED
+	};
+	
+	public final static String[] ENGINES_INPUT_FIELDS = {
+		ENGINES_COMPLEX_ENGINE_PROCEDURES,
+		ENGINES_WINTER_KIT_INSTALLED
 	};
 	
 	//no input fields for engine

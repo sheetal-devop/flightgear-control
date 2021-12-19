@@ -5,11 +5,11 @@ import java.io.IOException;
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.flightgear.aircraft.c172p.C172P;
 import org.jason.flightgear.exceptions.FlightGearSetupException;
-import org.jason.flightgear.flight.WaypointPosition;
 import org.jason.flightgear.flight.util.FlightLog;
 import org.jason.flightgear.flight.util.FlightUtilities;
 import org.jason.flightgear.flight.waypoints.KnownPositions;
 import org.jason.flightgear.flight.waypoints.WaypointManager;
+import org.jason.flightgear.flight.waypoints.WaypointPosition;
 import org.jason.flightgear.flight.waypoints.WaypointUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -162,7 +162,9 @@ public class WaypointFlight {
 			plane = new C172P();
 		
 			plane.setDamageEnabled(false);
-			
+			plane.setComplexEngineProcedures(false);
+			plane.setWinterKitInstalled(true);
+			plane.setGMT("2021-07-01T20:00:00");
 			
 			//in case we get a previously lightly-used environment
 			plane.refillFuel();

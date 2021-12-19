@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.jason.flightgear.flight.WaypointPosition;
-
 /**
  * Dumbly manage a list of waypoints. 
  * 
@@ -13,6 +11,8 @@ import org.jason.flightgear.flight.WaypointPosition;
  * 
  * @author jason
  *
+ *
+ * TODO: offer function to import from gpx file with granularity parameter
  */
 public class WaypointManager {
 

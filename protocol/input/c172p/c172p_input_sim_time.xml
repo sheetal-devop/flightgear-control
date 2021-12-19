@@ -5,20 +5,10 @@
         <line_separator>newline</line_separator>
         <var_separator>,</var_separator>
  
-          <chunk>
-            <node>/sim/model/c172p/brake-parking</node>
-            <name>brake-parking</name>
-            <type>float</type>
-         </chunk>
          <chunk>
             <node>/sim/time/gmt</node>
             <name>gmt</name>
             <type>string</type>
-         </chunk>
-         <chunk>
-            <node>/sim/freeze/fuel</node>
-            <name>fuel</name>
-            <type>bool</type>
          </chunk>
 
     </input>

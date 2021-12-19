@@ -92,7 +92,8 @@ public class SustainedFlight {
 				String.format("\nMixture: %f", plane.getMixture()) +
 				String.format("\nAltitude: %f", plane.getAltitude()) +
 				String.format("\nLatitude: %f", plane.getLatitude()) + 
-				String.format("\nLongitude: %f", plane.getLongitude());
+				String.format("\nLongitude: %f", plane.getLongitude()) +
+				"\nGMT: " + plane.getGMT();
 	}
 	
 	public static void main(String [] args) {
@@ -102,6 +103,10 @@ public class SustainedFlight {
 			plane = new C172P();
 		
 			plane.setDamageEnabled(false);
+			plane.setComplexEngineProcedures(false);
+			plane.setWinterKitInstalled(true);
+			
+			plane.setGMT("2021-07-01T20:00:00");
 			
 			//in case we get a previously lightly-used environment
 			plane.refillFuel();
@@ -170,8 +175,11 @@ public class SustainedFlight {
 				
 				//check fuel last last. easy to refuel
 				//refill both tanks for balance
-				if (plane.getFuelTank0Level() < minFuelGal || plane.getFuelTank1Level() < minFuelGal) {
+				if (plane.getFuelTank0Level() < minFuelGal) {
 					plane.refillFuelTank0();
+				}
+				
+				if(plane.getFuelTank1Level() < minFuelGal) {
 					plane.refillFuelTank1();
 				}
 				

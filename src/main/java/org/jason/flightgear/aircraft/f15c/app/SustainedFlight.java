@@ -31,12 +31,14 @@ public class SustainedFlight {
 		//place in the air
 		plane.setAltitude(TARGET_ALTITUDE);
 		
+		if(plane.isGearDown()) {
+			plane.setGearDown(false);
+		}
+		
 		//high initially to cut down on the plane falling out of the air
 		plane.setAirSpeed(600);
 		
-		if(plane.isGearDown()) {
-			
-		}
+
 		
 		plane.setThrottle(0.3);
 		

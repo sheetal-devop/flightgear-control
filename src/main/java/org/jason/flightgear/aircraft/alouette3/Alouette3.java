@@ -139,4 +139,16 @@ public class Alouette3 extends FlightGearAircraft {
 
 	}
 
+	@Override
+	protected void writeEnginesInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void writeSimTimeInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

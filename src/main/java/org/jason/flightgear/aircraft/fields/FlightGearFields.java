@@ -1,4 +1,4 @@
-package org.jason.flightgear.aircraft;
+package org.jason.flightgear.aircraft.fields;
 
 /**
  * Fields common for multiple planes and the simulator/environments.
@@ -6,13 +6,12 @@ package org.jason.flightgear.aircraft;
  * @author jason
  *
  */
-public abstract class FlightGearFields {
+public final class FlightGearFields {
 
 	private FlightGearFields() {}
 
 	/////////////
 	// environment
-	
 	public final static String DEWPOINT_FIELD = "/environment/dewpoint-degc";
 	public final static String DEWPOINT_FIELD_DESC = "The dew point of the environment in celcius";
 	
@@ -43,6 +42,7 @@ public abstract class FlightGearFields {
 	public final static String WINDSPEED_FIELD = "/environment/wind-speed-kt";
 	public final static String WINDSPEED_FIELD_DESC = "The windspeed of the environment in knots";
 	
+	
 	public final static String[] ENVIRONMENT_FIELDS = {
 		DEWPOINT_FIELD,
 		EFFECTIVE_VISIBILITY_FIELD,
@@ -56,7 +56,11 @@ public abstract class FlightGearFields {
 		WINDSPEED_FIELD
     };
 	
+	/////////////
 	//no input fields for environment
+	
+	/////////////
+	//not really much in the way of generic input fields for engines. lots of context with engines.
 	
 	/////////////
 	// fdm
@@ -323,6 +327,9 @@ public abstract class FlightGearFields {
 	public final static String SIM_TIME_ELAPSED_FIELD = "/sim/time/elapsed-sec";
 	public final static String SIM_TIME_ELAPSED_DESC = "The runtime elapsed of the sim in seconds";
 	
+	public final static String SIM_TIME_GMT_FIELD = "/sim/time/gmt";
+	public final static String SIM_TIME_GMT_DESC = "The current datetime in the sim in GMT";
+	
 	public final static String SIM_LOCAL_DAY_SECONDS_FIELD = "/sim/time/local-day-seconds";
 	public final static String SIM_LOCAL_DAY_SECONDS_DESC = "The runtime elapsed of the local day of the sim in seconds";
 	
@@ -331,8 +338,13 @@ public abstract class FlightGearFields {
 	
 	public final static String[] SIM_TIME_FIELDS = {
 		SIM_TIME_ELAPSED_FIELD,
+		SIM_TIME_GMT_FIELD,
 		SIM_LOCAL_DAY_SECONDS_FIELD,
 		SIM_MP_CLOCK_FIELD
+	};
+	
+	public final static String[] SIM_TIME_INPUT_FIELDS = {
+		SIM_TIME_GMT_FIELD	
 	};
 	
 	/////////////

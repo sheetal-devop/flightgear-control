@@ -3,7 +3,6 @@ package org.jason.flightgear.flight.waypoints;
 import java.awt.geom.Point2D;
 
 import org.geotools.referencing.GeodeticCalculator;
-import org.jason.flightgear.flight.WaypointPosition;
 
 public abstract class WaypointUtilities {
 

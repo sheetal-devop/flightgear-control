@@ -2,8 +2,8 @@ package org.jason.test;
 
 import java.math.BigDecimal;
 
-import org.jason.flightgear.flight.WaypointPosition;
 import org.jason.flightgear.flight.waypoints.KnownPositions;
+import org.jason.flightgear.flight.waypoints.WaypointPosition;
 import org.jason.flightgear.flight.waypoints.WaypointUtilities;
 import org.testng.Assert;
 import org.testng.annotations.Test;

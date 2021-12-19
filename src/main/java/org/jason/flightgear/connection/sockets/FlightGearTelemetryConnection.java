@@ -26,7 +26,9 @@ public class FlightGearTelemetryConnection {
     private DatagramPacket fgTelemetryPacket;
     
     private final static int SOCKET_TIMEOUT = 5000;
-    private final static int MAX_RECEIVE_BUFFER_LEN = 4096;
+    
+    //keep an eye on this. this can silently truncate a telemetry read resulting in consistent read failures 
+    private final static int MAX_RECEIVE_BUFFER_LEN = 8192;
     
     //TODO: default values overridable, or used to generate protocol files from templates
     private final static String FG_SOCKET_PROTOCOL_LINE_SEP = "\n";

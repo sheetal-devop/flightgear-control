@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.flightgear.aircraft.FlightGearAircraft;
-import org.jason.flightgear.aircraft.FlightGearFields;
+import org.jason.flightgear.aircraft.fields.FlightGearFields;
 import org.jason.flightgear.connection.sockets.FlightGearInputConnection;
 import org.jason.flightgear.connection.sockets.FlightGearTelemetryConnection;
 import org.jason.flightgear.connection.telnet.FlightGearTelnetConnection;
@@ -66,15 +66,15 @@ public class F15C extends FlightGearAircraft{
         try {
         	LOGGER.info("Establishing input socket connections.");
         	
-        	consumeablesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getConsumeablesPort());
-			controlInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getControlsPort());
-			fdmInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getFdmPort());
-			orientationInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getOrientationPort());
-			positionInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getPositionPort());
-			simInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimPort());
-			simFreezeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimFreezePort());
+        	consumeablesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getConsumeablesInputPort());
+			controlInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getControlsInputPort());
+			fdmInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getFdmInputPort());
+			orientationInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getOrientationInputPort());
+			positionInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getPositionInputPort());
+			simInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimInputPort());
+			simFreezeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimFreezeInputPort());
 			simSpeedupInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimSpeedupPort());
-			velocitiesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getVelocitiesPort());
+			velocitiesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getVelocitiesInputPort());
 			
 			LOGGER.info("Input socket connections established.");
 		} catch (SocketException | UnknownHostException e) {
@@ -236,7 +236,7 @@ public class F15C extends FlightGearAircraft{
     public double getThrottle() {
         return Double.parseDouble(getTelemetryField(F15CFields.THROTTLE_FIELD));
     }
-    
+
     public double getAileron() {
         return Double.parseDouble(getTelemetryField(F15CFields.AILERON_FIELD));
     }
@@ -484,6 +484,21 @@ public class F15C extends FlightGearAircraft{
         writeControlInput(inputHash, this.controlInputConnection);
     }
     
+    public synchronized void setGearDown(boolean isGearDown) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        if(isGearDown) {
+            inputHash.put(F15CFields.GEAR_DOWN_FIELD, F15CFields.GEAR_DOWN_TRUE);
+        }
+        else {
+            inputHash.put(F15CFields.GEAR_DOWN_FIELD, F15CFields.GEAR_DOWN_FALSE);
+        }
+
+        LOGGER.info("Setting gear down to {}", isGearDown);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
     public synchronized void resetControlSurfaces() throws IOException {
         
         LOGGER.info("Resetting control surfaces");
@@ -716,6 +731,18 @@ public class F15C extends FlightGearAircraft{
 
 	@Override
 	public void refillFuel() throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void writeEnginesInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void writeSimTimeInput(LinkedHashMap<String, String> inputHash) throws IOException {
 		// TODO Auto-generated method stub
 		
 	}

@@ -122,6 +122,12 @@
          </chunk>
          <!-- engines - only one engine on the c172p -->
          <chunk>
+            <node>/engines/active-engine/complex-engine-procedures</node>
+            <name>complex-engine-procedures</name>
+            <type>bool</type>
+            <format>"/engines/active-engine/complex-engine-procedures": %d,</format>
+         </chunk>
+         <chunk>
             <node>/engines/active-engine/cowling-air-temperature-degf</node>
             <name>cowling-air-temperature-degf</name>
             <type>float</type>
@@ -174,6 +180,12 @@
             <name>running</name>
             <type>bool</type>
             <format>"/engines/active-engine/running": %d,</format>
+         </chunk>  
+         <chunk>
+            <node>/engines/active-engine/winter-kit-installed</node>
+            <name>winter-kit-installed</name>
+            <type>bool</type>
+            <format>"/engines/active-engine/winter-kit-installed": %d,</format>
          </chunk>
          <!-- environment -->
          <chunk>
@@ -545,6 +557,12 @@
             <name>elapsed-sec</name>
             <type>float</type>
             <format>"/sim/time/elapsed-sec": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/sim/time/gmt</node>
+            <name>gmt</name>
+            <type>string</type>
+            <format>"/sim/time/gmt": "%s",</format>
          </chunk>
          <chunk>
             <node>/sim/time/local-day-seconds</node>

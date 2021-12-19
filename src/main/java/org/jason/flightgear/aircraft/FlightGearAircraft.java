@@ -8,9 +8,11 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
+import org.jason.flightgear.aircraft.config.NetworkConfig;
+import org.jason.flightgear.aircraft.fields.FlightGearFields;
 import org.jason.flightgear.connection.sockets.FlightGearInputConnection;
 import org.jason.flightgear.connection.telnet.FlightGearTelnetConnection;
-import org.jason.flightgear.flight.WaypointPosition;
+import org.jason.flightgear.flight.waypoints.WaypointPosition;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -211,6 +213,8 @@ public abstract class FlightGearAircraft {
 
             try {
                 telemetryRead = readTelemetryRaw();
+              
+                //TODO: incomplete updates happen infrequently, attempt to clean and correct
                 
                 if(telemetryRead != null) {
                     //if for some reason telemetryRead is not proper json, the update is dropped
@@ -222,6 +226,10 @@ public abstract class FlightGearAircraft {
                                 currentState.put(keyStr, jsonTelemetry.get(keyStr).toString());
                             }    
                         );
+                        
+                        if(LOGGER.isDebugEnabled()) {
+                        	LOGGER.debug("Read {} telemetry fields", jsonTelemetry.keySet().size());
+                        }
                     }
                 }
                 else {
@@ -310,11 +318,13 @@ public abstract class FlightGearAircraft {
     
     protected abstract void writeConsumeablesInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeControlInput(LinkedHashMap<String, String> inputHash) throws IOException;
+    protected abstract void writeEnginesInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeFdmInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeOrientationInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writePositionInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeSimFreezeInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeSimSpeedupInput(LinkedHashMap<String, String> inputHash) throws IOException;
+    protected abstract void writeSimTimeInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeSystemInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeVelocitiesInput(LinkedHashMap<String, String> inputHash) throws IOException;
 
@@ -454,6 +464,26 @@ public abstract class FlightGearAircraft {
         inputHash.put(FlightGearFields.SIM_SPEEDUP_FIELD, String.valueOf(targetSpeedup));
         
         writeSimSpeedupInput(inputHash);
+    }
+    
+    /**
+     * Set the date time of the sim. useful for avoiding icing problems by flying in summer, or ensuring daytime light"
+     * examples: "2020-07-03T12:00:00" => July 3, 2020 at 12pm, "2021-12-31T23:59:59" => Dec 31, 11:59:59pm.
+     * 
+     * 
+     * @param dateTime	The datetime string in GMT of the new time in format "yyyy-mm-ddThh:mm:ss"
+     * @throws IOException
+     */
+    public synchronized void setGMT(String dateTime) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.SIM_TIME_INPUT_FIELDS);
+        
+        LOGGER.info("Setting sim GMT datetime: {}", dateTime);
+        
+        //TODO: sim itself drops bad datetimes, but enforce it here too
+        
+        inputHash.put(FlightGearFields.SIM_TIME_GMT_FIELD, dateTime);
+        
+        writeSimTimeInput(inputHash);
     }
     
     ///////////////////
@@ -726,6 +756,10 @@ public abstract class FlightGearAircraft {
     
     public double getTimeElapsed() {
         return Double.parseDouble(getTelemetryField(FlightGearFields.SIM_TIME_ELAPSED_FIELD));
+    }
+    
+    public String getGMT() {
+    	return getTelemetryField(FlightGearFields.SIM_TIME_GMT_FIELD);
     }
     
     public double getLocalDaySeconds() {

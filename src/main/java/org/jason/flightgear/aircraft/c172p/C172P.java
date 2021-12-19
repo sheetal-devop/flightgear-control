@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.flightgear.aircraft.FlightGearAircraft;
-import org.jason.flightgear.aircraft.FlightGearFields;
+import org.jason.flightgear.aircraft.fields.FlightGearFields;
 import org.jason.flightgear.connection.sockets.FlightGearInputConnection;
 import org.jason.flightgear.connection.sockets.FlightGearTelemetryConnection;
 import org.jason.flightgear.connection.telnet.FlightGearTelnetConnection;
@@ -27,13 +27,15 @@ public class C172P extends FlightGearAircraft{
     
     private FlightGearInputConnection consumeablesInputConnection;
     private FlightGearInputConnection controlInputConnection;
+    private FlightGearInputConnection enginesInputConnection;
     private FlightGearInputConnection fdmInputConnection;
     private FlightGearInputConnection orientationInputConnection;
     private FlightGearInputConnection positionInputConnection;
     private FlightGearInputConnection simInputConnection;
     private FlightGearInputConnection simFreezeInputConnection;
     private FlightGearInputConnection simSpeedupInputConnection;
-    private FlightGearInputConnection systemInputConnection;
+    private FlightGearInputConnection simTimeInputConnection;
+    private FlightGearInputConnection systemsInputConnection;
     private FlightGearInputConnection velocitiesInputConnection;
                
     public C172P() throws FlightGearSetupException {
@@ -67,16 +69,18 @@ public class C172P extends FlightGearAircraft{
         try {
         	LOGGER.info("Establishing input socket connections.");
         	
-        	consumeablesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getConsumeablesPort());
-			controlInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getControlsPort());
-			fdmInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getFdmPort());
-			orientationInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getOrientationPort());
-			positionInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getPositionPort());
-			simInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimPort());
-			simFreezeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimFreezePort());
+        	consumeablesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getConsumeablesInputPort());
+			controlInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getControlsInputPort());
+			enginesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getEnginesInputPort());
+			fdmInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getFdmInputPort());
+			orientationInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getOrientationInputPort());
+			positionInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getPositionInputPort());
+			simInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimInputPort());
+			simFreezeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimFreezeInputPort());
 			simSpeedupInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimSpeedupPort());
-			systemInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSystemPort());
-			velocitiesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getVelocitiesPort());
+			simTimeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimTimeInputPort());
+			systemsInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSystemsInputPort());
+			velocitiesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getVelocitiesInputPort());
 			
 			LOGGER.info("Input socket connections established.");
 		} catch (SocketException | UnknownHostException e) {
@@ -294,44 +298,44 @@ public class C172P extends FlightGearAircraft{
     //engine
     
     public double getCowlingAirTemperature() {
-        return Double.parseDouble(getTelemetryField(C172PFields.ENGINE_COWLING_AIR_TEMPERATURE_FIELD));
+        return Double.parseDouble(getTelemetryField(C172PFields.ENGINES_COWLING_AIR_TEMPERATURE_FIELD));
     }
 
     public double getExhaustGasTemperature() {
-        return Double.parseDouble(getTelemetryField(C172PFields.ENGINE_EXHAUST_GAS_TEMPERATURE_FIELD));
+        return Double.parseDouble(getTelemetryField(C172PFields.ENGINES_EXHAUST_GAS_TEMPERATURE_FIELD));
     }
     
     public double getExhaustGasTemperatureNormalization() {
-        return Double.parseDouble(getTelemetryField(C172PFields.ENGINE_EXHAUST_GAS_TEMPERATURE_NORM_FIELD));
+        return Double.parseDouble(getTelemetryField(C172PFields.ENGINES_EXHAUST_GAS_TEMPERATURE_NORM_FIELD));
     }
     
     public double getFuelFlow() {
-        return Double.parseDouble(getTelemetryField(C172PFields.ENGINE_FUEL_FLOW_FIELD));
+        return Double.parseDouble(getTelemetryField(C172PFields.ENGINES_FUEL_FLOW_FIELD));
     }
     
     public double getMpOsi() {
-        return Double.parseDouble(getTelemetryField(C172PFields.ENGINE_MP_OSI_FIELD));
+        return Double.parseDouble(getTelemetryField(C172PFields.ENGINES_MP_OSI_FIELD));
     }
     
     public double getOilPressure() {
-        return Double.parseDouble(getTelemetryField(C172PFields.ENGINE_OIL_PRESSURE_FIELD));
+        return Double.parseDouble(getTelemetryField(C172PFields.ENGINES_OIL_PRESSURE_FIELD));
     }
     
     public double getOilTemperature() {
-        return Double.parseDouble(getTelemetryField(C172PFields.ENGINE_OIL_TEMPERATURE_FIELD));
+        return Double.parseDouble(getTelemetryField(C172PFields.ENGINES_OIL_TEMPERATURE_FIELD));
     }
     
     public double getEngineRpms() {
-        return Double.parseDouble(getTelemetryField(C172PFields.ENGINE_RPM_FIELD));
+        return Double.parseDouble(getTelemetryField(C172PFields.ENGINES_RPM_FIELD));
     }
     
     public int getEngineRunning() {
-        return Character.getNumericValue( getTelemetryField(C172PFields.ENGINE_RUNNING_FIELD).charAt(0));
+        return Character.getNumericValue( getTelemetryField(C172PFields.ENGINES_RUNNING_FIELD).charAt(0));
     }
     
     @Override
     public boolean isEngineRunning() {
-        return getEngineRunning() == C172PFields.ENGINE_RUNNING_INT_TRUE;
+        return getEngineRunning() == C172PFields.ENGINES_RUNNING_INT_TRUE;
     }
     
     ///////////////////
@@ -509,6 +513,39 @@ public class C172P extends FlightGearAircraft{
         LOGGER.info("Reset of control surfaces completed");
     }
     
+    public synchronized void setComplexEngineProcedures(boolean enabled) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.ENGINES_INPUT_FIELDS);
+        
+        //requires an int value for the bool
+        if(!enabled) {
+            inputHash.put(C172PFields.ENGINES_COMPLEX_ENGINE_PROCEDURES, C172PFields.ENGINES_COMPLEX_ENGINE_PROCEDURES_FALSE);
+        }
+        else {
+            inputHash.put(C172PFields.ENGINES_COMPLEX_ENGINE_PROCEDURES, C172PFields.ENGINES_COMPLEX_ENGINE_PROCEDURES_TRUE);
+        }
+        
+        LOGGER.info("Toggling complex engine procedures enabled: {}", enabled);
+        
+        writeControlInput(inputHash, this.enginesInputConnection);
+    }
+    
+    public synchronized void setWinterKitInstalled(boolean enabled) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.ENGINES_INPUT_FIELDS);
+        
+        //requires an int value for the bool
+        if(!enabled) {
+            inputHash.put(C172PFields.ENGINES_WINTER_KIT_INSTALLED, C172PFields.ENGINES_WINTER_KIT_INSTALLED_FALSE);
+        }
+        else {
+            inputHash.put(C172PFields.ENGINES_WINTER_KIT_INSTALLED, C172PFields.ENGINES_WINTER_KIT_INSTALLED_TRUE);
+        }
+        
+        LOGGER.info("Toggling winter kit installed: {}", enabled);
+        
+        writeControlInput(inputHash, this.enginesInputConnection);
+    }
+    
+    
     public synchronized void setDamageEnabled(boolean damageEnabled) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.FDM_INPUT_FIELDS);
         
@@ -595,7 +632,7 @@ public class C172P extends FlightGearAircraft{
         
         LOGGER.info("Setting battery charge to {}", charge);
         
-        writeControlInput(inputHash, this.systemInputConnection);
+        writeControlInput(inputHash, this.systemsInputConnection);
     }
     
     @Override
@@ -641,6 +678,11 @@ public class C172P extends FlightGearAircraft{
 			LOGGER.error("Exception closing control input socket", e);
 		}
         try {
+			enginesInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing engines input socket", e);
+		}
+        try {
 			fdmInputConnection.close();
 		} catch (IOException e) {
 			LOGGER.error("Exception closing fdm input socket", e);
@@ -671,7 +713,12 @@ public class C172P extends FlightGearAircraft{
 			LOGGER.error("Exception closing sim speedup input socket", e);
 		}
         try {
-			systemInputConnection.close();
+			simTimeInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing sim time input socket", e);
+		}
+        try {
+			systemsInputConnection.close();
 		} catch (IOException e) {
 			LOGGER.error("Exception closing system input socket", e);
 		}
@@ -739,6 +786,11 @@ public class C172P extends FlightGearAircraft{
 	}
 
 	@Override
+	protected void writeEnginesInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.enginesInputConnection.writeControlInput(inputHash);
+	}
+	
+	@Override
 	protected void writeFdmInput(LinkedHashMap<String, String> inputHash) throws IOException {
 		this.fdmInputConnection.writeControlInput(inputHash);
 	}
@@ -764,8 +816,13 @@ public class C172P extends FlightGearAircraft{
 	}
 	
 	@Override
+	protected void writeSimTimeInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.simTimeInputConnection.writeControlInput(inputHash);
+	}
+	
+	@Override
 	protected void writeSystemInput(LinkedHashMap<String, String> inputHash) throws IOException {
-		this.systemInputConnection.writeControlInput(inputHash);
+		this.systemsInputConnection.writeControlInput(inputHash);
 	}
 
 	@Override
