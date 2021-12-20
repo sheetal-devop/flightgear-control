@@ -33,19 +33,21 @@ public class SustainedFlight {
 		
 		if(plane.isGearDown()) {
 			plane.setGearDown(false);
+		} else {
+			LOGGER.warn("Gear was up when down was expected");
 		}
 		
 		//high initially to cut down on the plane falling out of the air
-		plane.setAirSpeed(600);
+		plane.setAirSpeed(400);
 		
 
 		
-		plane.setThrottle(0.3);
+		plane.setThrottle(0.5);
 		
 		plane.setPause(false);
 		
 		int i = 0;
-		while( i < 20) {
+		while( i < 60) {
 			//FlightUtilities.airSpeedCheck(plane, 400, 600);
 			
 			FlightUtilities.altitudeCheck(plane, 500, TARGET_ALTITUDE);
@@ -53,7 +55,9 @@ public class SustainedFlight {
 			FlightUtilities.rollCheck(plane, 4, 0.0);
 			
 			//narrow heading check on launch
-			//FlightUtilities.headingCheck(plane, 4, takeoffHeading);
+			FlightUtilities.headingCheck(plane, 4, takeoffHeading);
+			
+			plane.setAirSpeed(600);
 			
 			i++;
 		}
@@ -76,9 +80,9 @@ public class SustainedFlight {
 		FlightUtilities.pitchCheck(plane, 4, 3.0);
 		FlightUtilities.rollCheck(plane, 4, 0.0);
 		
-		//increase throttle
+		//increase throttle for remainder of flight
 		plane.setPause(true);
-		plane.setThrottle(1.0);
+		plane.setThrottle(0.5);
 		plane.setPause(false);
 	}
 	
@@ -87,13 +91,20 @@ public class SustainedFlight {
 		return 
 				String.format("\nCurrent Heading: %f", plane.getHeading()) +
 				String.format("\nAir Speed: %f", plane.getAirSpeed()) +
-				String.format("\nFuel tank 0 level: %f", plane.getFuelLevel()) +
+				String.format("\nFuel tank 0 level: %f", plane.getFuelTank0Level()) +
+				String.format("\nFuel tank 1 level: %f", plane.getFuelTank1Level()) +
 				String.format("\nEngine running: %d", plane.getEngineRunning()) + 
+				String.format("\nEngine 1 thrust: %f", plane.getEngine1Thrust()) + 
+				String.format("\nEngine 2 thrust: %f", plane.getEngine2Thrust()) + 
 				String.format("\nEnv Temp: %f", plane.getTemperature()) + 
 				String.format("\nThrottle: %f", plane.getThrottle()) +
+				String.format("\nMixture: %f", plane.getMixture()) +
 				String.format("\nAltitude: %f", plane.getAltitude()) +
 				String.format("\nLatitude: %f", plane.getLatitude()) + 
-				String.format("\nLongitude: %f", plane.getLongitude());
+				String.format("\nLongitude: %f", plane.getLongitude()) +
+				String.format("\nGear Down: %f", plane.getGearDown()) +
+				String.format("\nParking Brake: %f", plane.getParkingBrake()) +
+				"\nGMT: " + plane.getGMT();
 	}
 	
 	public static void main(String[] args) {
@@ -103,6 +114,7 @@ public class SustainedFlight {
 			plane = new F15C();
 		
 			plane.setDamageEnabled(false);
+			plane.setGMT("2021-07-01T20:00:00");
 			
 			//in case we get a previously lightly-used environment
 			plane.refillFuel();
@@ -113,10 +125,6 @@ public class SustainedFlight {
 				e1.printStackTrace();
 			}
 			
-			double currentHeading = (TARGET_HEADING);
-			
-			plane.setHeading(currentHeading);
-			
 			//shut down the engines if they're already running
 			if(!plane.isEngine0Cutoff()) {
 				plane.setEngine0Cutoff(true);
@@ -126,6 +134,11 @@ public class SustainedFlight {
 				plane.setEngine1Cutoff(true);
 			}
 			
+			double currentHeading = (TARGET_HEADING);
+			
+			plane.setHeading(currentHeading);
+			
+			//begin startup sequence
 			plane.startupPlane();
 	
 			//wait for startup to complete and telemetry reads to arrive
@@ -143,7 +156,7 @@ public class SustainedFlight {
 			int maxCycles = 50* 1000;
 			
 			//tailor the update rate to the speedup
-			int cycleSleep = 50;
+			int cycleSleep = 10;
 			
 			while(running && cycles < maxCycles) {
 				

@@ -23,6 +23,25 @@
             <type>float</type>
             <format>"/consumables/fuel/total-fuel-gal_us": %f,</format>
          </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank/level-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[1]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[1]/level-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[2]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[2]/level-gal_us": %f,</format>
+         </chunk>
+         
          <!-- control -->
          <chunk>
             <node>/controls/electric/battery-switch</node>
@@ -180,6 +199,18 @@
             <name>running</name>
             <type>bool</type>
             <format>"/engines/engine[1]/running": %d,</format>
+         </chunk>
+         <chunk>
+            <node>/engines/engine[0]/thrust_lb</node>
+            <name>thrust_lb</name>
+            <type>float</type>
+            <format>"/engines/engine[0]/thrust_lb": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/engines/engine[1]/thrust_lb</node>
+            <name>thrust_lb</name>
+            <type>float</type>
+            <format>"/engines/engine[1]/thrust_lb": %f,</format>
          </chunk>
          <!-- environment -->
          <chunk>
@@ -545,6 +576,12 @@
             <name>elapsed-sec</name>
             <type>float</type>
             <format>"/sim/time/elapsed-sec": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/sim/time/gmt</node>
+            <name>gmt</name>
+            <type>string</type>
+            <format>"/sim/time/gmt": "%s",</format>
          </chunk>
          <chunk>
             <node>/sim/time/local-day-seconds</node>

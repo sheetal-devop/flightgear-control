@@ -33,6 +33,7 @@ public class F15C extends FlightGearAircraft{
     private FlightGearInputConnection simInputConnection;
     private FlightGearInputConnection simFreezeInputConnection;
     private FlightGearInputConnection simSpeedupInputConnection;
+    private FlightGearInputConnection simTimeInputConnection;
     private FlightGearInputConnection velocitiesInputConnection;
                
     public F15C() throws FlightGearSetupException {
@@ -73,7 +74,8 @@ public class F15C extends FlightGearAircraft{
 			positionInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getPositionInputPort());
 			simInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimInputPort());
 			simFreezeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimFreezeInputPort());
-			simSpeedupInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimSpeedupPort());
+			simSpeedupInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimSpeedupInputPort());
+			simTimeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimTimeInputPort());
 			velocitiesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getVelocitiesInputPort());
 			
 			LOGGER.info("Input socket connections established.");
@@ -201,6 +203,18 @@ public class F15C extends FlightGearAircraft{
     public double getLevel_gal_us() {
         return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_LEVEL_FIELD));
     }
+    
+    public double getFuelTank0Level() {
+    	return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_0_LEVEL_FIELD));
+    }
+    
+    public double getFuelTank1Level() {
+    	return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_1_LEVEL_FIELD));
+    }
+    
+    public double getFuelTank2Level() {
+    	return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_2_LEVEL_FIELD));
+    }
    
     ///////////////////
     //controls
@@ -307,6 +321,14 @@ public class F15C extends FlightGearAircraft{
         return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_1_OIL_PRESSURE_FIELD));
     }
     
+    public double getEngine1Thrust() {
+    	return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_0_THRUST_FIELD));
+    }
+    
+    public double getEngine2Thrust() {
+    	return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_1_THRUST_FIELD));
+    }
+    
     /**
      * The state of engine 1 (and not engine 0) determines the running and cutoff states.
      * 
@@ -350,15 +372,39 @@ public class F15C extends FlightGearAircraft{
         setPause(false);
     }
     
+	@Override
+	public void refillFuel() throws IOException {
+		setFuelTank0Level(this.getFuelTankCapacity());
+		//setFuelTank1Level(this.getFuelTankCapacity());
+		setFuelTank2Level(this.getFuelTankCapacity());
+	}
+    
     public synchronized void setFuelTank0Level(double amount) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONSUMABLES_INPUT_FIELDS);
         
-        inputHash.put(F15CFields.FUEL_TANK_LEVEL_FIELD, String.valueOf(amount));
         inputHash.put(F15CFields.FUEL_TANK_0_LEVEL_FIELD, String.valueOf(amount));
+        
+        LOGGER.info("Setting fuel tank 0 level: {}", amount);
+        
+        writeControlInput(inputHash, this.consumeablesInputConnection);   
+    }
+    
+    public synchronized void setFuelTank1Level(double amount) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONSUMABLES_INPUT_FIELDS);
+        
         inputHash.put(F15CFields.FUEL_TANK_1_LEVEL_FIELD, String.valueOf(amount));
+        
+        LOGGER.info("Setting fuel tank 1 level: {}", amount);
+        
+        writeControlInput(inputHash, this.consumeablesInputConnection);   
+    }
+    
+    public synchronized void setFuelTank2Level(double amount) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONSUMABLES_INPUT_FIELDS);
+        
         inputHash.put(F15CFields.FUEL_TANK_2_LEVEL_FIELD, String.valueOf(amount));
         
-        LOGGER.info("Setting fuel tank level: {}", amount);
+        LOGGER.info("Setting fuel tank 2 level: {}", amount);
         
         writeControlInput(inputHash, this.consumeablesInputConnection);   
     }
@@ -566,9 +612,9 @@ public class F15C extends FlightGearAircraft{
     public synchronized void setParkingBrake(boolean brakeEnabled) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
             
-        //visual: in the cockpit, if the brake arm is:
-        //pushed in => brake is not engaged (disabled => 0)
-        //pulled out => brake is engaged (enabled => 1)
+        //visual: in the cockpit, if the display on the lower right shows the right center light bar as:
+        //lit -> brake is on
+        //unlit -> brake is off
         
         //requires an double value for the bool
         if(brakeEnabled) {
@@ -656,6 +702,11 @@ public class F15C extends FlightGearAircraft{
 			LOGGER.error("Exception closing sim speedup input socket", e);
 		}
         try {
+			simTimeInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing sim speedup input socket", e);
+		}
+        try {
 			velocitiesInputConnection.close();
 		} catch (IOException e) {
 			LOGGER.error("Exception closing velocities input socket", e);
@@ -695,6 +746,11 @@ public class F15C extends FlightGearAircraft{
 	}
 
 	@Override
+	protected void writeEnginesInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		// None as of now
+	}
+	
+	@Override
 	protected void writeFdmInput(LinkedHashMap<String, String> inputHash) throws IOException {
 		this.fdmInputConnection.writeControlInput(inputHash);
 	}
@@ -720,6 +776,11 @@ public class F15C extends FlightGearAircraft{
 	}
 	
 	@Override
+	protected void writeSimTimeInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.simTimeInputConnection.writeControlInput(inputHash);
+	}
+	
+	@Override
 	protected void writeSystemInput(LinkedHashMap<String, String> inputHash) throws IOException {
 		// None as of now
 	}
@@ -728,24 +789,4 @@ public class F15C extends FlightGearAircraft{
 	protected void writeVelocitiesInput(LinkedHashMap<String, String> inputHash) throws IOException {
 		this.velocitiesInputConnection.writeControlInput(inputHash);
 	}
-
-	@Override
-	public void refillFuel() throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void writeEnginesInput(LinkedHashMap<String, String> inputHash) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void writeSimTimeInput(LinkedHashMap<String, String> inputHash) throws IOException {
-		// TODO Auto-generated method stub
-		
-	}
-
-
 }

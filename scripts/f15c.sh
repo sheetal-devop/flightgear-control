@@ -2,11 +2,14 @@
 
 #TODO: generate some of this from a template, since the ports are defined in the source
 
+#for visuals use larger geometry: --geometry=1024x768\
+#for apps user smaller geometry: --geometry=320x200\
+
 fgfs \
  --verbose\
- --prop:/nasal/local_weather/enabled=false\
+ --enable-terrasync\
  --metar=XXXX 012345Z 15003KT 12SM SCT041 FEW200 20/08 Q1015 NOSIG\
- --prop:/environment/weather-scenario=Fair weather\
+ --timeofday=noon\
  --disable-rembrandt\
  --aircraft=org.flightgear.fgaddon.stable_2018.f15c\
  --fog-fastest\
@@ -16,13 +19,16 @@ fgfs \
  --generic=socket,out,45,localhost,6501,udp,f15c_output\
  --generic=socket,in,45,localhost,6601,udp,f15c_input_consumables\
  --generic=socket,in,45,localhost,6602,udp,f15c_input_controls\
- --generic=socket,in,45,localhost,6603,udp,f15c_input_fdm\
- --generic=socket,in,45,localhost,6604,udp,f15c_input_orientation\
- --generic=socket,in,45,localhost,6605,udp,f15c_input_position\
- --generic=socket,in,45,localhost,6606,udp,f15c_input_sim\
- --generic=socket,in,45,localhost,6607,udp,f15c_input_sim_freeze\
- --generic=socket,in,45,localhost,6608,udp,f15c_input_sim_speedup\
- --generic=socket,in,45,localhost,6609,udp,f15c_input_velocities\
+ --generic=socket,in,45,localhost,6603,udp,f15c_input_engines\
+ --generic=socket,in,45,localhost,6604,udp,f15c_input_fdm\
+ --generic=socket,in,45,localhost,6605,udp,f15c_input_orientation\
+ --generic=socket,in,45,localhost,6606,udp,f15c_input_position\
+ --generic=socket,in,45,localhost,6607,udp,f15c_input_sim\
+ --generic=socket,in,45,localhost,6608,udp,f15c_input_sim_freeze\
+ --generic=socket,in,45,localhost,6609,udp,f15c_input_sim_speedup\
+ --generic=socket,in,45,localhost,6610,udp,f15c_input_sim_time\
+ --generic=socket,in,45,localhost,6611,udp,f15c_input_system\
+ --generic=socket,in,45,localhost,6612,udp,f15c_input_velocities\
  --telnet=5501\
  --disable-ai-traffic\
  --disable-sound\
@@ -32,6 +38,8 @@ fgfs \
  --disable-anti-alias-hud\
  --enable-auto-coordination\
  --prop:/sim/rendering/multithreading-mode=AutomaticSelection\
+ --prop:/environment/weather-scenario=Fair\ weather\
+ --prop:/nasal/local_weather/enabled=false\
  --allow-nasal-from-sockets\
  --turbulence=0.0\
  --wind=0\@0

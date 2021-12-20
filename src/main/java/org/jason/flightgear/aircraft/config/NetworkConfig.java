@@ -173,7 +173,7 @@ public class NetworkConfig {
 		this.simFreezeInputPort = simFreezePort;
 	}
 
-	public int getSimSpeedupPort() {
+	public int getSimSpeedupInputPort() {
 		return simSpeedupInputPort;
 	}
 

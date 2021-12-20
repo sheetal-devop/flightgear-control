@@ -77,7 +77,7 @@ public class C172P extends FlightGearAircraft{
 			positionInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getPositionInputPort());
 			simInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimInputPort());
 			simFreezeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimFreezeInputPort());
-			simSpeedupInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimSpeedupPort());
+			simSpeedupInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimSpeedupInputPort());
 			simTimeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimTimeInputPort());
 			systemsInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSystemsInputPort());
 			velocitiesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getVelocitiesInputPort());

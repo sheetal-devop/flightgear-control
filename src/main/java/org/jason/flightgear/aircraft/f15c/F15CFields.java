@@ -35,7 +35,6 @@ public abstract class F15CFields {
     };
     
 	public final static String[] CONSUMABLES_INPUT_FIELDS = {
-	    FUEL_TANK_LEVEL_FIELD,
 	    FUEL_TANK_0_LEVEL_FIELD,
 	    FUEL_TANK_1_LEVEL_FIELD,
 	    FUEL_TANK_2_LEVEL_FIELD
@@ -194,6 +193,13 @@ public abstract class F15CFields {
     public final static String ENGINE_RUNNING_TRUE = String.valueOf(ENGINE_RUNNING_INT_TRUE);
     public final static String ENGINE_RUNNING_FALSE = String.valueOf(ENGINE_RUNNING_INT_FALSE);
     
+    public final static String ENGINE_0_THRUST_FIELD = "/engines/engine[0]/thrust_lb";
+    public final static String ENGINE_0_THRUST_DESC = "The engine 0 thrust in lbs";
+    
+    public final static String ENGINE_1_THRUST_FIELD = "/engines/engine[1]/thrust_lb";
+    public final static String ENGINE_1_THRUST_DESC = "The engine 1 thrust in lbs";
+    
+    
     public final static String[] ENGINE_FIELDS = {
         ENGINE_0_EXHAUST_GAS_TEMPERATURE_FIELD,
         ENGINE_1_EXHAUST_GAS_TEMPERATURE_FIELD,
@@ -204,7 +210,9 @@ public abstract class F15CFields {
         ENGINE_0_OIL_PRESSURE_FIELD,
         ENGINE_1_OIL_PRESSURE_FIELD,
         ENGINE_0_RUNNING_FIELD,
-        ENGINE_1_RUNNING_FIELD
+        ENGINE_1_RUNNING_FIELD,
+        ENGINE_0_THRUST_FIELD,
+        ENGINE_1_THRUST_FIELD
     };
     
     //TODO: double check no input fields for engine 
