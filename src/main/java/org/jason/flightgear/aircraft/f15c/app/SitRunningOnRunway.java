@@ -21,7 +21,7 @@ public class SitRunningOnRunway {
 				+ String.format("\nTime Local: %f", plane.getLocalDaySeconds())
 				+ String.format("\nFuel flow: %f", plane.getFuelFlow())
 				+ String.format("\nOil pressure: %f", plane.getOilPressure())
-				+ String.format("\nThrottle: %f", plane.getThrottle())
+				+ String.format("\nThrottle: %f", plane.getEngine0Throttle())
 				+ String.format("\nMixture: %f", plane.getMixture())
 				+ String.format("\nEngine running: %d", plane.getEngineRunning());
 	}
@@ -66,10 +66,10 @@ public class SitRunningOnRunway {
             plane.setFuelTank0Level(40);
             
             //stop short of 100% or it will overwhelm the parking brake
-            plane.setThrottle(0.25);
-            plane.setThrottle(0.5);
-            plane.setThrottle(0.75);
-            plane.setThrottle(0.90);
+            plane.setEngine0Throttle(0.25);
+            plane.setEngine0Throttle(0.5);
+            plane.setEngine0Throttle(0.75);
+            plane.setEngine0Throttle(0.90);
                         
             //speed up time in the simulator
             //full tank 16x - 353s

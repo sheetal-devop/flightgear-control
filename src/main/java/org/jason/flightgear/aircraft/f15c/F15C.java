@@ -5,6 +5,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 
+import org.apache.commons.math3.util.Precision;
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.flightgear.aircraft.FlightGearAircraft;
 import org.jason.flightgear.aircraft.fields.FlightGearFields;
@@ -35,7 +36,7 @@ public class F15C extends FlightGearAircraft{
     private FlightGearInputConnection simSpeedupInputConnection;
     private FlightGearInputConnection simTimeInputConnection;
     private FlightGearInputConnection velocitiesInputConnection;
-               
+    
     public F15C() throws FlightGearSetupException {
         this(new F15CConfig());
     }
@@ -196,25 +197,57 @@ public class F15C extends FlightGearAircraft{
     ///////////////////
     //consumables
     
-    public double getCapacity_gal_us() {
-        return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_CAPACITY_FIELD));
+    public double getLevel_gal_us() {
+        return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_TOTAL_LEVEL_FIELD));
     }
     
-    public double getLevel_gal_us() {
-        return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_LEVEL_FIELD));
+    public double getFuelTank0Capacity() {
+        return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_0_CAPACITY_FIELD));
     }
     
     public double getFuelTank0Level() {
     	return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_0_LEVEL_FIELD));
     }
     
+    public double getFuelTank1Capacity() {
+        return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_1_CAPACITY_FIELD));
+    }
+    
     public double getFuelTank1Level() {
     	return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_1_LEVEL_FIELD));
+    }
+    
+    public double getFuelTank2Capacity() {
+        return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_2_CAPACITY_FIELD));
     }
     
     public double getFuelTank2Level() {
     	return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_2_LEVEL_FIELD));
     }
+    
+    public double getFuelTank3Capacity() {
+        return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_3_CAPACITY_FIELD));
+    }
+    
+    public double getFuelTank3Level() {
+    	return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_3_LEVEL_FIELD));
+    }
+    
+    public double getFuelTank4Capacity() {
+        return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_4_CAPACITY_FIELD));
+    }
+    
+    public double getFuelTank4Level() {
+    	return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_4_LEVEL_FIELD));
+    }
+    
+//    public double getFuelTank5Level() {
+//    	return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_5_LEVEL_FIELD));
+//    }
+//    
+//    public double getFuelTank6Level() {
+//    	return Double.parseDouble(getTelemetryField(F15CFields.FUEL_TANK_6_LEVEL_FIELD));
+//    }
    
     ///////////////////
     //controls
@@ -244,15 +277,23 @@ public class F15C extends FlightGearAircraft{
     }
     
     public double getMixture() {
-        return Double.parseDouble(getTelemetryField(F15CFields.MIXTURE_FIELD));
+        return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_0_MIXTURE_FIELD));
     }
     
-    public double getThrottle() {
-        return Double.parseDouble(getTelemetryField(F15CFields.THROTTLE_FIELD));
+    public double getEngine0Throttle() {
+        return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_0_THROTTLE_FIELD));
+    }
+    
+    public double getEngine1Throttle() {
+        return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_1_THROTTLE_FIELD));
     }
 
     public double getAileron() {
         return Double.parseDouble(getTelemetryField(F15CFields.AILERON_FIELD));
+    }
+    
+    public double getAileronTrim() {
+        return Double.parseDouble(getTelemetryField(F15CFields.AILERON_TRIM_FIELD));
     }
     
     public int getAutoCoordination() {
@@ -267,6 +308,10 @@ public class F15C extends FlightGearAircraft{
         return Double.parseDouble(getTelemetryField(F15CFields.ELEVATOR_FIELD));
     }
     
+    public double getElevatorTrim() {
+        return Double.parseDouble(getTelemetryField(F15CFields.ELEVATOR_TRIM_FIELD));
+    }
+    
     public double getFlaps() {
         return Double.parseDouble(getTelemetryField(F15CFields.FLAPS_FIELD));
     }
@@ -275,8 +320,21 @@ public class F15C extends FlightGearAircraft{
         return Double.parseDouble(getTelemetryField(F15CFields.RUDDER_FIELD));
     }
     
+    public double getRudderTrim() {
+        return Double.parseDouble(getTelemetryField(F15CFields.RUDDER_TRIM_FIELD));
+    }
+    
     public double getSpeedbrake() {
         return Double.parseDouble(getTelemetryField(F15CFields.SPEED_BRAKE_FIELD));
+    }
+    
+    public int getSpeedBrakeEnabled() {
+        //returned as a double like 0.000000, just look at the first character
+        return Character.getNumericValue( getTelemetryField(F15CFields.SPEED_BRAKE_FIELD).charAt(0));
+    }
+    
+    public boolean isSpeedBrakeEnabled() {
+        return getSpeedBrakeEnabled() == F15CFields.SPEED_BRAKE_INT_TRUE;
     }
     
     public int getParkingBrakeEnabled() {
@@ -321,11 +379,11 @@ public class F15C extends FlightGearAircraft{
         return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_1_OIL_PRESSURE_FIELD));
     }
     
-    public double getEngine1Thrust() {
+    public double getEngine0Thrust() {
     	return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_0_THRUST_FIELD));
     }
     
-    public double getEngine2Thrust() {
+    public double getEngine1Thrust() {
     	return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_1_THRUST_FIELD));
     }
     
@@ -374,9 +432,19 @@ public class F15C extends FlightGearAircraft{
     
 	@Override
 	public void refillFuel() throws IOException {
-		setFuelTank0Level(this.getFuelTankCapacity());
-		//setFuelTank1Level(this.getFuelTankCapacity());
-		setFuelTank2Level(this.getFuelTankCapacity());
+		
+		LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONSUMABLES_INPUT_FIELDS);
+		
+		//write as one big update, otherwise we'll have to wait for the next telemetry read to react to the refuel
+		inputHash.put(F15CFields.FUEL_TANK_0_LEVEL_FIELD, String.valueOf(this.getFuelTank0Capacity()));
+		inputHash.put(F15CFields.FUEL_TANK_1_LEVEL_FIELD, String.valueOf(this.getFuelTank1Capacity()));
+		inputHash.put(F15CFields.FUEL_TANK_2_LEVEL_FIELD, String.valueOf(this.getFuelTank2Capacity()));
+		inputHash.put(F15CFields.FUEL_TANK_3_LEVEL_FIELD, String.valueOf(this.getFuelTank3Capacity()));
+		inputHash.put(F15CFields.FUEL_TANK_4_LEVEL_FIELD, String.valueOf(this.getFuelTank4Capacity()));
+		
+		LOGGER.info("Refilling fuel tanks {}", inputHash.keySet().toString());
+		
+		writeControlInput(inputHash, this.consumeablesInputConnection);   
 	}
     
     public synchronized void setFuelTank0Level(double amount) throws IOException {
@@ -408,6 +476,46 @@ public class F15C extends FlightGearAircraft{
         
         writeControlInput(inputHash, this.consumeablesInputConnection);   
     }
+    
+    public synchronized void setFuelTank3Level(double amount) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONSUMABLES_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.FUEL_TANK_3_LEVEL_FIELD, String.valueOf(amount));
+        
+        LOGGER.info("Setting fuel tank 3 level: {}", amount);
+        
+        writeControlInput(inputHash, this.consumeablesInputConnection);   
+    }
+    
+    public synchronized void setFuelTank4Level(double amount) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONSUMABLES_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.FUEL_TANK_4_LEVEL_FIELD, String.valueOf(amount));
+        
+        LOGGER.info("Setting fuel tank 4 level: {}", amount);
+        
+        writeControlInput(inputHash, this.consumeablesInputConnection);   
+    }
+    
+//    public synchronized void setFuelTank5Level(double amount) throws IOException {
+//        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONSUMABLES_INPUT_FIELDS);
+//        
+//        inputHash.put(F15CFields.FUEL_TANK_5_LEVEL_FIELD, String.valueOf(amount));
+//        
+//        LOGGER.info("Setting fuel tank 5 level: {}", amount);
+//        
+//        writeControlInput(inputHash, this.consumeablesInputConnection);   
+//    }
+//    
+//    public synchronized void setFuelTank6Level(double amount) throws IOException {
+//        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONSUMABLES_INPUT_FIELDS);
+//        
+//        inputHash.put(F15CFields.FUEL_TANK_6_LEVEL_FIELD, String.valueOf(amount));
+//        
+//        LOGGER.info("Setting fuel tank 6 level: {}", amount);
+//        
+//        writeControlInput(inputHash, this.consumeablesInputConnection);   
+//    }
     
     public synchronized void setBatterySwitch(boolean switchOn) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
@@ -454,23 +562,22 @@ public class F15C extends FlightGearAircraft{
         writeControlInput(inputHash, this.controlInputConnection);
     }
     
-    
-    public synchronized void setElevator(double orientation) throws IOException {
-        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
-        
-        inputHash.put(F15CFields.ELEVATOR_FIELD, String.valueOf(orientation));
-
-        LOGGER.info("Setting elevator to {}", orientation);
-        
-        writeControlInput(inputHash, this.controlInputConnection);
-    }
-    
     public synchronized void setAileron(double orientation) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
         
         inputHash.put(F15CFields.AILERON_FIELD, String.valueOf(orientation));
 
         LOGGER.info("Setting aileron to {}", orientation);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
+    public synchronized void setAileronTrim(double orientation) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.AILERON_TRIM_FIELD, String.valueOf(orientation));
+
+        LOGGER.info("Setting aileron trim to {}", orientation);
         
         writeControlInput(inputHash, this.controlInputConnection);
     }
@@ -486,6 +593,26 @@ public class F15C extends FlightGearAircraft{
         }
 
         LOGGER.info("Setting autocoordination to {}", enabled);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
+    public synchronized void setElevator(double orientation) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.ELEVATOR_FIELD, String.valueOf(orientation));
+
+        LOGGER.info("Setting elevator to {}", orientation);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
+    public synchronized void setElevatorTrim(double orientation) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.ELEVATOR_TRIM_FIELD, String.valueOf(orientation));
+
+        LOGGER.info("Setting elevator trim to {}", orientation);
         
         writeControlInput(inputHash, this.controlInputConnection);
     }
@@ -510,22 +637,74 @@ public class F15C extends FlightGearAircraft{
         writeControlInput(inputHash, this.controlInputConnection);
     }
     
-    public synchronized void setThrottle(double throttle ) throws IOException {
+    public synchronized void setRudderTrim(double orientation) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
         
-        inputHash.put(F15CFields.THROTTLE_FIELD, String.valueOf(throttle));
-        
-        LOGGER.info("Setting throttle to {}", throttle);
+        inputHash.put(F15CFields.RUDDER_TRIM_FIELD, String.valueOf(orientation));
+
+        LOGGER.info("Setting rudder trim to {}", orientation);
         
         writeControlInput(inputHash, this.controlInputConnection);
     }
     
-    public synchronized void setMixture(double mixture ) throws IOException {
+    public synchronized void setEngineThrottles( double throttle ) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
         
-        inputHash.put(F15CFields.MIXTURE_FIELD, String.valueOf(mixture));
+        String finalThrottle = "";
         
-        LOGGER.info("Setting mixture to {}", mixture);
+        if(throttle < F15CFields.THROTTLE_MIN ) {
+        	finalThrottle = String.valueOf( F15CFields.THROTTLE_MIN ); 
+        } else if(throttle > F15CFields.THROTTLE_MAX) {
+        	finalThrottle = String.valueOf( F15CFields.THROTTLE_MAX );
+        } else {
+        	finalThrottle = String.valueOf(Precision.round(throttle, 2));
+        }
+        
+        inputHash.put(F15CFields.ENGINE_0_THROTTLE_FIELD, finalThrottle );
+        inputHash.put(F15CFields.ENGINE_1_THROTTLE_FIELD, finalThrottle );
+
+        
+        LOGGER.info("Setting engine throttles to {}", finalThrottle);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
+    public synchronized void setEngine0Throttle( double throttle ) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.ENGINE_0_THROTTLE_FIELD, String.valueOf( Precision.round(throttle, 2) ));
+        
+        LOGGER.info("Setting engine 0 throttle to {}", throttle);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
+    public synchronized void setEngine0Mixture( double mixture ) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.ENGINE_0_MIXTURE_FIELD, String.valueOf(mixture));
+        
+        LOGGER.info("Setting engine 0 mixture to {}", mixture);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
+    public synchronized void setEngine1Throttle( double throttle ) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.ENGINE_1_THROTTLE_FIELD, String.valueOf(Precision.round(throttle, 2)));
+        
+        LOGGER.info("Setting engine 1 throttle to {}", throttle);
+        
+        writeControlInput(inputHash, this.controlInputConnection);
+    }
+    
+    public synchronized void setEngine1Mixture( double mixture ) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.ENGINE_1_MIXTURE_FIELD, String.valueOf(mixture));
+        
+        LOGGER.info("Setting engine 1 mixture to {}", mixture);
         
         writeControlInput(inputHash, this.controlInputConnection);
     }
@@ -549,12 +728,73 @@ public class F15C extends FlightGearAircraft{
         
         LOGGER.info("Resetting control surfaces");
         
-        setElevator(F15CFields.ELEVATOR_DEFAULT);
-        setAileron(F15CFields.AILERON_DEFAULT);
-        setFlaps(F15CFields.FLAPS_DEFAULT);
-        setRudder(F15CFields.RUDDER_DEFAULT);
+//        setElevator(F15CFields.ELEVATOR_DEFAULT);
+//        setElevatorTrim(F15CFields.ELEVATOR_TRIM_DEFAULT);
+//        
+//        setAileron(F15CFields.AILERON_DEFAULT);
+//        setAileronTrim(F15CFields.AILERON_DEFAULT);
+//        
+//        setFlaps(F15CFields.FLAPS_DEFAULT);
+//        
+//        setRudder(F15CFields.RUDDER_DEFAULT);
+//        setRudderTrim(F15CFields.RUDDER_DEFAULT);
+        
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
+
+        inputHash.put(F15CFields.AILERON_FIELD, String.valueOf(F15CFields.AILERON_DEFAULT));
+        inputHash.put(F15CFields.AILERON_TRIM_FIELD, String.valueOf(F15CFields.AILERON_DEFAULT));
+        
+        inputHash.put(F15CFields.ELEVATOR_FIELD, String.valueOf(F15CFields.ELEVATOR_DEFAULT));
+        inputHash.put(F15CFields.ELEVATOR_TRIM_FIELD, String.valueOf(F15CFields.ELEVATOR_TRIM_DEFAULT));
+        
+        inputHash.put(F15CFields.FLAPS_FIELD, String.valueOf(F15CFields.FLAPS_DEFAULT));
+        
+        inputHash.put(F15CFields.RUDDER_FIELD, String.valueOf(F15CFields.RUDDER_DEFAULT));
+        inputHash.put(F15CFields.RUDDER_TRIM_FIELD, String.valueOf(F15CFields.RUDDER_DEFAULT));
+        
+        writeControlInput(inputHash, this.controlInputConnection);
         
         LOGGER.info("Reset of control surfaces completed");
+    }
+    
+    public synchronized void syncEngines() throws IOException {
+
+    	//step throttle down to 80%, then back up to 100%
+		//step up to full throttle or the engines will have divergent thrust outputs
+		double startThrottleMin = 0.8;
+		double throttleStep = 0.01;
+    	
+    	LOGGER.info("syncEngines invoked");
+    	
+		setEngine0Throttle(F15CFields.THROTTLE_MAX);
+		setEngine1Throttle(F15CFields.THROTTLE_MAX);
+    	
+
+		for(double throttleInc = F15CFields.THROTTLE_MAX; throttleInc >= startThrottleMin; throttleInc-=throttleStep)
+		{
+			setEngine0Throttle(throttleInc);
+			setEngine1Throttle(throttleInc);
+			
+	    	try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				LOGGER.warn("syncEngine sleep interrupted", e);
+			}
+		}
+    	
+		for(double throttleInc = startThrottleMin; throttleInc <= F15CFields.THROTTLE_MAX; throttleInc+=throttleStep)
+		{
+			setEngine0Throttle(throttleInc);
+			setEngine1Throttle(throttleInc);
+			
+	    	try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				LOGGER.warn("syncEngine sleep interrupted", e);
+			}
+		}
+    	
+    	LOGGER.info("syncEngines completed");
     }
     
     public synchronized void setDamageEnabled(boolean damageEnabled) throws IOException {
@@ -723,7 +963,7 @@ public class F15C extends FlightGearAircraft{
 
     @Override
     public synchronized double getFuelTankCapacity() {
-        return this.getCapacity_gal_us();
+        return this.getFuelTank0Capacity();
     }
 
     @Override

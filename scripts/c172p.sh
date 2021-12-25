@@ -7,6 +7,7 @@
 
 fgfs \
  --verbose\
+ --ignore-autosave\
  --enable-terrasync\
  --metar=XXXX 012345Z 15003KT 12SM SCT041 FEW200 20/08 Q1015 NOSIG\
  --timeofday=noon\
@@ -39,6 +40,8 @@ fgfs \
  --texture-filtering=4\
  --disable-anti-alias-hud\
  --enable-auto-coordination\
+ --prop:/sim/rendering/fps-display=1\
+ --prop:/sim/rendering/frame-latency-display=1\
  --prop:/sim/rendering/multithreading-mode=AutomaticSelection\
  --prop:/environment/weather-scenario=Fair weather\
  --prop:/nasal/local_weather/enabled=false\

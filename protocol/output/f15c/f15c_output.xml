@@ -12,12 +12,6 @@
          <!-- fields -->
          <!-- consumables -->
          <chunk>
-            <node>/consumables/fuel/tank/capacity-gal_us</node>
-            <name>capacity-gal_us</name>
-            <type>float</type>
-            <format>"/consumables/fuel/tank/capacity-gal_us": %f,</format>
-         </chunk>
-         <chunk>
             <node>/consumables/fuel/total-fuel-gal_us</node>
             <name>total-fuel-gal_us</name>
             <type>float</type>
@@ -30,10 +24,22 @@
             <format>"/consumables/fuel/tank/level-gal_us": %f,</format>
          </chunk>
          <chunk>
+            <node>/consumables/fuel/tank/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank/capacity-gal_us": %f,</format>
+         </chunk>
+         <chunk>
             <node>/consumables/fuel/tank[1]/level-gal_us</node>
             <name>level-gal_us</name>
             <type>float</type>
             <format>"/consumables/fuel/tank[1]/level-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[1]/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[1]/capacity-gal_us": %f,</format>
          </chunk>
          <chunk>
             <node>/consumables/fuel/tank[2]/level-gal_us</node>
@@ -41,7 +47,36 @@
             <type>float</type>
             <format>"/consumables/fuel/tank[2]/level-gal_us": %f,</format>
          </chunk>
-         
+         <chunk>
+            <node>/consumables/fuel/tank[2]/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[2]/capacity-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[3]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[3]/level-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[3]/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[3]/capacity-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[4]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[4]/level-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[4]/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[4]/capacity-gal_us": %f,</format>
+         </chunk>         
          <!-- control -->
          <chunk>
             <node>/controls/electric/battery-switch</node>
@@ -68,16 +103,16 @@
             <format>"/controls/engines/engine/mixture": %f,</format>
          </chunk>
          <chunk>
-            <node>/controls/engines/engine/throttle</node>
-            <name>throttle</name>
-            <type>float</type>
-            <format>"/controls/engines/engine/throttle": %f,</format>
-         </chunk>
-         <chunk>
             <node>/controls/engines/engine[1]/mixture</node>
             <name>mixture</name>
             <type>float</type>
             <format>"/controls/engines/engine[1]/mixture": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/engines/engine/throttle</node>
+            <name>throttle</name>
+            <type>float</type>
+            <format>"/controls/engines/engine/throttle": %f,</format>
          </chunk>
          <chunk>
             <node>/controls/engines/engine[1]/throttle</node>
@@ -90,6 +125,12 @@
             <name>aileron</name>
             <type>float</type>
             <format>"/controls/flight/aileron": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/aileron-trim</node>
+            <name>aileron-trim</name>
+            <type>float</type>
+            <format>"/controls/flight/aileron-trim": %f,</format>
          </chunk>
          <chunk>
             <node>/controls/flight/auto-coordination</node>
@@ -110,6 +151,12 @@
             <format>"/controls/flight/elevator": %f,</format>
          </chunk>
          <chunk>
+            <node>/controls/flight/elevator-trim</node>
+            <name>elevator-trim</name>
+            <type>float</type>
+            <format>"/controls/flight/elevator-trim": %f,</format>
+         </chunk>
+         <chunk>
             <node>/controls/flight/flaps</node>
             <name>flaps</name>
             <type>float</type>
@@ -120,6 +167,12 @@
             <name>rudder</name>
             <type>float</type>
             <format>"/controls/flight/rudder": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/rudder-trim</node>
+            <name>rudder-trim</name>
+            <type>float</type>
+            <format>"/controls/flight/rudder-trim": %f,</format>
          </chunk>
          <chunk>
             <node>/controls/flight/speedbrake</node>
@@ -144,7 +197,7 @@
             <node>/engines/engine[0]/egt-degf</node>
             <name>egt-degf</name>
             <type>float</type>
-            <format>"/engines/engine/egt-degf[0]": %f,</format>
+            <format>"/engines/engine[0]/egt-degf": %f,</format>
          </chunk>
          <chunk>
             <node>/engines/engine[1]/egt-degf</node>

@@ -5,6 +5,11 @@
 #for visuals use larger geometry: --geometry=1024x768\
 #for apps user smaller geometry: --geometry=320x200\
 
+#pauses sim after launching
+
+#use heading if supplied, otherwise just head north
+HEADING=${1:-0}
+
 fgfs \
  --verbose\
  --ignore-autosave\
@@ -35,14 +40,21 @@ fgfs \
  --disable-sound\
  --disable-real-weather-fetch\
  --geometry=1024x768\
- --texture-filtering=4\
+ --texture-filtering=8\
  --disable-anti-alias-hud\
  --enable-auto-coordination\
- --prop:/sim/rendering/fps-display=1\
- --prop:/sim/rendering/frame-latency-display=1\
  --prop:/sim/rendering/multithreading-mode=AutomaticSelection\
  --prop:/environment/weather-scenario=Fair\ weather\
  --prop:/nasal/local_weather/enabled=false\
+ --prop:/sim/rendering/fps-display=1\
+ --prop:/sim/rendering/frame-latency-display=1\
+ --prop:/sim/rendering/redout/enabled=0\
+ --prop:/sim/rendering/redout/internal/log/g-force=0\
+ --prop:/controls/flight/flaps=0\
+ --vc=600\
+ --heading=$HEADING\
+ --altitude=9000\
+ --enable-freeze\
  --allow-nasal-from-sockets\
  --turbulence=0.0\
  --wind=0\@0

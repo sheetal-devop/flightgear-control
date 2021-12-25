@@ -85,6 +85,17 @@ public abstract class FlightGearAircraft {
     protected LinkedHashMap<String, String> copyStateFields(String[] fields) {
         LinkedHashMap<String, String> retval = new LinkedHashMap<>();
         
+        while(stateWriting.get()) {
+            LOGGER.trace("Waiting for state writing to complete");
+
+            try {
+                Thread.sleep(TELEMETRY_WRITE_WAIT_SLEEP);
+            } catch (InterruptedException e) {
+                LOGGER.warn("copyStateFields: Socket read wait interrupted", e);
+            }
+        }
+        
+        stateReading.set(true);
         for(String field : fields) {
             if(currentState.containsKey(field)) {
                 retval.put(field, currentState.get(field));
@@ -94,6 +105,7 @@ public abstract class FlightGearAircraft {
                 LOGGER.warn("Current state missing field: " + field);
             }
         }
+        stateReading.set(false);
         
         return retval;
     }

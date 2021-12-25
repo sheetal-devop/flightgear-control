@@ -31,7 +31,7 @@
 
     <!-- loggers -->
     <logger name="org.jason.flightgear" level="INFO" />
-    <logger name="org.jason.flightgear.aircraft" level="INFO" />
+    <logger name="org.jason.flightgear.aircraft" level="DEBUG" />
     <logger name="org.jason.flightgear.connection.sockets" level="INFO" />
     
     <root level="INFO">
