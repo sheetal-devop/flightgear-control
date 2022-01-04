@@ -29,6 +29,7 @@ public class WaypointFlight {
 	//then the plane is essentially a missile so we need a wide margin of error
 	private final static double WAYPOINT_ARRIVAL_THRESHOLD = 10.0 * 5280.0;
 	
+	//beyond this distance, increase throttle to crusing level (MAX)
 	private final static double WAYPOINT_ADJUST_MIN_DIST = 30.0 * 5280.0; 
 	
 	private final static String LAUNCH_TIME_GMT = "2021-07-01T20:00:00";
@@ -379,13 +380,13 @@ public class WaypointFlight {
 				
 				plane.shutdown();
 				
-//				try {
-//					plane.terminateSimulator();
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				} catch (InvalidTelnetOptionException e) {
-//					e.printStackTrace();
-//				}
+				try {
+					plane.terminateSimulator();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (InvalidTelnetOptionException e) {
+					e.printStackTrace();
+				}
 			}
 			
 			flightLog.writeGPXFile(System.getProperty("user.dir") + "/f15c_"+System.currentTimeMillis() + ".gpx");
