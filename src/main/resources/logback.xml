@@ -30,9 +30,9 @@
     </appender>
 
     <!-- loggers -->
-    <logger name="org.jason.flightgear" level="INFO" />
-    <logger name="org.jason.flightgear.aircraft" level="DEBUG" />
-    <logger name="org.jason.flightgear.connection.sockets" level="INFO" />
+    <logger name="org.jason.fgcontrol" level="INFO" />
+    <logger name="org.jason.fgcontrol.aircraft" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.connection.sockets" level="INFO" />
     
     <root level="INFO">
         <appender-ref ref="${consoleAppenderName}" />
