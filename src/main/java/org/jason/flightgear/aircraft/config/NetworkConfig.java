@@ -18,10 +18,11 @@ public class NetworkConfig {
     private final static int DEFAULT_SOCKETS_INPUT_POSITION_PORT = 6606;
     private final static int DEFAULT_SOCKETS_INPUT_SIM_PORT = 6607;
     private final static int DEFAULT_SOCKETS_INPUT_SIM_FREEZE_PORT = 6608;
-    private final static int DEFAULT_SOCKETS_INPUT_SIM_SPEEDUP_PORT = 6609;
-    private final static int DEFAULT_SOCKETS_INPUT_SIM_TIME_PORT = 6610;
-    private final static int DEFAULT_SOCKETS_INPUT_SYSTEM_PORT = 6611;
-    private final static int DEFAULT_SOCKETS_INPUT_VELOCITIES_PORT = 6612;
+    private final static int DEFAULT_SOCKETS_INPUT_SIM_MODEL_PORT = 6609;
+    private final static int DEFAULT_SOCKETS_INPUT_SIM_SPEEDUP_PORT = 6610;
+    private final static int DEFAULT_SOCKETS_INPUT_SIM_TIME_PORT = 6611;
+    private final static int DEFAULT_SOCKETS_INPUT_SYSTEM_PORT = 6612;
+    private final static int DEFAULT_SOCKETS_INPUT_VELOCITIES_PORT = 6613;
 
 	private String telemetryOutputHost;
 	private int telemetryOutputPort;
@@ -40,6 +41,7 @@ public class NetworkConfig {
     private int positionInputPort;
     private int simInputPort;
     private int simFreezeInputPort;
+    private int simModelInputPort;
     private int simSpeedupInputPort;
     private int simTimeInputPort;
     private int systemsInputPort;
@@ -63,6 +65,7 @@ public class NetworkConfig {
 		positionInputPort = DEFAULT_SOCKETS_INPUT_POSITION_PORT;
 		simInputPort = DEFAULT_SOCKETS_INPUT_SIM_PORT;
 		simFreezeInputPort = DEFAULT_SOCKETS_INPUT_SIM_FREEZE_PORT;
+		simModelInputPort = DEFAULT_SOCKETS_INPUT_SIM_MODEL_PORT;
 		simSpeedupInputPort = DEFAULT_SOCKETS_INPUT_SIM_SPEEDUP_PORT;
 		simTimeInputPort = DEFAULT_SOCKETS_INPUT_SIM_TIME_PORT;
 		systemsInputPort = DEFAULT_SOCKETS_INPUT_SYSTEM_PORT;
@@ -169,10 +172,18 @@ public class NetworkConfig {
 		return simFreezeInputPort;
 	}
 
-	public void setSimFreezePort(int simFreezePort) {
-		this.simFreezeInputPort = simFreezePort;
+	public void setSimFreezeInputPort(int port) {
+		this.simFreezeInputPort = port;
 	}
 
+	public int getSimModelInputPort() {
+		return simModelInputPort;
+	}
+
+	public void setSimModelInputPort(int port) {
+		this.simModelInputPort = port;
+	}
+	
 	public int getSimSpeedupInputPort() {
 		return simSpeedupInputPort;
 	}

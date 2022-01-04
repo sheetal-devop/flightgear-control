@@ -50,7 +50,23 @@ public abstract class C172PFields {
 	};
 	
 	/////////////
-	// Control
+	// Controls
+	
+	public final static String ANTI_ICE_PITOT_HEAT_FIELD = "/controls/anti-ice/pitot-heat";
+	public final static String ANTI_ICE_PITOT_HEAT_DESC = "Pitot heater setting to prevent icing problems";
+	
+	public final static String ANTI_ICE_WINDOW_HEAT_FIELD = "/controls/anti-ice/window-heat";
+	public final static String ANTI_ICE_WINDOW_HEAT_DESC = "Window heater setting to prevent icing problems";
+	
+	public final static String ANTI_ICE_WING_HEAT_FIELD = "/controls/anti-ice/wing-heat";
+	public final static String ANTI_ICE_WING_HEAT_DESC = "Wing heater setting to prevent icing problems";
+
+	public final static int ANTI_ICE_INT_TRUE = 1;
+	public final static int ANTI_ICE_INT_FALSE = 0;
+	public final static String ANTI_ICE_TRUE = String.valueOf(ANTI_ICE_INT_TRUE);
+	public final static String ANTI_ICE_FALSE = String.valueOf(ANTI_ICE_INT_FALSE);
+	
+	
 	public final static String BATTERY_SWITCH_FIELD = "/controls/electric/battery-switch";
 	public final static String BATTERY_SWITCH_FIELD_DESC = "The state of the battery switch";
 	
@@ -73,7 +89,12 @@ public abstract class C172PFields {
 
 	public final static String AILERON_FIELD = "/controls/flight/aileron";
 	public final static String AILERON_FIELD_DESC = "The aileron orientation";
+	
+    public final static String AILERON_TRIM_FIELD = "/controls/flight/aileron-trim";
+    public final static String AILERON_TRIM_FIELD_DESC = "The aileron trim orientation";
+    public final static double aILERON_TRIM_DEFAULT = 0.022;
 	public final static double AILERON_DEFAULT = 0.0;
+	
 	public final static double AILERON_MAX = 1.0;
 	public final static double AILERON_MIN = -1.0;
 	
@@ -92,7 +113,12 @@ public abstract class C172PFields {
 
 	public final static String ELEVATOR_FIELD = "/controls/flight/elevator";
 	public final static String ELEVATOR_FIELD_DESC = "The elevator orientation";
+	
+    public final static String ELEVATOR_TRIM_FIELD = "/controls/flight/elevator-trim";
+    public final static String ELEVATOR_TRIM_FIELD_DESC = "The elevator trim orientation";
+	
 	public final static double ELEVATOR_DEFAULT = 0.0;
+    public final static double ELEVATOR_TRIM_DEFAULT = 0.0075;
 	public final static double ELEVATOR_MAX = 1.0;
 	public final static double ELEVATOR_MIN = -1.0;
 
@@ -104,9 +130,14 @@ public abstract class C172PFields {
 
 	public final static String RUDDER_FIELD = "/controls/flight/rudder";
 	public final static String RUDDER_FIELD_DESC = "The rudder orientation";
+	
+    public final static String RUDDER_TRIM_FIELD = "/controls/flight/rudder-trim";
+    public final static String RUDDER_TRIM_FIELD_DESC = "The rudder trim orientation";
+	
 	public final static double RUDDER_MAX = 1.0;
 	public final static double RUDDER_MIN = -1.0;
 	public final static double RUDDER_DEFAULT = 0.0;
+	public final static double RUDDER_TRIM_DEFAULT = 0.02;
 	
 	public final static String SPEED_BRAKE_FIELD = "/controls/flight/speedbrake";
 	public final static String SPEED_BRAKE_FIELD_DESC = "The speedbrake orientation";
@@ -124,15 +155,21 @@ public abstract class C172PFields {
 	public final static String GEAR_DOWN_FALSE = String.valueOf(GEAR_DOWN_INT_FALSE);
 
 	public final static String[] CONTROL_FIELDS = {
+		ANTI_ICE_PITOT_HEAT_FIELD,
+		ANTI_ICE_WINDOW_HEAT_FIELD,
+		ANTI_ICE_WING_HEAT_FIELD,
 		BATTERY_SWITCH_FIELD,
 		MIXTURE_FIELD,
 		THROTTLE_FIELD,
 		AILERON_FIELD,
+		AILERON_TRIM_FIELD,
 		AUTO_COORDINATION_FIELD,
 		AUTO_COORDINATION_FACTOR_FIELD,
 		ELEVATOR_FIELD,
+		ELEVATOR_TRIM_FIELD,
 		FLAPS_FIELD,
 		RUDDER_FIELD,
+		RUDDER_TRIM_FIELD,
 		SPEED_BRAKE_FIELD,
 		PARKING_BRAKE_FIELD,
 		GEAR_DOWN_FIELD
@@ -213,10 +250,14 @@ public abstract class C172PFields {
 		ENGINES_WINTER_KIT_INSTALLED
 	};
 	
-	//no input fields for engine
+	/////////////
+	//Environment
+	//TODO: implement:
+	// --prop:/environment/aircraft-effects/cabin-air-set=0.75\
+	// --prop:/environment/aircraft-effects/cabin-heat-set=0.6\
 	
 	/////////////
-	// Sim
+	// Sim model
 	public final static String SIM_PARKING_BRAKE_FIELD = "/sim/model/c172p/brake-parking";
 	public final static String SIM_PARKING_BRAKE_FIELD_DESC = "The sim parking brake setting";
 	
@@ -226,17 +267,20 @@ public abstract class C172PFields {
 	public final static String SIM_PARKING_BRAKE_TRUE = String.valueOf(SIM_PARKING_BRAKE_INT_TRUE);
 	public final static String SIM_PARKING_BRAKE_FALSE = String.valueOf(SIM_PARKING_BRAKE_INT_FALSE);
 	
-	public final static String[] SIM_FIELDS = {
+	public final static String[] SIM_MODEL_FIELDS = {
 		SIM_PARKING_BRAKE_FIELD
 	};
 	
-	public final static String[] SIM_INPUT_FIELDS = SIM_FIELDS;
+	public final static String[] SIM_MODEL_INPUT_FIELDS = SIM_MODEL_FIELDS;
 	
 	/////////////
 	// System
 	
 	public final static String BATTERY_CHARGE_FIELD = "/systems/electrical/battery-charge-percent";
 	public final static String BATTERY_CHARGE_FIELD_DESC = "The battery charge";
+	public final static double BATTERY_CHARGE_MAX = 1.0;
+	public final static double BATTERY_CHARGE_MIN = 0.0;
+
 	
 	public final static String[] SYSTEM_FIELDS = {
 		BATTERY_CHARGE_FIELD

@@ -290,10 +290,25 @@ public final class FlightGearFields {
 	};
 	
 	/////////////
+	// sim general
+	public final static String SIM_CURRENT_VIEW_NUMBER = "/sim/current-view/view-number";
+	public final static String SIM_CURRENT_VIEW_NUMBER_DESC = "The current camera view";
+
+	
+	public final static String[] SIM_FIELDS = {
+		SIM_CURRENT_VIEW_NUMBER
+	};
+	
+	public final static String[] SIM_INPUT_FIELDS = SIM_FIELDS;
+	
+	/////////////
 	// Sim pause - just pause the sim. used a lot so it gets its own fieldset
 	
 	public final static String SIM_FREEZE_CLOCK_FIELD = "/sim/freeze/clock";
 	public final static String SIM_FREEZE_CLOCK_FIELD_DESC = "The sim freeze clock state";
+	
+	public final static String SIM_FREEZE_FUEL_FIELD = "/sim/freeze/fuel";
+	public final static String SIM_FREEZE_FUEL_FIELD_DESC = "The sim freeze fuel state";
 	
 	public final static String SIM_FREEZE_MASTER_FIELD = "/sim/freeze/master";
 	public final static String SIM_FREEZE_MASTER_FIELD_DESC = "The sim freeze master state";
@@ -306,8 +321,11 @@ public final class FlightGearFields {
 	
 	public final static String[] SIM_FREEZE_FIELDS = {
 		SIM_FREEZE_CLOCK_FIELD,
+		SIM_FREEZE_FUEL_FIELD,
 		SIM_FREEZE_MASTER_FIELD
 	};
+	
+	public final static String[] SIM_FREEZE_INPUT_FIELDS = SIM_FREEZE_FIELDS;
 	
 	/////////////
 	// sim speed
@@ -315,7 +333,7 @@ public final class FlightGearFields {
 	public final static String SIM_SPEED_DESC = "The sim speed factor";
 	
 	//common values for these fields
-	public final static String SIM_SPEED_DEFAULT = String.valueOf(1);
+	public final static String SIM_SPEED_DEFAULT = "1";
 	
 	public final static String[] SIM_SPEEDUP_FIELDS = {
 		SIM_SPEEDUP_FIELD

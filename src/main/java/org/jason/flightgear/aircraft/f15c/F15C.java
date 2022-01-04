@@ -33,6 +33,7 @@ public class F15C extends FlightGearAircraft{
     private FlightGearInputConnection positionInputConnection;
     private FlightGearInputConnection simInputConnection;
     private FlightGearInputConnection simFreezeInputConnection;
+    private FlightGearInputConnection simModelInputConnection;
     private FlightGearInputConnection simSpeedupInputConnection;
     private FlightGearInputConnection simTimeInputConnection;
     private FlightGearInputConnection velocitiesInputConnection;
@@ -75,6 +76,7 @@ public class F15C extends FlightGearAircraft{
 			positionInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getPositionInputPort());
 			simInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimInputPort());
 			simFreezeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimFreezeInputPort());
+			simModelInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimModelInputPort());
 			simSpeedupInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimSpeedupInputPort());
 			simTimeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimTimeInputPort());
 			velocitiesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getVelocitiesInputPort());
@@ -407,6 +409,14 @@ public class F15C extends FlightGearAircraft{
     ///////////////////
     //sim
     
+    public int getArmamentAGMCount() {
+    	return Integer.parseInt(getTelemetryField(F15CFields.ARMAMENT_AGM_COUNT));
+    }
+    
+    public int getArmamentSystemRunning() {
+    	return Integer.parseInt(getTelemetryField(F15CFields.ARMAMENT_SYSTEM_RUNNING));
+    }
+    
     //////////////
     //telemetry modifiers
     
@@ -416,18 +426,20 @@ public class F15C extends FlightGearAircraft{
         
         //TODO: check if paused
         
+        setPause(true);
+        
         LinkedHashMap<String, String> orientationFields = copyStateFields(FlightGearFields.ORIENTATION_INPUT_FIELDS);
         
-        setPause(true);
+        
         orientationFields.put(FlightGearFields.HEADING_FIELD, String.valueOf(heading) ) ;
         orientationFields.put(FlightGearFields.PITCH_FIELD, String.valueOf(pitch) );
         orientationFields.put(FlightGearFields.ROLL_FIELD, String.valueOf(roll) );
-
-        //TODO: altitude check?
         
         writeControlInput(orientationFields, this.orientationInputConnection);
 
-        setPause(false);
+        setPause(false); 
+        
+        LOGGER.info("forceStabilize returning");
     }
     
 	@Override
@@ -435,14 +447,14 @@ public class F15C extends FlightGearAircraft{
 		
 		LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONSUMABLES_INPUT_FIELDS);
 		
-		//write as one big update, otherwise we'll have to wait for the next telemetry read to react to the refuel
+		//write as one big update, otherwise we'll have to wait for the next telemetry read to react to the refuel of each tank
 		inputHash.put(F15CFields.FUEL_TANK_0_LEVEL_FIELD, String.valueOf(this.getFuelTank0Capacity()));
 		inputHash.put(F15CFields.FUEL_TANK_1_LEVEL_FIELD, String.valueOf(this.getFuelTank1Capacity()));
 		inputHash.put(F15CFields.FUEL_TANK_2_LEVEL_FIELD, String.valueOf(this.getFuelTank2Capacity()));
 		inputHash.put(F15CFields.FUEL_TANK_3_LEVEL_FIELD, String.valueOf(this.getFuelTank3Capacity()));
 		inputHash.put(F15CFields.FUEL_TANK_4_LEVEL_FIELD, String.valueOf(this.getFuelTank4Capacity()));
 		
-		LOGGER.info("Refilling fuel tanks {}", inputHash.keySet().toString());
+		LOGGER.info("Refilling fuel tanks {}", inputHash.entrySet().toString());
 		
 		writeControlInput(inputHash, this.consumeablesInputConnection);   
 	}
@@ -724,25 +736,40 @@ public class F15C extends FlightGearAircraft{
         writeControlInput(inputHash, this.controlInputConnection);
     }
     
+    public synchronized void setArmamentAGMCount(int count) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.SIM_MODEL_INPUT_FIELDS);
+        
+        inputHash.put(F15CFields.ARMAMENT_AGM_COUNT, String.valueOf(count));
+        
+        LOGGER.info("Setting armament AGM count to {}", count);
+        
+        writeControlInput(inputHash, this.simModelInputConnection);
+    }
+    
+    public synchronized void setArmamentSystemRunning(boolean running) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.SIM_MODEL_INPUT_FIELDS);
+        
+        if(running) {
+        	inputHash.put(F15CFields.ARMAMENT_SYSTEM_RUNNING, F15CFields.ARMAMENT_SYSTEM_RUNNING_TRUE);
+        }
+        else {
+        	inputHash.put(F15CFields.ARMAMENT_SYSTEM_RUNNING, F15CFields.ARMAMENT_SYSTEM_RUNNING_FALSE);
+        }
+        
+        
+        LOGGER.info("Setting armament AGM system running to {}", running);
+        
+        writeControlInput(inputHash, this.simModelInputConnection);
+    }
+    
     public synchronized void resetControlSurfaces() throws IOException {
         
         LOGGER.info("Resetting control surfaces");
-        
-//        setElevator(F15CFields.ELEVATOR_DEFAULT);
-//        setElevatorTrim(F15CFields.ELEVATOR_TRIM_DEFAULT);
-//        
-//        setAileron(F15CFields.AILERON_DEFAULT);
-//        setAileronTrim(F15CFields.AILERON_DEFAULT);
-//        
-//        setFlaps(F15CFields.FLAPS_DEFAULT);
-//        
-//        setRudder(F15CFields.RUDDER_DEFAULT);
-//        setRudderTrim(F15CFields.RUDDER_DEFAULT);
-        
+               
         LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
 
         inputHash.put(F15CFields.AILERON_FIELD, String.valueOf(F15CFields.AILERON_DEFAULT));
-        inputHash.put(F15CFields.AILERON_TRIM_FIELD, String.valueOf(F15CFields.AILERON_DEFAULT));
+        inputHash.put(F15CFields.AILERON_TRIM_FIELD, String.valueOf(F15CFields.AILERON_TRIM_DEFAULT));
         
         inputHash.put(F15CFields.ELEVATOR_FIELD, String.valueOf(F15CFields.ELEVATOR_DEFAULT));
         inputHash.put(F15CFields.ELEVATOR_TRIM_FIELD, String.valueOf(F15CFields.ELEVATOR_TRIM_DEFAULT));
@@ -937,6 +964,11 @@ public class F15C extends FlightGearAircraft{
 			LOGGER.error("Exception closing sim freeze input socket", e);
 		}
         try {
+			simModelInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing sim model input socket", e);
+		}
+        try {
 			simSpeedupInputConnection.close();
 		} catch (IOException e) {
 			LOGGER.error("Exception closing sim speedup input socket", e);
@@ -944,7 +976,7 @@ public class F15C extends FlightGearAircraft{
         try {
 			simTimeInputConnection.close();
 		} catch (IOException e) {
-			LOGGER.error("Exception closing sim speedup input socket", e);
+			LOGGER.error("Exception closing sim time input socket", e);
 		}
         try {
 			velocitiesInputConnection.close();
@@ -1006,8 +1038,18 @@ public class F15C extends FlightGearAircraft{
 	}
 
 	@Override
+	protected void writeSimInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.simInputConnection.writeControlInput(inputHash);
+	}
+	
+	@Override
 	protected void writeSimFreezeInput(LinkedHashMap<String, String> inputHash) throws IOException {
 		this.simFreezeInputConnection.writeControlInput(inputHash);
+	}
+	
+	@Override
+	protected void writeSimModelInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.simModelInputConnection.writeControlInput(inputHash);
 	}
 
 	@Override

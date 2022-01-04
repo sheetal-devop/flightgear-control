@@ -3,6 +3,7 @@ package org.jason.flightgear.aircraft.c172p.app;
 import java.io.IOException;
 
 import org.jason.flightgear.aircraft.c172p.C172P;
+import org.jason.flightgear.aircraft.c172p.C172PFields;
 import org.jason.flightgear.exceptions.FlightGearSetupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,8 @@ public class SitRunningOnRunway {
         
         return 
             String.format("\nFuel level: %f", plane.getFuelLevel()) +
+			String.format("\nFuel tank 0 level: %f", plane.getFuelTank0Level()) +
+			String.format("\nFuel tank 1 level: %f", plane.getFuelTank1Level()) +
             String.format("\nTime Elapsed: %f", plane.getTimeElapsed()) +
             String.format("\nTime Local: %f", plane.getLocalDaySeconds()) +
             String.format("\nFuel flow: %f", plane.getFuelFlow()) +
@@ -25,6 +28,7 @@ public class SitRunningOnRunway {
             String.format("\nMpOsi: %f", plane.getMpOsi()) +
             String.format("\nThrottle: %f", plane.getThrottle()) +
             String.format("\nMixture: %f", plane.getMixture()) +
+            String.format("\nParking Brake: %d", plane.getParkingBrake()) +
             String.format("\nEngine running: %d", plane.getEngineRunning());
     }
     
@@ -76,7 +80,7 @@ public class SitRunningOnRunway {
             plane.setThrottle(0.95);
 
             //highest it goes at 100%.
-            plane.setThrottle(1);
+            plane.setThrottle(C172PFields.THROTTLE_MAX);
             
             //have seen this set the throttle back to 20
             //possible that we're not waiting on the next state read after writing the input to the socket
@@ -86,7 +90,7 @@ public class SitRunningOnRunway {
             //speed up time in the simulator
             //full tank 32x - 752s 
             //full tank 16x - 824s
-            plane.setSpeedUp(16);
+            plane.setSimSpeedUp(16);
             
             long startTime = System.currentTimeMillis();
             
@@ -110,7 +114,7 @@ public class SitRunningOnRunway {
             LOGGER.debug("Exiting runtime loop");
             
             //at higher speedups the simulator window is unusable, so return it to something usable
-            plane.setSpeedUp(1);
+            plane.setSimSpeedUp(1);
             
             LOGGER.info("Final Telemetry Read: {}", telemetryReadOut(plane));
             

@@ -1,33 +1,14 @@
-package org.jason.test;
+package org.jason.fgcontrol.test;
 
 import java.math.BigDecimal;
 
-import org.jason.flightgear.flight.waypoints.KnownPositions;
-import org.jason.flightgear.flight.waypoints.WaypointPosition;
-import org.jason.flightgear.flight.waypoints.WaypointUtilities;
+import org.jason.flightgear.flight.position.KnownPositions;
+import org.jason.flightgear.flight.position.WaypointPosition;
+import org.jason.flightgear.flight.position.PositionUtilities;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class WaypointUtilitiesTest {
-
-	@Test (enabled = false)
-	public void testDistanceBetween() {
-
-		WaypointPosition p1 = KnownPositions.LONSDALE_QUAY;
-		WaypointPosition p2 = KnownPositions.RIT;
-		
-		//2185.377 miles converted to feet
-		double expected = 2185.377 * 5280;
-		
-		double actual = WaypointUtilities.distanceBetween(p1, p2);
-		
-		System.out.println("testDistanceBetween");
-		System.out.println("Actual Distance:\t\t" + new BigDecimal(actual).toPlainString() );
-		System.out.println("Expected Distance:\t\t" + new BigDecimal(expected).toPlainString() );
-
-		
-		Assert.assertEquals(actual, expected);
-	}
 
 	@Test
 	public void testDistanceBetweenGPSCoordinates() {
@@ -40,7 +21,7 @@ public class WaypointUtilitiesTest {
 		//2185.267 miles converted to feet
 		double expected = 2185.267 * 5280;
 		
-		double actual = WaypointUtilities.distanceBetweenPositions(p1, p2);
+		double actual = PositionUtilities.distanceBetweenPositions(p1, p2);
 		
 		System.out.println("testDistanceBetweenGPS");
 		System.out.println("Actual Distance:\t\t" + new BigDecimal(actual).toPlainString() );
@@ -66,7 +47,7 @@ public class WaypointUtilitiesTest {
 		//degrees
 		double expected = 83.797;
 		
-		double actual = WaypointUtilities.calcBearingToGPSCoordinates(p1, p2);
+		double actual = PositionUtilities.calcBearingToGPSCoordinates(p1, p2);
 		
 		System.out.println("testheadingToGPS");
 		System.out.println("Actual bearing:\t\t" + new BigDecimal(actual).toPlainString() );

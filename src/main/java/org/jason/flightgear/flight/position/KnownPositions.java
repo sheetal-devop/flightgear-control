@@ -1,4 +1,4 @@
-package org.jason.flightgear.flight.waypoints;
+package org.jason.flightgear.flight.position;
 
 /**
  * Lat/Lon to 5 digits precision. 
@@ -14,11 +14,22 @@ public abstract class KnownPositions {
 	
 	//Vancouver area
 	public final static WaypointPosition VAN_INTER_AIRPORT_YVR = new WaypointPosition(49.19536, -123.18018, "YVR");
+	public final static WaypointPosition UBC = new WaypointPosition(49.26126, -123.24684, "University of British Columbia");
+	public final static WaypointPosition SPANISH_BANKS = new WaypointPosition(49.27652, -123.21306, "Spanish Banks Beach");
 	public final static WaypointPosition STANLEY_PARK = new WaypointPosition(49.30486, -123.15564, "Stanley Park");
 	public final static WaypointPosition LONSDALE_QUAY = new WaypointPosition(49.30974, -123.08280, "Lonsdale Quay");
-	public final static WaypointPosition WEST_LION = new WaypointPosition(49.45780, -123.18659, "West Lion");
+	public final static WaypointPosition DEEP_COVE = new WaypointPosition(49.32675, -122.95185, "Deep Cove");
 	public final static WaypointPosition MT_SEYMOUR = new WaypointPosition(49.36590, -122.94832, "Mt Seymour");
+	public final static WaypointPosition GROUSE_MOUNTAIN = new WaypointPosition(49.37030, -123.09865, "Grouse Mountain Base");
+	public final static WaypointPosition WEST_LION = new WaypointPosition(49.45780, -123.18659, "West Lion");
+	public final static WaypointPosition LIONS_BAY = new WaypointPosition(49.45946, -123.23603, "Lions Bay");
+	public final static WaypointPosition HORSESHOE_BAY = new WaypointPosition(49.37309, -123.27659, "Horseshoe Bay");
+	public final static WaypointPosition LANGDALE = new WaypointPosition(49.43390, -123.47938, "Langdale");
+	public final static WaypointPosition BOWEN_BAY = new WaypointPosition(49.36525, -123.42368, "Bowen Bay");
+	public final static WaypointPosition MARPOLE_CC = new WaypointPosition(49.20637, -123.12349, "Marpole Curling Club");
 	public final static WaypointPosition BURNABY_8RINKS = new WaypointPosition(49.25132, -122.97032, "Burnaby 8 Rinks");
+	public final static WaypointPosition NEW_WESTMINSTER_QUAY = new WaypointPosition(49.20398, -122.90398, "New Westminster Quay");
+	public final static WaypointPosition PLANET_ICE_DELTA = new WaypointPosition(49.14866, -122.93630, "Planet Ice - Delta");
 	
 	//BC Cities/towns
 	public final static WaypointPosition ABBOTSFORD = new WaypointPosition(49.05061, -122.30401, "Abbotsford");
@@ -26,7 +37,11 @@ public abstract class KnownPositions {
 	public final static WaypointPosition PENTICTON = new WaypointPosition(49.49368, -119.59009, "Penticton");
 	public final static WaypointPosition KELOWNA = new WaypointPosition(49.88670, -119.48883, "Kelowna");
 	public final static WaypointPosition KAMLOOPS = new WaypointPosition(50.67665, -120.32855, "Kamloops");
+	public final static WaypointPosition LOUIS_CREEK = new WaypointPosition(51.14119, -120.12375, "Louis Creek");
+	public final static WaypointPosition SEYMOUR_ARM = new WaypointPosition(51.23839, -118.94431, "Seymour Arm");
 	public final static WaypointPosition REVELSTOKE = new WaypointPosition(50.99741, -118.18849, "Revelstoke");
+	public final static WaypointPosition SHELTER_BAY = new WaypointPosition(50.63538, -117.92918, "Shelter Bay");
+	public final static WaypointPosition VERNON = new WaypointPosition(50.26394, -119.27483, "Vernon");
 	public final static WaypointPosition HUNDRED_MI_HOUSE = new WaypointPosition(51.64761, -121.30063, "100 Mile House");
 	public final static WaypointPosition PRINCE_GEORGE = new WaypointPosition(53.91144, -122.75208, "Prince George");
 	public final static WaypointPosition DAWSON_CREEK = new WaypointPosition(55.75853, -120.24130, "Dawson Creek");
@@ -38,6 +53,8 @@ public abstract class KnownPositions {
 	public final static WaypointPosition BELLA_BELLA = new WaypointPosition(52.15920, -128.14856, "Bella Bella");
 	public final static WaypointPosition PORT_HARDY = new WaypointPosition(50.71742, -127.49618, "Port Hardy");
 	public final static WaypointPosition TOFINO = new WaypointPosition(49.15329, -125.90675, "Tofino");
+	public final static WaypointPosition PORT_RENFREW = new WaypointPosition(48.55292, -124.42235, "Port Renfrew");
+	public final static WaypointPosition SOOKE = new WaypointPosition(48.37408, -123.73550, "Sooke");
 	public final static WaypointPosition VICTORIA = new WaypointPosition(48.42855, -123.36341, "Victoria");
 
 	//Cool places to snowboard

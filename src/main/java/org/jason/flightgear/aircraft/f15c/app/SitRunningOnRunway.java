@@ -73,7 +73,7 @@ public class SitRunningOnRunway {
                         
             //speed up time in the simulator
             //full tank 16x - 353s
-            plane.setSpeedUp(16);
+            plane.setSimSpeedUp(16);
             
             long startTime = System.currentTimeMillis();
             
@@ -97,7 +97,7 @@ public class SitRunningOnRunway {
             LOGGER.debug("Exiting runtime loop");
             
             //at higher speedups the simulator window is unusable, so return it to something usable
-            plane.setSpeedUp(1);
+            plane.setSimSpeedUp(1);
             
             LOGGER.info("Final Telemetry Read: {}", telemetryReadOut(plane));
             

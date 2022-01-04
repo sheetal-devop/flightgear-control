@@ -11,6 +11,11 @@
             <type>bool</type>
          </chunk>
          <chunk>
+            <node>/sim/freeze/fuel</node>
+            <name>fuel</name>
+            <type>bool</type>
+         </chunk>
+         <chunk>
             <node>/sim/freeze/master</node>
             <name>master</name>
             <type>bool</type>

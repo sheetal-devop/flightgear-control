@@ -1,10 +1,10 @@
-package org.jason.flightgear.flight.waypoints;
+package org.jason.flightgear.flight.position;
 
 /**
  * Wrapper for a plane position in flight. 
  *
  */
-public class WaypointPosition {
+public class WaypointPosition extends LatLonPosition {
 	
 	private final static String DEFAULT_NAME = "NO_NAME";
 	
@@ -28,10 +28,8 @@ public class WaypointPosition {
 	}
 	
 	public WaypointPosition(double latitude, double longitude, double altitude, String name) {
-		//TODO: enforce 5 decimal precision
 		
-		this.latitude = latitude;
-		this.longitude = longitude;
+		super(latitude, longitude);
 		this.altitude = altitude;
 		this.name = name;
 	}
@@ -43,19 +41,7 @@ public class WaypointPosition {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
-	public double getLatitude() {
-		return latitude;
-	}
-	public void setLatitude(double latitude) {
-		this.latitude = latitude;
-	}
-	public double getLongitude() {
-		return longitude;
-	}
-	public void setLongitude(double longitude) {
-		this.longitude = longitude;
-	}
+
 	public double getAltitude() {
 		return altitude;
 	}

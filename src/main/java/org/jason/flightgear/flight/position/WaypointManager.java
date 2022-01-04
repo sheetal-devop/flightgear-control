@@ -1,4 +1,4 @@
-package org.jason.flightgear.flight.waypoints;
+package org.jason.flightgear.flight.position;
 
 import java.util.ArrayList;
 import java.util.Collections;

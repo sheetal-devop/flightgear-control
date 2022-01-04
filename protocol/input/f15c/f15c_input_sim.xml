@@ -6,16 +6,11 @@
         <var_separator>,</var_separator>
  
          <chunk>
-            <node>/sim/freeze/clock</node>
-            <name>clock</name>
-            <type>bool</type>
+            <node>/sim/current-view/view-number</node>
+            <name>view-number</name>
+            <type>float</type>
          </chunk>
-         <chunk>
-            <node>/sim/freeze/fuel</node>
-            <name>fuel</name>
-            <type>bool</type>
-         </chunk>
-
+         
     </input>
   </generic>
  </PropertyList>

@@ -17,7 +17,7 @@ public class SustainedFlight {
 	private final static int TARGET_ALTITUDE = 9000;
 	
 	//0 => N, 90 => E
-	private final static int TARGET_HEADING = 90;
+	private final static int TARGET_HEADING = 93;
 	
 	private static String telemetryReadOut(F15C plane) {
 				
@@ -101,16 +101,12 @@ public class SustainedFlight {
 			
 			//////////////////////////////////////////////
 			
-			
-			
+			//chase view
+			plane.setCurrentView(2);
 			
 			//launched from shell script. starts paused
 			//plane.refillFuel();
 			plane.startupPlane();
-			
-			
-			//!!! don't set the throttle until after the sim is unpaused with the startup sequence complete
-			//will get flaps failures
 			
 			//check surfaces and orientations
 			
@@ -128,11 +124,6 @@ public class SustainedFlight {
 			}
 			
 			plane.resetControlSurfaces();
-			
-			
-			//step up throttle from whatever value established in startup to the max
-			double throttleEngine0 = plane.getEngine0Throttle();
-			double throttleEngine1 = plane.getEngine1Throttle();
 			
 			plane.setPause(false);
 			
@@ -188,59 +179,7 @@ public class SustainedFlight {
 			LOGGER.info("Stepping up engine throttles");
 			
 			//precheck
-			
 
-			
-			//step up to full throttle or the engines may have divergent thrust outputs
-			//need to manually set throttle to both engines even though the sim slaves engine 1 throttle to engine 0
-//			double startupThrottleMax = F15CFields.THROTTLE_MAX;
-//			double throttleStep = 0.01;
-//			int throttleAdjustments = 0;
-//			int maxThrottleAdjustments = 100;
-//			while( throttleEngine0 <= startupThrottleMax && throttleEngine1 <= startupThrottleMax )
-//			{				
-//				throttleEngine0 += throttleStep;
-//				
-//				//the sim will correct for values <0 and >1
-//				plane.setEngineThrottles(throttleEngine0);
-//				
-//				try {
-//					//have to sleep so that throttle adjustments will show up in subsequent telemetry reads
-//					Thread.sleep(500);
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				}
-//				
-//				
-////				throttleEngine1 += throttleStep;
-////				plane.setEngine1Throttle(throttleEngine1);
-//				
-//				if(throttleAdjustments >= maxThrottleAdjustments) {
-//					throw new FlightGearSetupException("Failure stepping up engine throttles to maximum");
-//				}
-//				
-//				throttleAdjustments++;
-//				
-//				//have to keep the plane on track
-//				plane.resetControlSurfaces();
-//				
-//				FlightUtilities.pitchCheck(plane, 4, 2.0);
-//
-//				FlightUtilities.rollCheck(plane, 4, 0.0);
-//
-//				// check heading last-ish, correct pitch/roll first otherwise the plane will
-//				// probably drift off heading quickly
-//				
-//				FlightUtilities.headingCheck(plane, 4, currentHeading);
-//				
-//				try {
-//					//have to sleep so that throttle adjustments will show up in subsequent telemetry reads
-//					Thread.sleep(50);
-//				} catch (InterruptedException e) {
-//					e.printStackTrace();
-//				}
-//			}
-			
 			//ensure we're at the max explicitly
 			plane.setEngineThrottles(F15CFields.THROTTLE_MAX);
 			
@@ -252,15 +191,11 @@ public class SustainedFlight {
 			//////////////////////////////////////////////
 			
 			boolean running = true;
-			cycles = 5;
+			cycles = 0;
 			int maxCycles = 50* 1000;
 			
 			//tailor the update rate to the speedup
-			int cycleSleep = 10;
-			
-
-			
-			double maxThrustDifferential = 1000.0;
+			int cycleSleep = 20;
 			
 			while(running && cycles < maxCycles) {
 				
@@ -296,20 +231,6 @@ public class SustainedFlight {
 					plane.refillFuel();
 				}
 				
-//				if(cycles % 100 == 0 && cycles > 100) {
-//					//only do this if we've been flying for a bit
-//					if( Math.abs( plane.getEngine0Thrust() - plane.getEngine1Thrust() ) > maxThrustDifferential ) {
-//						
-//						LOGGER.warn("Engine thrust differential over threshold. Attempting throttle step to fix.");
-//			
-//						plane.setEngine0Throttle(0.7);
-//						plane.setEngine1Throttle(0.7);
-//						
-//						plane.setEngine0Throttle(F15CFields.THROTTLE_MAX);
-//						plane.setEngine1Throttle(F15CFields.THROTTLE_MAX);
-//					}
-//				}
-				
 				try {
 					Thread.sleep(cycleSleep);
 				} catch (InterruptedException e) {
@@ -317,7 +238,19 @@ public class SustainedFlight {
 				}
 				
 				LOGGER.info("Telemetry Read: {}", telemetryReadOut(plane));
-		
+				
+				//optionally change direction slightly
+				//may happen very quickly depending on how quickly telemetry updates completes
+				if(cycles % 100 == 0) {
+					currentHeading = (currentHeading + 15) % 360;
+					
+					if(currentHeading < 0) {
+						currentHeading += 360;
+					} 
+					
+					LOGGER.info("Adjusting Heading to {}", currentHeading);
+				}
+				
 				LOGGER.info("Cycle end\n======================");
 				
 				cycles++;

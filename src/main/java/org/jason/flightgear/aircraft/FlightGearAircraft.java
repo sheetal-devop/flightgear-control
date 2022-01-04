@@ -12,7 +12,7 @@ import org.jason.flightgear.aircraft.config.NetworkConfig;
 import org.jason.flightgear.aircraft.fields.FlightGearFields;
 import org.jason.flightgear.connection.sockets.FlightGearInputConnection;
 import org.jason.flightgear.connection.telnet.FlightGearTelnetConnection;
-import org.jason.flightgear.flight.waypoints.WaypointPosition;
+import org.jason.flightgear.flight.position.TrackPosition;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -23,10 +23,10 @@ public abstract class FlightGearAircraft {
     private final static Logger LOGGER = LoggerFactory.getLogger(FlightGearAircraft.class);
     
     private final static int TELEMETRY_READ_WAIT_SLEEP = 100;
-    private final static int TELEMETRY_READ_TRAILING_SLEEP = 250;
+    private final static int TELEMETRY_READ_TRAILING_SLEEP = 100;
     private final static int TELEMETRY_WRITE_WAIT_SLEEP = 100;
     
-    private final static int POST_PAUSE_SLEEP = 250;
+    private final static int POST_PAUSE_SLEEP = 125;
     
     private boolean runTelemetryThread;
     
@@ -79,7 +79,7 @@ public abstract class FlightGearAircraft {
             }
         }
         
-        LOGGER.debug("launchTelemetryThread returning");
+        LOGGER.info("Launched telemetry thread and received first read");
     }
     
     protected LinkedHashMap<String, String> copyStateFields(String[] fields) {
@@ -239,9 +239,9 @@ public abstract class FlightGearAircraft {
                             }    
                         );
                         
-                        if(LOGGER.isDebugEnabled()) {
-                        	LOGGER.debug("Read {} telemetry fields", jsonTelemetry.keySet().size());
-                        }
+//                        if(LOGGER.isDebugEnabled()) {
+//                        	LOGGER.debug("Read {} telemetry fields", jsonTelemetry.keySet().size());
+//                        }
                     }
                 }
                 else {
@@ -334,7 +334,9 @@ public abstract class FlightGearAircraft {
     protected abstract void writeFdmInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeOrientationInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writePositionInput(LinkedHashMap<String, String> inputHash) throws IOException;
+    protected abstract void writeSimInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeSimFreezeInput(LinkedHashMap<String, String> inputHash) throws IOException;
+    protected abstract void writeSimModelInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeSimSpeedupInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeSimTimeInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeSystemInput(LinkedHashMap<String, String> inputHash) throws IOException;
@@ -418,6 +420,16 @@ public abstract class FlightGearAircraft {
     //////////////////
     //generic sim management
     
+    public synchronized void setCurrentView(int viewNumber) throws IOException {
+    	LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.SIM_INPUT_FIELDS);
+    	
+    	inputHash.put(FlightGearFields.SIM_CURRENT_VIEW_NUMBER, String.valueOf(viewNumber));
+    	
+    	LOGGER.info("Setting current view to {}", viewNumber);
+    	
+    	writeSimInput(inputHash);
+    }
+    
     public synchronized boolean isPaused() {
     	return getSimFreezeClock() == FlightGearFields.SIM_FREEZE_INT_TRUE &&
     			getSimFreezeMaster() == FlightGearFields.SIM_FREEZE_INT_TRUE;
@@ -468,10 +480,10 @@ public abstract class FlightGearAircraft {
      * @param targetSpeedup	Speedup factor. Acceptable values are 0.5,1,2,4,8,16,32. 32 is pretty slow. 
      * @throws IOException
      */
-    public synchronized void setSpeedUp(double targetSpeedup) throws IOException {
+    public synchronized void setSimSpeedUp(double targetSpeedup) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.SIM_SPEEDUP_FIELDS);
         
-        LOGGER.info("Setting speedup: {}", targetSpeedup);
+        LOGGER.info("Setting sim speedup: {}", targetSpeedup);
         
         inputHash.put(FlightGearFields.SIM_SPEEDUP_FIELD, String.valueOf(targetSpeedup));
         
@@ -506,8 +518,8 @@ public abstract class FlightGearAircraft {
      */
     public abstract void refillFuel() throws IOException;
     
-    public synchronized WaypointPosition getPosition() {
-    	return new WaypointPosition(getLatitude(), getLongitude(), getAltitude(), "Current position");
+    public synchronized TrackPosition getPosition() {
+    	return new TrackPosition(getLatitude(), getLongitude(), getAltitude(), getGMT());
     }
     
     ///////////////////

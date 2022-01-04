@@ -33,6 +33,7 @@ public class C172P extends FlightGearAircraft{
     private FlightGearInputConnection positionInputConnection;
     private FlightGearInputConnection simInputConnection;
     private FlightGearInputConnection simFreezeInputConnection;
+    private FlightGearInputConnection simModelInputConnection;
     private FlightGearInputConnection simSpeedupInputConnection;
     private FlightGearInputConnection simTimeInputConnection;
     private FlightGearInputConnection systemsInputConnection;
@@ -77,6 +78,7 @@ public class C172P extends FlightGearAircraft{
 			positionInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getPositionInputPort());
 			simInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimInputPort());
 			simFreezeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimFreezeInputPort());
+			simModelInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimModelInputPort());
 			simSpeedupInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimSpeedupInputPort());
 			simTimeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimTimeInputPort());
 			systemsInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSystemsInputPort());
@@ -355,20 +357,34 @@ public class C172P extends FlightGearAircraft{
     //////////////
     //telemetry modifiers
     
-    public void forceStabilize(double heading, double roll, double pitch) throws IOException {
+    public void forceStabilize(double targetHeading, double targetRoll, double targetPitch) throws IOException {
         
         LOGGER.info("forceStabilize called");
         
+        //pause before copyStateFields so we're not changing an orientation in the past
+        setPause(true);
+        
         LinkedHashMap<String, String> orientationFields = copyStateFields(FlightGearFields.ORIENTATION_INPUT_FIELDS);
         
-        setPause(true);
-        orientationFields.put(FlightGearFields.HEADING_FIELD, String.valueOf(heading) ) ;
-        orientationFields.put(FlightGearFields.PITCH_FIELD, String.valueOf(pitch) );
-        orientationFields.put(FlightGearFields.ROLL_FIELD, String.valueOf(roll) );
+//        double currentHeading = getHeading();
+//        
+//        if(Math.abs(currentHeading - targetHeading) > 30) {
+//        	if(currentHeading > targetHeading) {
+//        		targetHeading = currentHeading - 30;
+//        	} else {
+//        		targetHeading = currentHeading + 30;
+//        	}
+//        }
         
+        orientationFields.put(FlightGearFields.HEADING_FIELD, String.valueOf(targetHeading) ) ;
+        orientationFields.put(FlightGearFields.PITCH_FIELD, String.valueOf(targetPitch) );
+        orientationFields.put(FlightGearFields.ROLL_FIELD, String.valueOf(targetRoll) );
+
         writeControlInput(orientationFields, this.orientationInputConnection);
 
         setPause(false);
+        
+        LOGGER.info("Force stablizing to {}", orientationFields.entrySet().toString());
     }
     
     public synchronized void setFuelTank0Level(double amount) throws IOException {
@@ -503,14 +519,49 @@ public class C172P extends FlightGearAircraft{
     
     public synchronized void resetControlSurfaces() throws IOException {
         
+    	//TODO: implement surface trims for c172p and possibly push to superclass
+    	
         LOGGER.info("Resetting control surfaces");
         
-        setElevator(C172PFields.ELEVATOR_DEFAULT);
-        setAileron(C172PFields.AILERON_DEFAULT);
-        setFlaps(C172PFields.FLAPS_DEFAULT);
-        setRudder(C172PFields.RUDDER_DEFAULT);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
+
+        inputHash.put(C172PFields.AILERON_FIELD, String.valueOf(C172PFields.AILERON_DEFAULT));
+        inputHash.put(C172PFields.AILERON_TRIM_FIELD, String.valueOf(C172PFields.AILERON_DEFAULT));
+        
+        inputHash.put(C172PFields.ELEVATOR_FIELD, String.valueOf(C172PFields.ELEVATOR_DEFAULT));
+        inputHash.put(C172PFields.ELEVATOR_TRIM_FIELD, String.valueOf(C172PFields.ELEVATOR_TRIM_DEFAULT));
+        
+        inputHash.put(C172PFields.FLAPS_FIELD, String.valueOf(C172PFields.FLAPS_DEFAULT));
+        
+        inputHash.put(C172PFields.RUDDER_FIELD, String.valueOf(C172PFields.RUDDER_DEFAULT));
+        inputHash.put(C172PFields.RUDDER_TRIM_FIELD, String.valueOf(C172PFields.RUDDER_DEFAULT));
+        
+        if(LOGGER.isDebugEnabled()) {
+        	LOGGER.debug("Writing control surface reset:\n{}", inputHash.entrySet().toString());
+        }
+        
+        writeControlInput(inputHash, this.controlInputConnection);
         
         LOGGER.info("Reset of control surfaces completed");
+    }
+    
+    public synchronized void setAntiIce(boolean enabled) throws IOException {
+    	LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
+    	
+    	if(!enabled){
+        	inputHash.put(C172PFields.ANTI_ICE_PITOT_HEAT_FIELD, C172PFields.ANTI_ICE_FALSE);
+        	inputHash.put(C172PFields.ANTI_ICE_WINDOW_HEAT_FIELD, C172PFields.ANTI_ICE_FALSE);
+        	inputHash.put(C172PFields.ANTI_ICE_WING_HEAT_FIELD, C172PFields.ANTI_ICE_FALSE);
+    	} else {
+        	inputHash.put(C172PFields.ANTI_ICE_PITOT_HEAT_FIELD, C172PFields.ANTI_ICE_TRUE);
+        	inputHash.put(C172PFields.ANTI_ICE_WINDOW_HEAT_FIELD, C172PFields.ANTI_ICE_TRUE);
+        	inputHash.put(C172PFields.ANTI_ICE_WING_HEAT_FIELD, C172PFields.ANTI_ICE_TRUE);
+    	}
+    	
+    	LOGGER.info("Toggling anti-ice heaters: {}", enabled);
+    	
+        writeControlInput(inputHash, this.controlInputConnection);
+
     }
     
     public synchronized void setComplexEngineProcedures(boolean enabled) throws IOException {
@@ -599,7 +650,7 @@ public class C172P extends FlightGearAircraft{
     
     @Override
     public synchronized void setParkingBrake(boolean brakeEnabled) throws IOException {
-        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.SIM_INPUT_FIELDS);
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.SIM_MODEL_INPUT_FIELDS);
             
         //visual: in the cockpit, if the brake arm is:
         //pushed in => brake is not engaged (disabled => 0)
@@ -615,7 +666,7 @@ public class C172P extends FlightGearAircraft{
         
         LOGGER.info("Setting parking brake to {}", brakeEnabled);
         
-        writeControlInput(inputHash, this.simInputConnection);
+        writeControlInput(inputHash, this.simModelInputConnection);
     }
     
     public synchronized void setBatteryCharge(double charge) throws IOException {
@@ -708,6 +759,11 @@ public class C172P extends FlightGearAircraft{
 			LOGGER.error("Exception closing sim freeze input socket", e);
 		}
         try {
+			simModelInputConnection.close();
+		} catch (IOException e) {
+			LOGGER.error("Exception closing sim model input socket", e);
+		}
+        try {
 			simSpeedupInputConnection.close();
 		} catch (IOException e) {
 			LOGGER.error("Exception closing sim speedup input socket", e);
@@ -760,8 +816,15 @@ public class C172P extends FlightGearAircraft{
 
 	@Override
 	public void refillFuel() throws IOException {
-		refillFuelTank0();
-		refillFuelTank1();
+		LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_INPUT_FIELDS);
+		
+		//write as one big update, otherwise we'll have to wait for the next telemetry read to react to the refuel of each tank
+		inputHash.put(C172PFields.FUEL_TANK_0_LEVEL_FIELD, String.valueOf(this.getFuelTank0Capacity()));
+		inputHash.put(C172PFields.FUEL_TANK_1_LEVEL_FIELD, String.valueOf(this.getFuelTank1Capacity()));
+		
+		LOGGER.info("Refilling fuel tanks {}", inputHash.entrySet().toString());
+		
+		writeControlInput(inputHash, this.consumeablesInputConnection);   
 	}
 	
 	public void refillFuelTank0() throws IOException {
@@ -806,10 +869,20 @@ public class C172P extends FlightGearAircraft{
 	}
 
 	@Override
+	protected void writeSimInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.simInputConnection.writeControlInput(inputHash);
+	}
+	
+	@Override
 	protected void writeSimFreezeInput(LinkedHashMap<String, String> inputHash) throws IOException {
 		this.simFreezeInputConnection.writeControlInput(inputHash);
 	}
 
+	@Override
+	protected void writeSimModelInput(LinkedHashMap<String, String> inputHash) throws IOException {
+		this.simModelInputConnection.writeControlInput(inputHash);
+	}
+	
 	@Override
 	protected void writeSimSpeedupInput(LinkedHashMap<String, String> inputHash) throws IOException {
 		this.simSpeedupInputConnection.writeControlInput(inputHash);

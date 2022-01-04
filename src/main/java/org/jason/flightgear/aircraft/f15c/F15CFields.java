@@ -117,7 +117,9 @@ public abstract class F15CFields {
     public final static String AILERON_TRIM_FIELD = "/controls/flight/aileron-trim";
     public final static String AILERON_TRIM_FIELD_DESC = "The aileron trim orientation";
     
+    //want a marginal amount aileron trim to offset a tendency to roll clockwise
     public final static double AILERON_DEFAULT = 0.0;
+    public final static double AILERON_TRIM_DEFAULT = -0.005;
     public final static double AILERON_MAX = 1.0;
     public final static double AILERON_MIN = -1.0;
     
@@ -140,7 +142,7 @@ public abstract class F15CFields {
     public final static String ELEVATOR_TRIM_FIELD = "/controls/flight/elevator-trim";
     public final static String ELEVATOR_TRIM_FIELD_DESC = "The elevator trim orientation";
     
-    //want a marginal amount of default lift
+    //want a marginal amount of default lift on the elevator trim to offset gravity
     public final static double ELEVATOR_DEFAULT = 0.0;
     public final static double ELEVATOR_TRIM_DEFAULT = 0.0001;
     public final static double ELEVATOR_MAX = 1.0;
@@ -275,5 +277,25 @@ public abstract class F15CFields {
         ENGINE_1_THRUST_FIELD
     };
     
-    //TODO: double check no input fields for engine 
+    //no direct input fields. engine controls are under /controls/ in the property tree
+    
+    //possibly not implemented. fuel and stores doesn't seem to register this
+    public final static String ARMAMENT_AGM_COUNT = "/sim/model/f15/systems/armament/agm/count"; 
+    public final static String ARMAMENT_AGM_COUNT_DESC = "Current quantity of AGM(-84?) Air-to-Ground missiles."; 
+    
+    public final static String ARMAMENT_SYSTEM_RUNNING = "/sim/model/f15/systems/armament/system-running";
+    public final static String ARMAMENT_SYSTEM_RUNNING_DESC = "Operational state of the F15C armament system";
+    
+    public final static int ARMAMENT_SYSTEM_RUNNING_INT_TRUE = 1;
+    public final static int ARMAMENT_SYSTEM_RUNNING_INT_FALSE = 0;
+    public final static String ARMAMENT_SYSTEM_RUNNING_TRUE = String.valueOf(ARMAMENT_SYSTEM_RUNNING_INT_TRUE);
+    public final static String ARMAMENT_SYSTEM_RUNNING_FALSE = String.valueOf(ARMAMENT_SYSTEM_RUNNING_INT_FALSE);
+    
+    public final static String[] SIM_MODEL_FIELDS = {
+    	ARMAMENT_AGM_COUNT,
+    	ARMAMENT_SYSTEM_RUNNING
+    };
+    
+    public final static String[] SIM_MODEL_INPUT_FIELDS = SIM_MODEL_FIELDS;
+    
 }

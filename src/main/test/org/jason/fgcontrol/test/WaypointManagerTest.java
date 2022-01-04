@@ -1,7 +1,7 @@
-package org.jason.test;
+package org.jason.fgcontrol.test;
 
-import org.jason.flightgear.flight.waypoints.KnownPositions;
-import org.jason.flightgear.flight.waypoints.WaypointManager;
+import org.jason.flightgear.flight.position.KnownPositions;
+import org.jason.flightgear.flight.position.WaypointManager;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
