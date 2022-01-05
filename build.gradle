@@ -6,12 +6,14 @@ sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
 repositories {
+    //need both of these maven repos for geotools
     maven {
         url "https://maven.geo-solutions.it/"
     }
     maven {
         url "https://repo.osgeo.org/repository/release/"
     }
+    
     mavenCentral()
     
     jcenter() 
