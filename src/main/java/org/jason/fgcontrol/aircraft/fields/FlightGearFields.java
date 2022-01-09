@@ -159,6 +159,10 @@ public final class FlightGearFields {
     public final static String FDM_LOD_NORM_FIELD = "/fdm/jsbsim/forces/lod-normal";
     public final static String FDM_LOD_NORM_DESC = "The FDM force lod normal";
     
+    //weight
+    public final static String FDM_WEIGHT = "/fdm/jsbsim/inertia/weight-lbs";
+    public final static String FDM_WEIGHT_DESC = "The weight of the plane";
+    
     //damage
     public final static String FDM_DAMAGE_FIELD = "/fdm/jsbsim/settings/damage";
     public final static String FDM_DAMAGE_DESC = "The FDM damage setting";

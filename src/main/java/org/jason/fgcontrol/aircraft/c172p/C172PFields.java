@@ -31,8 +31,6 @@ public abstract class C172PFields {
     public final static String FUEL_TANK_1_WATER_CONTAMINATION_FIELD = "/consumables/fuel/tank[1]/water-contamination";
     public final static String FUEL_TANK_1_WATER_CONTAMINATION_FIELD_DESC = "Water contamination amount in fuel tank 1";
     
-
-    
     public final static String[] CONSUMABLES_FIELDS = {
         FUEL_TANK_0_CAPACITY_FIELD,
         FUEL_TANK_0_LEVEL_FIELD,

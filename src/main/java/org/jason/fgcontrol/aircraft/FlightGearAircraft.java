@@ -1,10 +1,14 @@
 package org.jason.fgcontrol.aircraft;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
@@ -135,6 +139,48 @@ public abstract class FlightGearAircraft {
                 
         stateReading.set(true);
         retval.putAll(currentState);
+        stateReading.set(false);
+        
+        return retval;
+    }
+    
+    /**
+     * Get a multiple telemetry fields to cut down on locking
+     * 
+     * Not working ATM, just pasted pocs
+     * 
+     * @param fieldName    Field names to lookup
+     * @return    an ordered list of values for the fields. nulls if the field isn't in the map.
+     */
+    public synchronized List<String> getTelemetryFields(List<String> fieldNames) {
+    	
+    	//TODO: implement
+    	
+        List<String> retval = new ArrayList<String>(fieldNames.size());
+        
+        Set<String> keyList = new HashSet<String>();
+        keyList.addAll(fieldNames);
+        
+        //TODO: time this out, trigger some kind of reset or clean update
+        while(stateWriting.get()) {
+            LOGGER.trace("Waiting for state writing to complete");
+
+            try {
+                Thread.sleep(TELEMETRY_WRITE_WAIT_SLEEP);
+            } catch (InterruptedException e) {
+                LOGGER.warn("getTelemetry: Socket read wait interrupted", e);
+            }
+        }
+        
+        stateReading.set(true);
+        
+      //TODO: get working for types
+//        retval = currentState.entrySet()
+//                .stream()
+//                .filter(ent -> keyList.contains(ent.getKey()))
+//                .map(Map.Entry::getValue)
+//                .collect(Collectors.toList());
+        
         stateReading.set(false);
         
         return retval;
@@ -683,6 +729,11 @@ public abstract class FlightGearAircraft {
     
     public double getLodNorm() {
         return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_LOD_NORM_FIELD));
+    }
+    
+    //weight
+    public double getWeight() {
+        return Double.parseDouble(getTelemetryField(FlightGearFields.FDM_WEIGHT));
     }
     
     //damage

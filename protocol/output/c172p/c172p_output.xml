@@ -446,7 +446,13 @@
             <name>lod-normal</name>
             <type>float</type>
             <format>"/fdm/jsbsim/forces/lod-normal": %f,</format>
-         </chunk>                                 
+         </chunk>
+         <chunk>
+            <node>/fdm/jsbsim/inertia/weight-lbs</node>
+            <name>weight-lbs</name>
+            <type>float</type>
+            <format>"/fdm/jsbsim/inertia/weight-lbs": %f,</format>
+         </chunk>                                  
          <chunk>
             <node>/fdm/jsbsim/settings/damage</node>
             <name>damage</name>
