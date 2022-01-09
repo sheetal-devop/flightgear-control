@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.fgcontrol.aircraft.c172p.C172P;
+import org.jason.fgcontrol.exceptions.AircraftStartupException;
 import org.jason.fgcontrol.exceptions.FlightGearSetupException;
 import org.jason.fgcontrol.flight.util.FlightUtilities;
 import org.slf4j.Logger;
@@ -270,7 +271,9 @@ public class SustainedFlight {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        } catch (AircraftStartupException e) {
+			e.printStackTrace();
+		}
         finally {
             if(plane != null) {
                 plane.shutdown();

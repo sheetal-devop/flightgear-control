@@ -11,6 +11,7 @@ import org.jason.fgcontrol.aircraft.fields.FlightGearFields;
 import org.jason.fgcontrol.connection.sockets.FlightGearInputConnection;
 import org.jason.fgcontrol.connection.sockets.FlightGearTelemetryConnection;
 import org.jason.fgcontrol.connection.telnet.FlightGearTelnetConnection;
+import org.jason.fgcontrol.exceptions.AircraftStartupException;
 import org.jason.fgcontrol.exceptions.FlightGearSetupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +112,7 @@ public class C172P extends FlightGearAircraft{
         LOGGER.info("setup returning");
     }
     
-    public void startupPlane() throws FlightGearSetupException {
+    public void startupPlane() throws AircraftStartupException {
         
         LOGGER.info("Starting up the C172P");
                 
@@ -136,7 +137,7 @@ public class C172P extends FlightGearAircraft{
             LOGGER.debug("Startup nasal script execution completed");
         } catch (IOException | InvalidTelnetOptionException e) {
             LOGGER.error("Exception running startup nasal script", e);
-            throw new FlightGearSetupException("Could not execute startup nasal script");
+            throw new AircraftStartupException("Could not execute startup nasal script");
         } finally {
             //disconnect the telnet connection because we only use it to run the nasal script
             //to start the plane. it's not used again.
@@ -160,7 +161,7 @@ public class C172P extends FlightGearAircraft{
         }
         
         if(!this.isEngineRunning()) {
-            throw new FlightGearSetupException("Engine was not running after startup. Bailing out. Not literally.");
+            throw new AircraftStartupException("Engine was not running after startup. Bailing out. Not literally.");
         }
     
         LOGGER.info("Startup completed");
@@ -249,6 +250,10 @@ public class C172P extends FlightGearAircraft{
         return Double.parseDouble(getTelemetryField(C172PFields.AILERON_FIELD));
     }
     
+    public double getAileronTrim() {
+        return Double.parseDouble(getTelemetryField(C172PFields.AILERON_TRIM_FIELD));
+    }
+    
     public int getAutoCoordination() {
         return Integer.parseInt(getTelemetryField(C172PFields.AUTO_COORDINATION_FIELD));
     }
@@ -261,12 +266,20 @@ public class C172P extends FlightGearAircraft{
         return Double.parseDouble(getTelemetryField(C172PFields.ELEVATOR_FIELD));
     }
     
+    public double getElevatorTrim() {
+        return Double.parseDouble(getTelemetryField(C172PFields.ELEVATOR_TRIM_FIELD));
+    }
+    
     public double getFlaps() {
         return Double.parseDouble(getTelemetryField(C172PFields.FLAPS_FIELD));
     }
     
     public double getRudder() {
         return Double.parseDouble(getTelemetryField(C172PFields.RUDDER_FIELD));
+    }
+    
+    public double getRudderTrim() {
+        return Double.parseDouble(getTelemetryField(C172PFields.RUDDER_TRIM_FIELD));
     }
     
     public double getSpeedbrake() {

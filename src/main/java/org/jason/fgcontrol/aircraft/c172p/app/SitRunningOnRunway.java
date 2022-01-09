@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.jason.fgcontrol.aircraft.c172p.C172P;
 import org.jason.fgcontrol.aircraft.c172p.C172PFields;
+import org.jason.fgcontrol.exceptions.AircraftStartupException;
 import org.jason.fgcontrol.exceptions.FlightGearSetupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +70,7 @@ public class SitRunningOnRunway {
             //mixture has to be set first, then the throttle
             plane.setMixture(0.95);
             
-            //step up the throttle. autostart sets it at 20%
+            //step up the throttle. autostart sets it at 20% on the ground
             plane.setThrottle(0.25);
             plane.setThrottle(0.35);
             plane.setThrottle(0.45);
@@ -88,7 +89,7 @@ public class SitRunningOnRunway {
             //plane.setMixture(1);
                         
             //speed up time in the simulator
-            //full tank 32x - 752s 
+            //full tank 32x - 752s -> not a 2x speedup from 16x
             //full tank 16x - 824s
             plane.setSimSpeedUp(16);
             
@@ -124,7 +125,9 @@ public class SitRunningOnRunway {
             LOGGER.error("FlightGearSetupException caught", e);
         } catch (InterruptedException e) {
             LOGGER.error("InterruptedException caught", e);
-        }
+        } catch (AircraftStartupException e) {
+            LOGGER.error("AircraftStartupException caught", e);
+		}
         finally {
             if(plane != null) {
                 plane.shutdown();

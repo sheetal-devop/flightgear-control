@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.fgcontrol.aircraft.c172p.C172P;
 import org.jason.fgcontrol.aircraft.c172p.C172PFields;
+import org.jason.fgcontrol.exceptions.AircraftStartupException;
 import org.jason.fgcontrol.exceptions.FlightGearSetupException;
 import org.jason.fgcontrol.flight.position.KnownRoutes;
 import org.jason.fgcontrol.flight.position.PositionUtilities;
@@ -89,15 +90,15 @@ public class WaypointFlight {
         
         //local tour
         //C172P script launches from YVR
-        waypointManager.setWaypoints( KnownRoutes.VANCOUVER_TOUR );
-        targetAltitude = 6000;
+//        waypointManager.setWaypoints( KnownRoutes.VANCOUVER_TOUR );
+//        targetAltitude = 6000;
 //        flightMixture = 0.93;
 //        flightThrottle = 0.93;
         
         //bc tour
         //C172P script launches from YVR
-//        waypointManager.setWaypoints( KnownRoutes.BC_TOUR );
-//        targetAltitude = 9000;
+        waypointManager.setWaypoints( KnownRoutes.BC_TOUR );
+        targetAltitude = 9000;
 //        flightMixture = 0.90;
 //        flightThrottle = 0.90;
         
@@ -363,7 +364,9 @@ public class WaypointFlight {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        } catch (AircraftStartupException e) {
+			e.printStackTrace();
+		}
         finally {
             if(plane != null) {
                 

@@ -4,6 +4,7 @@ public class FlightGearSetupException extends Exception {
 	private static final long serialVersionUID = 3529220294960487143L;
 
 	public FlightGearSetupException() {
+		super();
 	}
 
 	public FlightGearSetupException(String message) {
