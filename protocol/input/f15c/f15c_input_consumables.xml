@@ -5,12 +5,51 @@
         <line_separator>newline</line_separator>
         <var_separator>,</var_separator>
  
-        <!-- only the main fuel tank -->
+        <!-- fuel tanks 0,1,2,3,4,5,6 -->
          <chunk>
+            <!-- L Feed Tank -->
             <node>/consumables/fuel/tank/level-gal_us</node>
             <name>level-gal_us</name>
             <type>float</type>
          </chunk>
+         <chunk>
+            <!-- R Feed Tank -->
+            <node>/consumables/fuel/tank[1]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+         <!-- Tank 1 (Main) -->
+            <node>/consumables/fuel/tank[2]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <!-- Internal Wing L -->
+            <node>/consumables/fuel/tank[3]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <!-- Internal Wing R -->
+            <node>/consumables/fuel/tank[4]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+         
+         <!-- extended tanks for fuel-heavier configurations -->
+         <!-- 
+         <chunk>
+            <node>/consumables/fuel/tank[5]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[6]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+         -->
     </input>
   </generic>
  </PropertyList>

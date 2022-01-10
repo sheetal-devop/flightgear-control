@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+ <PropertyList>
+ <generic>
+    <input>
+        <line_separator>newline</line_separator>
+        <var_separator>,</var_separator>
+ 
+         <!-- engines -->
+         <chunk>
+            <node>/engines/active-engine/complex-engine-procedures</node>
+            <name>complex-engine-procedures</name>
+            <type>bool</type>
+         </chunk>
+         <chunk>
+            <node>/engines/active-engine/winter-kit-installed</node>
+            <name>winter-kit-installed</name>
+            <type>bool</type>
+         </chunk>
+
+    </input>
+  </generic>
+ </PropertyList>

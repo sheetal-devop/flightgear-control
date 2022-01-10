@@ -3,8 +3,9 @@
 <suite name="flightgear-control test suite">
     <test name = "Unit">
 	    <classes>
-	        <class name="org.jason.test.WaypointUtilitiesTest"/>
-	        <class name="org.jason.test.WaypointManagerTest"/>
+	        <class name="org.jason.fgcontrol.test.FlightUtilitiesTest"/>
+	        <class name="org.jason.fgcontrol.test.WaypointUtilitiesTest"/>
+	        <class name="org.jason.fgcontrol.test.WaypointManagerTest"/>
 	    </classes>
     </test>
 </suite>

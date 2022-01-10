@@ -49,6 +49,24 @@
          </chunk>
          <!-- control -->
          <chunk>
+            <node>/controls/anti-ice/pitot-heat</node>
+            <name>pitot-heat</name>
+            <type>bool</type>
+            <format>"/controls/anti-ice/pitot-heat": %d,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/anti-ice/window-heat</node>
+            <name>window-heat</name>
+            <type>bool</type>
+            <format>"/controls/anti-ice/window-heat": %d,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/anti-ice/wing-heat</node>
+            <name>wing-heat</name>
+            <type>bool</type>
+            <format>"/controls/anti-ice/wing-heat": %d,</format>
+         </chunk>
+         <chunk>
             <node>/controls/electric/battery-switch</node>
             <name>battery-switch</name>
             <type>bool</type>
@@ -73,6 +91,12 @@
             <format>"/controls/flight/aileron": %f,</format>
          </chunk>
          <chunk>
+            <node>/controls/flight/aileron-trim</node>
+            <name>aileron-trim</name>
+            <type>float</type>
+            <format>"/controls/flight/aileron-trim": %f,</format>
+         </chunk>
+         <chunk>
             <node>/controls/flight/auto-coordination</node>
             <name>auto-coordination</name>
             <type>bool</type>
@@ -91,6 +115,12 @@
             <format>"/controls/flight/elevator": %f,</format>
          </chunk>
          <chunk>
+            <node>/controls/flight/elevator-trim</node>
+            <name>elevator-trim</name>
+            <type>float</type>
+            <format>"/controls/flight/elevator-trim": %f,</format>
+         </chunk>
+         <chunk>
             <node>/controls/flight/flaps</node>
             <name>flaps</name>
             <type>float</type>
@@ -101,6 +131,12 @@
             <name>rudder</name>
             <type>float</type>
             <format>"/controls/flight/rudder": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/rudder-trim</node>
+            <name>rudder-trim</name>
+            <type>float</type>
+            <format>"/controls/flight/rudder-trim": %f,</format>
          </chunk>
          <chunk>
             <node>/controls/flight/speedbrake</node>
@@ -121,6 +157,12 @@
             <format>"/controls/gear/gear-down": %d,</format>
          </chunk>
          <!-- engines - only one engine on the c172p -->
+         <chunk>
+            <node>/engines/active-engine/complex-engine-procedures</node>
+            <name>complex-engine-procedures</name>
+            <type>bool</type>
+            <format>"/engines/active-engine/complex-engine-procedures": %d,</format>
+         </chunk>
          <chunk>
             <node>/engines/active-engine/cowling-air-temperature-degf</node>
             <name>cowling-air-temperature-degf</name>
@@ -174,6 +216,12 @@
             <name>running</name>
             <type>bool</type>
             <format>"/engines/active-engine/running": %d,</format>
+         </chunk>  
+         <chunk>
+            <node>/engines/active-engine/winter-kit-installed</node>
+            <name>winter-kit-installed</name>
+            <type>bool</type>
+            <format>"/engines/active-engine/winter-kit-installed": %d,</format>
          </chunk>
          <!-- environment -->
          <chunk>
@@ -398,7 +446,13 @@
             <name>lod-normal</name>
             <type>float</type>
             <format>"/fdm/jsbsim/forces/lod-normal": %f,</format>
-         </chunk>                                 
+         </chunk>
+         <chunk>
+            <node>/fdm/jsbsim/inertia/weight-lbs</node>
+            <name>weight-lbs</name>
+            <type>float</type>
+            <format>"/fdm/jsbsim/inertia/weight-lbs": %f,</format>
+         </chunk>                                  
          <chunk>
             <node>/fdm/jsbsim/settings/damage</node>
             <name>damage</name>
@@ -511,16 +565,16 @@
          </chunk>
          <!-- sim -->
          <chunk>
-            <node>/sim/model/c172p/brake-parking</node>
-            <name>brake-parking</name>
-            <type>float</type>
-            <format>"/sim/model/c172p/brake-parking": %f,</format>
-         </chunk>
-         <chunk>
             <node>/sim/speed-up</node>
             <name>speed-up</name>
             <type>float</type>
             <format>"/sim/speed-up": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/sim/current-view/view-number</node>
+            <name>view-number</name>
+            <type>float</type>
+            <format>"/sim/current-view/view-number": %f,</format>
          </chunk>
          <chunk>
             <node>/sim/freeze/clock</node>
@@ -541,10 +595,22 @@
             <format>"/sim/freeze/master": %d,</format>
          </chunk>
          <chunk>
+            <node>/sim/model/c172p/brake-parking</node>
+            <name>brake-parking</name>
+            <type>float</type>
+            <format>"/sim/model/c172p/brake-parking": %f,</format>
+         </chunk>
+         <chunk>
             <node>/sim/time/elapsed-sec</node>
             <name>elapsed-sec</name>
             <type>float</type>
             <format>"/sim/time/elapsed-sec": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/sim/time/gmt</node>
+            <name>gmt</name>
+            <type>string</type>
+            <format>"/sim/time/gmt": "%s",</format>
          </chunk>
          <chunk>
             <node>/sim/time/local-day-seconds</node>

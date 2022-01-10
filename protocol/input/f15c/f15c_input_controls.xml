@@ -22,18 +22,33 @@
             <type>bool</type>
          </chunk>
          <chunk>
-            <node>/controls/engines/engine/mixture</node>
+            <node>/controls/engines/engine[0]/mixture</node>
             <name>mixture</name>
             <type>float</type>
          </chunk>
          <chunk>
-            <node>/controls/engines/engine/throttle</node>
+            <node>/controls/engines/engine[1]/mixture</node>
+            <name>mixture</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <node>/controls/engines/engine[0]/throttle</node>
+            <name>throttle</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <node>/controls/engines/engine[1]/throttle</node>
             <name>throttle</name>
             <type>float</type>
          </chunk>
          <chunk>
             <node>/controls/flight/aileron</node>
             <name>aileron</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/aileron-trim</node>
+            <name>aileron-trim</name>
             <type>float</type>
          </chunk>
          <chunk>
@@ -52,6 +67,11 @@
             <type>float</type>
          </chunk>
          <chunk>
+            <node>/controls/flight/elevator-trim</node>
+            <name>elevator-trim</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
             <node>/controls/flight/flaps</node>
             <name>flaps</name>
             <type>float</type>
@@ -59,6 +79,11 @@
          <chunk>
             <node>/controls/flight/rudder</node>
             <name>rudder</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/rudder-trim</node>
+            <name>rudder-trim</name>
             <type>float</type>
          </chunk>
          <chunk>

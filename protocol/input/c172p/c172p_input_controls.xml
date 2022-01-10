@@ -7,6 +7,21 @@
  
          <!-- control -->
          <chunk>
+            <node>/controls/anti-ice/pitot-heat</node>
+            <name>pitot-heat</name>
+            <type>bool</type>
+         </chunk>
+         <chunk>
+            <node>/controls/anti-ice/window-heat</node>
+            <name>window-heat</name>
+            <type>bool</type>
+         </chunk>
+         <chunk>
+            <node>/controls/anti-ice/wing-heat</node>
+            <name>wing-heat</name>
+            <type>bool</type>
+         </chunk>
+         <chunk>
             <node>/controls/electric/battery-switch</node>
             <name>battery-switch</name>
             <type>bool</type>
@@ -27,6 +42,11 @@
             <type>float</type>
          </chunk>
          <chunk>
+            <node>/controls/flight/aileron-trim</node>
+            <name>aileron-trim</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
             <node>/controls/flight/auto-coordination</node>
             <name>auto-coordination</name>
             <type>bool</type>
@@ -42,6 +62,11 @@
             <type>float</type>
          </chunk>
          <chunk>
+            <node>/controls/flight/elevator-trim</node>
+            <name>elevator-trim</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
             <node>/controls/flight/flaps</node>
             <name>flaps</name>
             <type>float</type>
@@ -49,6 +74,11 @@
          <chunk>
             <node>/controls/flight/rudder</node>
             <name>rudder</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/rudder-trim</node>
+            <name>rudder-trim</name>
             <type>float</type>
          </chunk>
          <chunk>
