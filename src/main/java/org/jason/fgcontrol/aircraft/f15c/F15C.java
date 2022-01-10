@@ -443,7 +443,7 @@ public class F15C extends FlightGearAircraft{
     }
     
     @Override
-    public void refillFuel() throws IOException {
+    public synchronized void refillFuel() throws IOException {
         
         LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONSUMABLES_INPUT_FIELDS);
         
@@ -453,6 +453,23 @@ public class F15C extends FlightGearAircraft{
         inputHash.put(F15CFields.FUEL_TANK_2_LEVEL_FIELD, String.valueOf(this.getFuelTank2Capacity()));
         inputHash.put(F15CFields.FUEL_TANK_3_LEVEL_FIELD, String.valueOf(this.getFuelTank3Capacity()));
         inputHash.put(F15CFields.FUEL_TANK_4_LEVEL_FIELD, String.valueOf(this.getFuelTank4Capacity()));
+        
+        LOGGER.info("Refilling fuel tanks {}", inputHash.entrySet().toString());
+        
+        writeControlInput(inputHash, this.consumeablesInputConnection);   
+    }
+    
+    @Override
+    public synchronized void refillFuel(double level) throws IOException {
+        
+        LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONSUMABLES_INPUT_FIELDS);
+        
+        //write as one big update, otherwise we'll have to wait for the next telemetry read to react to the refuel of each tank
+        inputHash.put(F15CFields.FUEL_TANK_0_LEVEL_FIELD, String.valueOf(level));
+        inputHash.put(F15CFields.FUEL_TANK_1_LEVEL_FIELD, String.valueOf(level));
+        inputHash.put(F15CFields.FUEL_TANK_2_LEVEL_FIELD, String.valueOf(level));
+        inputHash.put(F15CFields.FUEL_TANK_3_LEVEL_FIELD, String.valueOf(level));
+        inputHash.put(F15CFields.FUEL_TANK_4_LEVEL_FIELD, String.valueOf(level));
         
         LOGGER.info("Refilling fuel tanks {}", inputHash.entrySet().toString());
         

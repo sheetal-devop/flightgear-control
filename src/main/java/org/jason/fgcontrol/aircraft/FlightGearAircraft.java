@@ -564,6 +564,12 @@ public abstract class FlightGearAircraft {
      */
     public abstract void refillFuel() throws IOException;
     
+    /**
+     * Refill necessary fuel tanks to specified level
+     * @throws IOException 
+     */
+    public abstract void refillFuel(double level) throws IOException;
+    
     public synchronized TrackPosition getPosition() {
         return new TrackPosition(getLatitude(), getLongitude(), getAltitude(), getGMT());
     }

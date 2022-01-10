@@ -274,4 +274,10 @@ public class Alouette3 extends FlightGearAircraft {
 		
 	}
 
+	@Override
+	public void refillFuel(double level) throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

@@ -100,6 +100,8 @@ public class FlightGearTelemetryConnection {
         }
                 
         /*
+         hopefully fixed by recreating the byte buffer for each read VVVVV
+         
          occasionally see this. 
          not sure where those extra digits and whitespace are coming from before the closing brace
          

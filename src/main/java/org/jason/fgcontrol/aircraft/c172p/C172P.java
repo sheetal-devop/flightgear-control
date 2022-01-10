@@ -828,7 +828,7 @@ public class C172P extends FlightGearAircraft{
     }
 
     @Override
-    public void refillFuel() throws IOException {
+    public synchronized void refillFuel() throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_INPUT_FIELDS);
         
         //write as one big update, otherwise we'll have to wait for the next telemetry read to react to the refuel of each tank
@@ -836,6 +836,19 @@ public class C172P extends FlightGearAircraft{
         inputHash.put(C172PFields.FUEL_TANK_1_LEVEL_FIELD, String.valueOf(this.getFuelTank1Capacity()));
         
         LOGGER.info("Refilling fuel tanks {}", inputHash.entrySet().toString());
+        
+        writeControlInput(inputHash, this.consumeablesInputConnection);   
+    }
+    
+    @Override
+    public synchronized void refillFuel(double level) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_INPUT_FIELDS);
+        
+        //write as one big update, otherwise we'll have to wait for the next telemetry read to react to the refuel of each tank
+        inputHash.put(C172PFields.FUEL_TANK_0_LEVEL_FIELD, String.valueOf(level));
+        inputHash.put(C172PFields.FUEL_TANK_1_LEVEL_FIELD, String.valueOf(level));
+        
+        LOGGER.info("Refilling fuel tanks to level {}", inputHash.entrySet().toString());
         
         writeControlInput(inputHash, this.consumeablesInputConnection);   
     }
