@@ -22,9 +22,7 @@ public class FlightGearTelemetryConnection {
     
     private String host;
     private int telemetryPort;
-    
-    private DatagramPacket fgTelemetryPacket;
-    
+        
     private final static int SOCKET_TIMEOUT = 5000;
     
     //keep an eye on this. this can silently truncate a telemetry read resulting in consistent read failures 
@@ -34,6 +32,8 @@ public class FlightGearTelemetryConnection {
     private final static String FG_SOCKET_PROTOCOL_LINE_SEP = "\n";
     
     private Pattern telemetryLinePattern;
+
+	private InetAddress hostIp;
     
     public FlightGearTelemetryConnection(String host,  int telemetryPort) 
             throws SocketException, UnknownHostException {
@@ -42,16 +42,13 @@ public class FlightGearTelemetryConnection {
         this.telemetryLinePattern = Pattern.compile("^[\"/]\\S+[\": ]\\S+[,]?$");
         
         this.host = host;
+        this.hostIp = InetAddress.getByName(host);
         
         if( telemetryPort <= 0 ) {
             throw new SocketException("Invalid port");
         }
         
         this.telemetryPort = telemetryPort;
-        
-        byte[] receivingDataBuffer = new byte[MAX_RECEIVE_BUFFER_LEN];
-        
-        this.fgTelemetryPacket = new DatagramPacket(receivingDataBuffer, receivingDataBuffer.length);
     }
     
     /**
@@ -71,9 +68,13 @@ public class FlightGearTelemetryConnection {
         DatagramSocket fgTelemetrySocket = null;
 
         try {
+        	
+            DatagramPacket fgTelemetryPacket = new DatagramPacket(new byte[MAX_RECEIVE_BUFFER_LEN], MAX_RECEIVE_BUFFER_LEN);
+        	
             //technically a server connection. we connect to the fg port, which starts sending us data
-            fgTelemetrySocket = new DatagramSocket( telemetryPort, InetAddress.getByName(host) );
+            fgTelemetrySocket = new DatagramSocket( telemetryPort, hostIp );
             fgTelemetrySocket.setSoTimeout(SOCKET_TIMEOUT);
+            fgTelemetrySocket.setReceiveBufferSize(MAX_RECEIVE_BUFFER_LEN);
             
             fgTelemetrySocket.receive(fgTelemetryPacket);
             
@@ -84,7 +85,6 @@ public class FlightGearTelemetryConnection {
         } catch (IOException e) {
             //comms errors connecting to fg telemetry socket
             
-            //e.printStackTrace();
             LOGGER.warn("IOException reading raw telemetry from socket", e);
 
             throw e;
@@ -151,4 +151,3 @@ public class FlightGearTelemetryConnection {
         return cleanOutput.insert(0, "{").append("}").toString();
     }
 }
-
