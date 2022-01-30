@@ -8,6 +8,11 @@
 #use heading if supplied, otherwise just head north
 HEADING=${1:-0}
 
+#known headings in degrees
+#yvr -> abbotsford: 103.836
+#yvr -> victoria: 189.012
+#yvr -> ubc: 326.577
+
 #max alt for 95% throttle: 5125ft
 ALT=7125
 
