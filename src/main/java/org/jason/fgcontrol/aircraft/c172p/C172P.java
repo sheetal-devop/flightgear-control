@@ -539,7 +539,7 @@ public class C172P extends FlightGearAircraft{
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONTROL_INPUT_FIELDS);
 
         inputHash.put(C172PFields.AILERON_FIELD, String.valueOf(C172PFields.AILERON_DEFAULT));
-        inputHash.put(C172PFields.AILERON_TRIM_FIELD, String.valueOf(C172PFields.AILERON_DEFAULT));
+        inputHash.put(C172PFields.AILERON_TRIM_FIELD, String.valueOf(C172PFields.AILERON_TRIM_DEFAULT));
         
         inputHash.put(C172PFields.ELEVATOR_FIELD, String.valueOf(C172PFields.ELEVATOR_DEFAULT));
         inputHash.put(C172PFields.ELEVATOR_TRIM_FIELD, String.valueOf(C172PFields.ELEVATOR_TRIM_DEFAULT));
