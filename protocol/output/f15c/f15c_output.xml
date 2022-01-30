@@ -637,18 +637,6 @@
             <format>"/sim/freeze/master": %d,</format>
          </chunk>
          <chunk>
-            <node>/sim/model/f15/systems/armament/agm/count</node>
-            <name>count</name>
-            <type>float</type>
-            <format>"/sim/model/f15/systems/armament/agm/count": %f,</format>
-         </chunk>
-         <chunk>
-            <node>/sim/model/f15/systems/armament/system-running</node>
-            <name>system-running</name>
-            <type>bool</type>
-            <format>"/sim/model/f15/systems/armament/system-running": %f,</format>
-         </chunk>
-         <chunk>
             <node>/sim/time/elapsed-sec</node>
             <name>elapsed-sec</name>
             <type>float</type>
@@ -671,6 +659,19 @@
             <name>mp-clock-sec</name>
             <type>float</type>
             <format>"/sim/time/mp-clock-sec": %f,</format>
+         </chunk>
+         <!-- sim model -->
+         <chunk>
+            <node>/sim/model/f15/systems/armament/agm/count</node>
+            <name>count</name>
+            <type>float</type>
+            <format>"/sim/model/f15/systems/armament/agm/count": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/sim/model/f15/systems/armament/system-running</node>
+            <name>system-running</name>
+            <type>bool</type>
+            <format>"/sim/model/f15/systems/armament/system-running": %f,</format>
          </chunk>
          <!-- velocities -->
          <chunk>
