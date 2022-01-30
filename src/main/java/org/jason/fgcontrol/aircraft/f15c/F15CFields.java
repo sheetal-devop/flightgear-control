@@ -118,6 +118,7 @@ public abstract class F15CFields {
     public final static String AILERON_TRIM_FIELD_DESC = "The aileron trim orientation";
     
     //want a marginal amount aileron trim to offset a tendency to roll clockwise
+    //aileron to -0.0318 seems to be good for a left-turning flight plan maybe change depending on heading
     public final static double AILERON_DEFAULT = 0.0;
     public final static double AILERON_TRIM_DEFAULT = -0.005;
     public final static double AILERON_MAX = 1.0;
@@ -220,22 +221,22 @@ public abstract class F15CFields {
     // engine
     
     public final static String ENGINE_0_EXHAUST_GAS_TEMPERATURE_FIELD = "/engines/engine[0]/egt-degf";
-    public final static String ENGINE_0_EXHAUST_GAS_TEMPERATURE_DESC = "The exhaust gas temperature in fahrenheit";
+    public final static String ENGINE_0_EXHAUST_GAS_TEMPERATURE_DESC = "The engine 0 exhaust gas temperature in fahrenheit";
   
     public final static String ENGINE_1_EXHAUST_GAS_TEMPERATURE_FIELD = "/engines/engine[1]/egt-degf";
-    public final static String ENGINE_1_EXHAUST_GAS_TEMPERATURE_DESC = "The exhaust gas temperature in fahrenheit";
+    public final static String ENGINE_1_EXHAUST_GAS_TEMPERATURE_DESC = "The engine 1 exhaust gas temperature in fahrenheit";
       
     public final static String ENGINE_0_EXHAUST_GAS_TEMPERATURE_NORM_FIELD = "/engines/engine[0]/egt-norm";
-    public final static String ENGINE_0_EXHAUST_GAS_TEMPERATURE_NORM_DESC = "The exhaust gas temperature normalization in fahrenheit";
+    public final static String ENGINE_0_EXHAUST_GAS_TEMPERATURE_NORM_DESC = "The engine 0 exhaust gas temperature normalization in fahrenheit";
     
     public final static String ENGINE_1_EXHAUST_GAS_TEMPERATURE_NORM_FIELD = "/engines/engine[1]/egt-norm";
-    public final static String ENGINE_1_EXHAUST_GAS_TEMPERATURE_NORM_DESC = "The exhaust gas temperature normalization in fahrenheit";
+    public final static String ENGINE_1_EXHAUST_GAS_TEMPERATURE_NORM_DESC = "The engine 1 exhaust gas temperature normalization in fahrenheit";
     
     public final static String ENGINE_0_FUEL_FLOW_FIELD = "/engines/engine[0]/fuel-flow-gph";
-    public final static String ENGINE_0_FUEL_FLOW_DESC = "The engine fuel flow in gallons per hour";
+    public final static String ENGINE_0_FUEL_FLOW_DESC = "The engine 0 fuel flow in gallons per hour";
     
     public final static String ENGINE_1_FUEL_FLOW_FIELD = "/engines/engine[1]/fuel-flow-gph";
-    public final static String ENGINE_1_FUEL_FLOW_DESC = "The engine fuel flow in gallons per hour";
+    public final static String ENGINE_1_FUEL_FLOW_DESC = "The engine 1 fuel flow in gallons per hour";
     
     public final static String ENGINE_0_OIL_PRESSURE_FIELD = "/engines/engine[0]/oil-pressure-psi";
     public final static String ENGINE_0_OIL_PRESSURE_DESC = "The engine 0 oil pressure in psi";
