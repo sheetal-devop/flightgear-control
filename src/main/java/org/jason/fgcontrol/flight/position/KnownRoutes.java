@@ -68,6 +68,27 @@ public abstract class KnownRoutes {
         }
     };
     
+    public final static ArrayList<WaypointPosition> BC_SOUTH_TOUR = new ArrayList<>() {
+
+		private static final long serialVersionUID = 9044191298704604870L;
+
+		{
+            {
+                add(KnownPositions.ABBOTSFORD);
+                add(KnownPositions.PRINCETON);
+                add(KnownPositions.PENTICTON);
+                add(KnownPositions.KELOWNA);
+                add(KnownPositions.KAMLOOPS);
+                add(KnownPositions.PORT_HARDY);
+                add(KnownPositions.TOFINO);
+                add(KnownPositions.PORT_RENFREW);
+                add(KnownPositions.SOOKE);
+                add(KnownPositions.VICTORIA);
+                add(KnownPositions.VAN_INTER_AIRPORT_YVR);
+            }
+        }
+    };
+    
     public final static ArrayList<WaypointPosition> PTC_NA_OFFICE_TOUR = new ArrayList<>() {
 
         private static final long serialVersionUID = 8537287930892781019L;

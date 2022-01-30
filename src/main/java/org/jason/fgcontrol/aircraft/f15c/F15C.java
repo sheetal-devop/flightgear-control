@@ -278,8 +278,12 @@ public class F15C extends FlightGearAircraft{
         return Character.getNumericValue( getTelemetryField(F15CFields.ENGINE_0_CUTOFF_FIELD).charAt(0));
     }
     
-    public double getMixture() {
+    public double getEngine0Mixture() {
         return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_0_MIXTURE_FIELD));
+    }
+    
+    public double getEngine1Mixture() {
+        return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_1_MIXTURE_FIELD));
     }
     
     public double getEngine0Throttle() {
@@ -363,21 +367,37 @@ public class F15C extends FlightGearAircraft{
     }
     
     ///////////////////
-    //engine - really only care about engine 1 for now
+    //engine - two engines on the f15c
 
-    public double getExhaustGasTemperature() {
+    public double getEngine0ExhaustGasTemperature() {
+        return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_0_EXHAUST_GAS_TEMPERATURE_FIELD));
+    }
+    
+    public double getEngine1ExhaustGasTemperature() {
         return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_1_EXHAUST_GAS_TEMPERATURE_FIELD));
     }
     
-    public double getExhaustGasTemperatureNormalization() {
+    public double getEngine0ExhaustGasTemperatureNormalization() {
+        return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_0_EXHAUST_GAS_TEMPERATURE_NORM_FIELD));
+    }
+    
+    public double getEngine1ExhaustGasTemperatureNormalization() {
         return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_1_EXHAUST_GAS_TEMPERATURE_NORM_FIELD));
     }
     
-    public double getFuelFlow() {
+    public double getEngine0FuelFlow() {
+        return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_0_FUEL_FLOW_FIELD));
+    }
+    
+    public double getEngine1FuelFlow() {
         return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_1_FUEL_FLOW_FIELD));
     }
     
-    public double getOilPressure() {
+    public double getEngine0OilPressure() {
+        return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_0_OIL_PRESSURE_FIELD));
+    }
+    
+    public double getEngine1OilPressure() {
         return Double.parseDouble(getTelemetryField(F15CFields.ENGINE_1_OIL_PRESSURE_FIELD));
     }
     
@@ -398,6 +418,14 @@ public class F15C extends FlightGearAircraft{
         return Character.getNumericValue( getTelemetryField(F15CFields.ENGINE_1_RUNNING_FIELD).charAt(0));
     }
     
+    public int getEngine0Running() {
+    	return Character.getNumericValue( getTelemetryField(F15CFields.ENGINE_0_RUNNING_FIELD).charAt(0));
+    }
+    
+    public int getEngine1Running() {
+    	return getEngineRunning();
+    }
+    
     /**
      *    
      */
@@ -407,14 +435,15 @@ public class F15C extends FlightGearAircraft{
     }
     
     ///////////////////
-    //sim
+    //sim model
     
     public int getArmamentAGMCount() {
-        return Integer.parseInt(getTelemetryField(F15CFields.ARMAMENT_AGM_COUNT));
+    	//integer value that the sim stores as a float
+        return (int)Double.parseDouble(getTelemetryField(F15CFields.ARMAMENT_AGM_COUNT));
     }
     
     public int getArmamentSystemRunning() {
-        return Integer.parseInt(getTelemetryField(F15CFields.ARMAMENT_SYSTEM_RUNNING));
+        return Character.getNumericValue(getTelemetryField(F15CFields.ARMAMENT_SYSTEM_RUNNING).charAt(0));
     }
     
     //////////////
@@ -676,6 +705,12 @@ public class F15C extends FlightGearAircraft{
         writeControlInput(inputHash, this.controlInputConnection);
     }
     
+    /**
+     * Set both throttles in unison
+     * 
+     * @param throttle
+     * @throws IOException
+     */
     public synchronized void setEngineThrottles( double throttle ) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(F15CFields.CONTROL_INPUT_FIELDS);
         

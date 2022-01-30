@@ -1,12 +1,13 @@
 package org.jason.fgcontrol.aircraft.f15c.app;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.fgcontrol.aircraft.f15c.F15C;
 import org.jason.fgcontrol.aircraft.f15c.F15CFields;
 import org.jason.fgcontrol.exceptions.FlightGearSetupException;
-import org.jason.fgcontrol.flight.position.KnownPositions;
+import org.jason.fgcontrol.flight.position.KnownRoutes;
 import org.jason.fgcontrol.flight.position.PositionUtilities;
 import org.jason.fgcontrol.flight.position.TrackPosition;
 import org.jason.fgcontrol.flight.position.WaypointManager;
@@ -106,20 +107,13 @@ public class WaypointFlight {
         
         //bc tour
         //f15c script launches from YVR
-        waypointManager.addWaypoint(KnownPositions.PENTICTON);
-        waypointManager.addWaypoint(KnownPositions.REVELSTOKE);
-        //waypointManager.addWaypoint(KnownPositions.DAWSON_CREEK);
-        //waypointManager.addWaypoint(KnownPositions.JADE_CITY);
-        //waypointManager.addWaypoint(KnownPositions.DEASE_LAKE);
-        //waypointManager.addWaypoint(KnownPositions.PRINCE_RUPERT);
-        waypointManager.addWaypoint(KnownPositions.PORT_HARDY);
-        waypointManager.addWaypoint(KnownPositions.VICTORIA);
-        waypointManager.addWaypoint(KnownPositions.VAN_INTER_AIRPORT_YVR);
+        
+        ArrayList<WaypointPosition> route = KnownRoutes.BC_SOUTH_TOUR;
         
         //for fun, mix it up
-//        List<WaypointPosition> reverseOrder = waypointManager.getWaypoints();
-//        Collections.reverse( reverseOrder );
-//        waypointManager.setWaypoints( reverseOrder );
+        //Collections.reverse(route);
+        
+        waypointManager.setWaypoints(route);
 
         WaypointPosition startingWaypoint = waypointManager.getNextWaypoint();
 

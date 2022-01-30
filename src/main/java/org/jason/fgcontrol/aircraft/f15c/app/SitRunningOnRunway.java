@@ -19,10 +19,10 @@ public class SitRunningOnRunway {
         return String.format("\nFuel level: %f", plane.getFuelLevel())
                 + String.format("\nTime Elapsed: %f", plane.getTimeElapsed())
                 + String.format("\nTime Local: %f", plane.getLocalDaySeconds())
-                + String.format("\nFuel flow: %f", plane.getFuelFlow())
-                + String.format("\nOil pressure: %f", plane.getOilPressure())
+                + String.format("\nFuel flow: %f", plane.getEngine0FuelFlow())
+                + String.format("\nOil pressure: %f", plane.getEngine0OilPressure())
                 + String.format("\nThrottle: %f", plane.getEngine0Throttle())
-                + String.format("\nMixture: %f", plane.getMixture())
+                + String.format("\nMixture: %f", plane.getEngine0Mixture())
                 + String.format("\nEngine running: %d", plane.getEngineRunning());
     }
 
@@ -41,7 +41,7 @@ public class SitRunningOnRunway {
             //refill in case a previous run emptied it
             plane.refillFuel();
             
-            //a clean sim starts with the engines running, and we don't want that
+            //a clean sim can start with the engines running depending on the sim autosave, and we don't want that
             plane.setEngine0Cutoff(true);
             plane.setEngine1Cutoff(true);
             

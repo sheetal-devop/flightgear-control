@@ -90,8 +90,8 @@ public abstract class C172PFields {
     
     public final static String AILERON_TRIM_FIELD = "/controls/flight/aileron-trim";
     public final static String AILERON_TRIM_FIELD_DESC = "The aileron trim orientation";
-    public final static double aILERON_TRIM_DEFAULT = 0.022;
-    public final static double AILERON_DEFAULT = 0.0;
+    public final static double AILERON_TRIM_DEFAULT = 0.022;
+    public final static double AILERON_DEFAULT = 0.05;
     
     public final static double AILERON_MAX = 1.0;
     public final static double AILERON_MIN = -1.0;

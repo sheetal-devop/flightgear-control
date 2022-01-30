@@ -1,6 +1,7 @@
 package org.jason.fgcontrol.aircraft.c172p.app;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.fgcontrol.aircraft.c172p.C172P;
@@ -97,7 +98,13 @@ public class WaypointFlight {
         
         //bc tour
         //C172P script launches from YVR
-        waypointManager.setWaypoints( KnownRoutes.BC_TOUR );
+        ArrayList<WaypointPosition> route = KnownRoutes.BC_SOUTH_TOUR;
+        
+        //for fun, mix it up
+        //Collections.reverse(route);
+        
+        waypointManager.setWaypoints(route);
+        
         targetAltitude = 9000;
 //        flightMixture = 0.90;
 //        flightThrottle = 0.90;
