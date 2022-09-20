@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
-import org.jason.fgcontrol.aircraft.config.NetworkConfig;
+import org.jason.fgcontrol.aircraft.config.SimNetworkingConfig;
 import org.jason.fgcontrol.aircraft.fields.FlightGearFields;
 import org.jason.fgcontrol.connection.sockets.FlightGearInputConnection;
 import org.jason.fgcontrol.connection.telnet.FlightGearTelnetConnection;
@@ -44,17 +44,20 @@ public abstract class FlightGearAircraft {
     //reading telemetry from socket
     protected AtomicBoolean stateReading;
     
-    protected NetworkConfig networkConfig;
+    protected SimNetworkingConfig networkConfig;
 
     public FlightGearAircraft() {
-        
-        networkConfig = new NetworkConfig();
-        
+        this(new SimNetworkingConfig());
+    }
+    
+    public FlightGearAircraft(SimNetworkingConfig config) {
+    	networkConfig = config;
+    	
         //linkedhashmap to match the xml schema loaded into the simulator
         currentState = Collections.synchronizedMap(new LinkedHashMap<String, String>());
         
         stateWriting = new AtomicBoolean(false);
-        stateReading = new AtomicBoolean(false);    
+        stateReading = new AtomicBoolean(false);
     }
     
     protected void launchTelemetryThread() {
@@ -72,6 +75,7 @@ public abstract class FlightGearAircraft {
         };
         telemetryThread.start();
         
+        //TODO: fail gracefully if this never succeeds
         //wait for the first read to arrive
         while(currentState.size() == 0) {
             LOGGER.debug("Waiting for first telemetry read to complete after thread start");

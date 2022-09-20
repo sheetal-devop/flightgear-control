@@ -53,7 +53,8 @@ public class WaypointManager {
     }
 
     public void setWaypoints(List<WaypointPosition> waypoints) {
-        this.waypoints = waypoints;
+    	this.waypoints.clear();
+        this.waypoints.addAll(waypoints);
     }
 
     

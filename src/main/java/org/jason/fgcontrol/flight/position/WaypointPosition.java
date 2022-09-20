@@ -8,8 +8,6 @@ public class WaypointPosition extends LatLonPosition {
     
     private final static String DEFAULT_NAME = "NO_NAME";
     
-    private double latitude;
-    private double longitude;
     private double altitude;
     private String name;
     

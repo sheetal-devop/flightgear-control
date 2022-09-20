@@ -2,8 +2,8 @@ package org.jason.fgcontrol.flight.position;
 
 public abstract class LatLonPosition {
 
-	private double latitude;
-	private double longitude;
+	protected double latitude;
+	protected double longitude;
 	
 	public LatLonPosition(double latitude, double longitude) {
 		//TODO: enforce 5 decimal precision

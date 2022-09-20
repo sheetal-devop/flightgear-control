@@ -43,7 +43,7 @@ public class F15C extends FlightGearAircraft{
     }
     
     public F15C(F15CConfig config) throws FlightGearSetupException  {
-        super();
+        super(config);
         
         LOGGER.info("Loading F15C...");
         
@@ -94,7 +94,10 @@ public class F15C extends FlightGearAircraft{
         //launch thread to update telemetry
 
         try {
-            socketsTelemetryConnection = new FlightGearTelemetryConnection(networkConfig.getTelemetryOutputHost(), networkConfig.getTelemetryOutputPort());
+            socketsTelemetryConnection = new FlightGearTelemetryConnection(
+            	networkConfig.getTelemetryOutputHost(), 
+            	networkConfig.getTelemetryOutputPort()
+            );
             
             //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
             launchTelemetryThread();

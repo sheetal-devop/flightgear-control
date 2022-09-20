@@ -34,6 +34,20 @@ public abstract class KnownRoutes {
         }
     };
     
+    public final static ArrayList<WaypointPosition> VANCOUVER_SHORT_TOUR = new ArrayList<>() {
+
+        private static final long serialVersionUID = -1630760784238590060L;
+
+		{
+            add( KnownPositions.UBC );
+            add( KnownPositions.LONSDALE_QUAY );
+            add( KnownPositions.GROUSE_MOUNTAIN );
+            add( KnownPositions.WEST_LION );
+            add( KnownPositions.MARPOLE_CC );
+            add( KnownPositions.VAN_INTER_AIRPORT_YVR );
+        }
+    };
+    
     public final static ArrayList<WaypointPosition> BC_TOUR = new ArrayList<>() {
 
         private static final long serialVersionUID = 762842417275059036L;
@@ -84,6 +98,19 @@ public abstract class KnownRoutes {
                 add(KnownPositions.PORT_RENFREW);
                 add(KnownPositions.SOOKE);
                 add(KnownPositions.VICTORIA);
+                add(KnownPositions.VAN_INTER_AIRPORT_YVR);
+            }
+        }
+    };
+    
+    public final static ArrayList<WaypointPosition> VAN_ISLAND_TOUR = new ArrayList<>() {
+
+		private static final long serialVersionUID = -6035401483530239855L;
+
+		{
+            {
+                add(KnownPositions.WEST_LION );
+                add(KnownPositions.TOFINO);
                 add(KnownPositions.VAN_INTER_AIRPORT_YVR);
             }
         }

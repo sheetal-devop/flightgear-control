@@ -45,7 +45,7 @@ public class C172P extends FlightGearAircraft{
     }
     
     public C172P(C172PConfig config) throws FlightGearSetupException  {
-        super();
+        super(config);
         
         LOGGER.info("Loading C172P...");
         
@@ -63,10 +63,7 @@ public class C172P extends FlightGearAircraft{
     }
     
     private void setup(C172PConfig config) throws FlightGearSetupException {
-        LOGGER.info("setup called");
-        
-        //TODO: invoke port setters in superclass per config
-        //networkConfig.setConsumeablesPort(config.getConsumeablesPort);
+        LOGGER.debug("C172P setup called");
         
         try {
             LOGGER.info("Establishing input socket connections.");
@@ -98,8 +95,13 @@ public class C172P extends FlightGearAircraft{
         //launch thread to update telemetry
 
         try {
-            socketsTelemetryConnection = new FlightGearTelemetryConnection(networkConfig.getTelemetryOutputHost(), networkConfig.getTelemetryOutputPort());
-            
+        	LOGGER.info("Input socket connections established.");
+        	
+            socketsTelemetryConnection = new FlightGearTelemetryConnection(
+            		networkConfig.getTelemetryOutputHost(), 
+            		networkConfig.getTelemetryOutputPort()
+            );
+               
             //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
             launchTelemetryThread();
         } catch (SocketException | UnknownHostException e) {

@@ -1,10 +1,13 @@
 package org.jason.fgcontrol.aircraft.f15c.app;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Properties;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.fgcontrol.aircraft.f15c.F15C;
+import org.jason.fgcontrol.aircraft.f15c.F15CConfig;
 import org.jason.fgcontrol.aircraft.f15c.F15CFields;
 import org.jason.fgcontrol.exceptions.FlightGearSetupException;
 import org.jason.fgcontrol.flight.position.KnownRoutes;
@@ -17,9 +20,9 @@ import org.jason.fgcontrol.flight.util.FlightUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WaypointFlight {
+public class WaypointFlightFleet {
         
-    private final static Logger LOGGER = LoggerFactory.getLogger(WaypointFlight.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(WaypointFlightFleet.class);
     
     private final static double MAX_HEADING_CHANGE = 12.0;
     
@@ -111,14 +114,27 @@ public class WaypointFlight {
         ArrayList<WaypointPosition> route = KnownRoutes.BC_SOUTH_TOUR;
         
         //for fun, mix it up
-        //java.util.Collections.reverse(route);
+        //Collections.reverse(route);
         
         waypointManager.setWaypoints(route);
 
         WaypointPosition startingWaypoint = waypointManager.getNextWaypoint();
 
         try {
-            plane = new F15C();
+        	
+        	String confFile = "./f15c.properties";
+        	if(args.length >= 1) {
+        		confFile = args[0];	
+        	}
+        	
+        	Properties simProperties = new Properties();
+        	simProperties.load(new FileInputStream(confFile) );
+        	
+        	F15CConfig f15cConfig = new F15CConfig(simProperties); 
+        	
+        	LOGGER.info("Using config:\n{}", f15cConfig.toString() );
+        	
+            plane = new F15C(f15cConfig);
         
             plane.setDamageEnabled(false);
             plane.setGMT(LAUNCH_TIME_GMT);

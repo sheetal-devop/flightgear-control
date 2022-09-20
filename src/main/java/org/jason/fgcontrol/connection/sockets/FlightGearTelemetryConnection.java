@@ -25,7 +25,8 @@ public class FlightGearTelemetryConnection {
         
     private final static int SOCKET_TIMEOUT = 5000;
     
-    //keep an eye on this. this can silently truncate a telemetry read resulting in consistent read failures 
+    //keep an eye on this. this can silently truncate a telemetry read resulting in consistent
+    //read failures if this is smaller than the data retrieved by the telemetry read 
     private final static int MAX_RECEIVE_BUFFER_LEN = 8192;
     
     //TODO: default values overridable, or used to generate protocol files from templates
@@ -49,6 +50,8 @@ public class FlightGearTelemetryConnection {
         }
         
         this.telemetryPort = telemetryPort;
+        
+        LOGGER.info("Initializing FlightGearTelemetryConnection for {}({}):{}", this.host, this.hostIp, this.telemetryPort);
     }
     
     /**
@@ -78,6 +81,7 @@ public class FlightGearTelemetryConnection {
             
             fgTelemetrySocket.receive(fgTelemetryPacket);
             
+            //TODO: append string here? we want to return an empty string on null, but not create two strings on every read
             output = new String(fgTelemetryPacket.getData()).trim();  
             
             LOGGER.trace("Raw telemetry successfully received from socket.");

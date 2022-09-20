@@ -101,7 +101,7 @@ public class WaypointFlight {
         ArrayList<WaypointPosition> route = KnownRoutes.BC_SOUTH_TOUR;
         
         //for fun, mix it up
-        //Collections.reverse(route);
+        java.util.Collections.reverse(route);
         
         waypointManager.setWaypoints(route);
         
