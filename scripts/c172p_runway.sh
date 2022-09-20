@@ -31,7 +31,7 @@ fgfs \
  --generic=socket,in,45,localhost,6609,udp,c172p_input_sim_model\
  --generic=socket,in,45,localhost,6610,udp,c172p_input_sim_speedup\
  --generic=socket,in,45,localhost,6611,udp,c172p_input_sim_time\
- --generic=socket,in,45,localhost,6612,udp,c172p_input_system\
+ --generic=socket,in,45,localhost,6612,udp,c172p_input_systems\
  --generic=socket,in,45,localhost,6613,udp,c172p_input_velocities\
  --telnet=5501\
  --disable-ai-traffic\

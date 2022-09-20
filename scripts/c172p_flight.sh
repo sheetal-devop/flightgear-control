@@ -2,6 +2,7 @@
 
 #TODO: generate some of this from a template, since the ports are defined in the source
 
+#this is the window geometry, not the sim video resolution
 #for visuals use larger geometry: --geometry=1024x768\
 #for apps user smaller geometry: --geometry=320x200\
 
@@ -42,7 +43,7 @@ fgfs \
  --generic=socket,in,45,localhost,6609,udp,c172p_input_sim_model\
  --generic=socket,in,45,localhost,6610,udp,c172p_input_sim_speedup\
  --generic=socket,in,45,localhost,6611,udp,c172p_input_sim_time\
- --generic=socket,in,45,localhost,6612,udp,c172p_input_system\
+ --generic=socket,in,45,localhost,6612,udp,c172p_input_systems\
  --generic=socket,in,45,localhost,6613,udp,c172p_input_velocities\
  --telnet=5501\
  --disable-ai-traffic\
