@@ -68,7 +68,7 @@ public class WaypointFlightFleet {
             !FlightUtilities.withinHeadingThreshold(plane, COURSE_ADJUSTMENT_INCREMENT, bearing)
         ) 
         {
-            plane.forceStabilize(bearing, 0.0, 2.0);
+            plane.forceStabilize(bearing, 0.0, 2.0, false);
                 
             //keep seeing flaps extending on their own, probably as part of the plane autostart.
             //everything else on the c172p model seems to react to the launch altitude, but not this.
@@ -209,7 +209,7 @@ public class WaypointFlightFleet {
             plane.setAntiIce(true);
             
             //i'm in a hurry and a c172p only goes so fast
-            //plane.setSimSpeedUp(8.0);
+            plane.setSimSpeedUp(8.0);
         
             //not much of a min, but both tanks largely filled means even weight and more stable flight
             double minFuelGal = 16.0;

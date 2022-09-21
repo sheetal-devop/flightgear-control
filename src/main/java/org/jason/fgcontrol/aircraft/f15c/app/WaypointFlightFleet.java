@@ -91,7 +91,7 @@ public class WaypointFlightFleet {
             !FlightUtilities.withinHeadingThreshold(plane, COURSE_ADJUSTMENT_INCREMENT, bearing)
         ) 
         {
-            plane.forceStabilize(bearing, 0.0, 2.0);
+            plane.forceStabilize(bearing, 0.0, 2.0, false);
         }
     }
         
@@ -111,7 +111,7 @@ public class WaypointFlightFleet {
         //bc tour
         //f15c script launches from YVR
         
-        ArrayList<WaypointPosition> route = KnownRoutes.BC_SOUTH_TOUR;
+        ArrayList<WaypointPosition> route = KnownRoutes.VAN_ISLAND_TOUR_SOUTH;
         
         //for fun, mix it up
         //Collections.reverse(route);
