@@ -3,6 +3,8 @@ Control and interact with a FlightGear aircraft generically with telnet and sock
 
 Generically fly by starting the plane's engine and diligently correcting drift and deviation from a flight path by constantly repositioning the plane within the sim environment. 
 
+Easily and cheaply simulate a complex real-world machine with mechanical causality.
+
 #### Setup ####
 
 1. Build flightgear directly from source or install the package through your distro's package manager.
