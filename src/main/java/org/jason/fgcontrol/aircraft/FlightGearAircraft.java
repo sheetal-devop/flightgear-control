@@ -66,11 +66,15 @@ public abstract class FlightGearAircraft {
         telemetryThread = new Thread() {
             @Override
             public void run() {
-                LOGGER.trace("Telemetry thread started");
+            	if(LOGGER.isTraceEnabled()) {
+            		LOGGER.trace("Telemetry thread started");
+            	}
                 
                 readTelemetry();
                 
-                LOGGER.trace("Telemetry thread returning");
+                if(LOGGER.isTraceEnabled()) {
+                	LOGGER.trace("Telemetry thread returning");
+                }
             }
         };
         telemetryThread.start();
@@ -78,7 +82,9 @@ public abstract class FlightGearAircraft {
         //TODO: fail gracefully if this never succeeds
         //wait for the first read to arrive
         while(currentState.size() == 0) {
-            LOGGER.debug("Waiting for first telemetry read to complete after thread start");
+        	if(LOGGER.isDebugEnabled()) {
+        		LOGGER.debug("Waiting for first telemetry read to complete after thread start");
+        	}
             
             try {
                 Thread.sleep(TELEMETRY_WRITE_WAIT_SLEEP);
@@ -94,7 +100,9 @@ public abstract class FlightGearAircraft {
         LinkedHashMap<String, String> retval = new LinkedHashMap<>();
         
         while(stateWriting.get()) {
-            LOGGER.trace("Waiting for state writing to complete");
+        	if(LOGGER.isTraceEnabled()) {
+        		LOGGER.trace("Waiting for state writing to complete");
+        	}
 
             try {
                 Thread.sleep(TELEMETRY_WRITE_WAIT_SLEEP);
@@ -132,7 +140,9 @@ public abstract class FlightGearAircraft {
                 
         //TODO: time this out, trigger some kind of reset or clean update
         while(stateWriting.get()) {
-            LOGGER.trace("Waiting for state writing to complete");
+        	if(LOGGER.isTraceEnabled()) {
+        		LOGGER.trace("Waiting for state writing to complete");
+        	}
 
             try {
                 Thread.sleep(TELEMETRY_WRITE_WAIT_SLEEP);
@@ -167,7 +177,9 @@ public abstract class FlightGearAircraft {
         
         //TODO: time this out, trigger some kind of reset or clean update
         while(stateWriting.get()) {
-            LOGGER.trace("Waiting for state writing to complete");
+        	if(LOGGER.isTraceEnabled()) {
+        		LOGGER.trace("Waiting for state writing to complete");
+        	}
 
             try {
                 Thread.sleep(TELEMETRY_WRITE_WAIT_SLEEP);
@@ -202,7 +214,9 @@ public abstract class FlightGearAircraft {
         
         //TODO: time this out, trigger some kind of reset or clean update
         while(stateWriting.get()) {
-            LOGGER.trace("Waiting for state writing to complete");
+        	if(LOGGER.isTraceEnabled()) {
+        		LOGGER.trace("Waiting for state writing to complete");
+        	}
 
             try {
                 Thread.sleep(TELEMETRY_WRITE_WAIT_SLEEP);
@@ -219,7 +233,7 @@ public abstract class FlightGearAircraft {
     }
     
     public void shutdown() {
-        LOGGER.debug("Plane shutdown invoked");
+    	LOGGER.debug("Plane shutdown invoked");
         
         //stop telemetry read
         runTelemetryThread = false;
@@ -228,7 +242,7 @@ public abstract class FlightGearAircraft {
         int interval = 250;
         int maxWait = 2000;
         while(telemetryThread.isAlive()) {
-            LOGGER.debug("waiting on telemetry thread to terminate");
+        	LOGGER.debug("waiting on telemetry thread to terminate");
             
             if(waitTime >= maxWait) {
                 telemetryThread.interrupt();
@@ -243,7 +257,8 @@ public abstract class FlightGearAircraft {
             }
         }
         
-        LOGGER.debug("Telemetry thread terminated. isAlive: {}", telemetryThread.isAlive());
+
+    	LOGGER.debug("Telemetry thread terminated. isAlive: {}", telemetryThread.isAlive());
         
         LOGGER.info("Plane shutdown completed");
     }
@@ -255,12 +270,16 @@ public abstract class FlightGearAircraft {
         String telemetryRead = null;
         while(runningTelemetryThread()) {
             
-            LOGGER.trace("Begin telemetry read cycle");
+        	if(LOGGER.isTraceEnabled()) {
+        		LOGGER.trace("Begin telemetry read cycle");
+        	}
             
             //wait for any state read operations to finish
             //TODO: max wait on this
             while(stateReading.get()) {
-                LOGGER.trace("Waiting for state reading to complete");
+            	if(LOGGER.isTraceEnabled()) {
+            		LOGGER.trace("Waiting for state reading to complete");
+            	}
 
                 try {
                     Thread.sleep(TELEMETRY_READ_WAIT_SLEEP);
@@ -312,19 +331,22 @@ public abstract class FlightGearAircraft {
                     LOGGER.warn("Trailing state read sleep interrupted", e);
                 }
                 
-                LOGGER.trace("End telemetry read cycle");
+                if(LOGGER.isTraceEnabled()) {
+                	LOGGER.trace("End telemetry read cycle");
+                }
             }
         }
         
-        LOGGER.debug("readTelemetry returning");
+    	if(LOGGER.isDebugEnabled()) {
+    		LOGGER.debug("readTelemetry returning");
+    	}
     }
     
     /////////////////
     //simulator management
     
     public void resetSimulator() throws IOException, InvalidTelnetOptionException {
-        
-        LOGGER.debug("Simulator reset invoked");
+    	LOGGER.debug("Simulator reset invoked");
         
         FlightGearTelnetConnection telnetSession = null;
 
@@ -347,8 +369,7 @@ public abstract class FlightGearAircraft {
     }
     
     public void terminateSimulator() throws IOException, InvalidTelnetOptionException {
-        
-        LOGGER.debug("Simulator termination invoked");
+    	LOGGER.debug("Simulator termination invoked");
         
         FlightGearTelnetConnection telnetSession = null;
 

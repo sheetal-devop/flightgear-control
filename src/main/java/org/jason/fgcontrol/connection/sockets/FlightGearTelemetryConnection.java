@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -63,10 +64,11 @@ public class FlightGearTelemetryConnection {
      */
     public String readTelemetry() throws IOException {
         
-        LOGGER.trace("Telemetry called for {}:{}", host, telemetryPort);
+    	if(LOGGER.isTraceEnabled()) {
+    		LOGGER.trace("Telemetry called for {}:{}", host, telemetryPort);
+    	}
         
-        //empty string by default
-        String output = "";
+        String output = null;
         
         DatagramSocket fgTelemetrySocket = null;
 
@@ -81,10 +83,13 @@ public class FlightGearTelemetryConnection {
             
             fgTelemetrySocket.receive(fgTelemetryPacket);
             
-            //TODO: append string here? we want to return an empty string on null, but not create two strings on every read
-            output = new String(fgTelemetryPacket.getData()).trim();  
+            //a call to new String(bytes[], charset) seems to be convention for converting the byte[]
+            //returned by DatagramPacket.getData() to a string
+            output = new String(fgTelemetryPacket.getData(), StandardCharsets.UTF_8).trim();  
             
-            LOGGER.trace("Raw telemetry successfully received from socket.");
+            if(LOGGER.isTraceEnabled()) {
+            	LOGGER.trace("Raw telemetry successfully received from socket.");
+            }
             
         } catch (IOException e) {
             //comms errors connecting to fg telemetry socket
@@ -100,6 +105,11 @@ public class FlightGearTelemetryConnection {
             else
             {
                 LOGGER.warn("Attempted to close fgTelemetrySocket, but was already closed or null");
+            }
+            
+            //empty string by default
+            if(output == null) {
+            	output = "";
             }
         }
                 
@@ -131,7 +141,9 @@ public class FlightGearTelemetryConnection {
         
         //TODO: count accepted lines and compare against schema
         
-        LOGGER.trace("Parsing up raw telemetry data");
+        if(LOGGER.isTraceEnabled()) {
+        	LOGGER.trace("Parsing up raw telemetry data");
+        }
         
         int telemetryLineCount = 0;
         StringBuilder cleanOutput = new StringBuilder();
@@ -150,8 +162,9 @@ public class FlightGearTelemetryConnection {
             }
         }
         
-        LOGGER.trace("readTelemetry returning. Read {} lines", telemetryLineCount);
-                
+        if(LOGGER.isTraceEnabled()) {
+        	LOGGER.trace("readTelemetry returning. Read {} lines", telemetryLineCount);
+        }        
         
         //return after adding json braces
         return cleanOutput.insert(0, "{").append("}").toString();
