@@ -2,7 +2,6 @@ package org.jason.fgcontrol.aircraft.c172p.app;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Properties;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
