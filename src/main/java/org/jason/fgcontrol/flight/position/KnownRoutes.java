@@ -116,6 +116,21 @@ public abstract class KnownRoutes {
         }
     };
     
+    public final static ArrayList<WaypointPosition> VAN_ISLAND_TOUR_SOUTH = new ArrayList<>() {
+
+		private static final long serialVersionUID = 1668204581296033784L;
+
+		{
+            {
+            	add(KnownPositions.ABBOTSFORD);
+            	add(KnownPositions.VICTORIA);
+            	add(KnownPositions.SOOKE);
+                add(KnownPositions.TOFINO);
+                add(KnownPositions.VAN_INTER_AIRPORT_YVR);
+            }
+        }
+    };
+    
     public final static ArrayList<WaypointPosition> PTC_NA_OFFICE_TOUR = new ArrayList<>() {
 
         private static final long serialVersionUID = 8537287930892781019L;
