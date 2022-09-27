@@ -55,14 +55,8 @@ public class FlightLog {
     }
     
     public void writeGPXFile(String filename) {
-        writeGPXFile( System.getProperty("user.dir"), filename );
-    }
-    
-    public void writeGPXFile(String path, String filename) {
-        
-        //create path if it doesn't exist
-        
-        
+    	
+        //TODO: create path if it doesn't exist
         
         LOGGER.info("Writing flight log to {}", filename);
         

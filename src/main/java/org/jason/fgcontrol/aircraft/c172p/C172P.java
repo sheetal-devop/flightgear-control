@@ -16,7 +16,7 @@ import org.jason.fgcontrol.exceptions.FlightGearSetupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class C172P extends FlightGearAircraft{
+public class C172P extends FlightGearAircraft {
     
     private final static Logger LOGGER = LoggerFactory.getLogger(C172P.class);
 
@@ -54,7 +54,7 @@ public class C172P extends FlightGearAircraft{
         
         //TODO: implement. possibly add to superclass. depends on superclass init and setup
         launchSimulator();
-                
+        
         LOGGER.info("C172P setup completed");
     }
     
@@ -111,10 +111,14 @@ public class C172P extends FlightGearAircraft{
             throw new FlightGearSetupException(e);
         }
         
-        LOGGER.info("setup returning");
+        LOGGER.info("C172P setup completed");
     }
     
     public void startupPlane() throws AircraftStartupException {
+    	startupPlane(false);
+    }
+    
+    public void startupPlane(boolean performAutostartSleep) throws AircraftStartupException {
         
         LOGGER.info("Starting up the C172P");
                 
@@ -126,15 +130,18 @@ public class C172P extends FlightGearAircraft{
             //execute the startup nasal script
             planeStartupTelnetSession.runNasal("c172p.autostart();");
             
-            LOGGER.debug("Startup nasal script was executed. Sleeping for completion.");
+            LOGGER.debug("Startup nasal script was executed.");
             
             //startup may be asynchronous so we have to wait for the next prompt 
             //TODO: maybe run another telnet command as a check
-            try {
-                Thread.sleep(AUTOSTART_COMPLETION_SLEEP);
-            } catch (InterruptedException e) {
-                LOGGER.warn("Startup wait interrupted", e);
-            }        
+            if(performAutostartSleep) {
+            	LOGGER.debug("Sleeping for autostart completion.");
+	            try {
+	                Thread.sleep(AUTOSTART_COMPLETION_SLEEP);
+	            } catch (InterruptedException e) {
+	                LOGGER.warn("Startup wait interrupted", e);
+	            }        
+            }
             
             LOGGER.debug("Startup nasal script execution completed");
         } catch (IOException | InvalidTelnetOptionException e) {
@@ -151,7 +158,8 @@ public class C172P extends FlightGearAircraft{
         int startupWait = 0;
         int sleep = 250;
         
-        while(!this.isEngineRunning() && startupWait < AUTOSTART_COMPLETION_SLEEP) {
+        
+        while(performAutostartSleep && !this.isEngineRunning() && startupWait < AUTOSTART_COMPLETION_SLEEP) {
             LOGGER.debug("Waiting for engine to complete startup");
             try {
                 Thread.sleep(sleep);

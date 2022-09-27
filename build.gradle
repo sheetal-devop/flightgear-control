@@ -15,20 +15,18 @@ repositories {
     }
     
     mavenCentral()
-    
-    jcenter() 
 }
 
 dependencies {
 
-    compile libs.flightgear_control
-    compile libs.geotools
+    implementation libs.flightgear_control
+    implementation libs.geotools
     
-    testCompile libs.flightgear_control_test
+    testImplementation libs.flightgear_control_test
 }
 
 ext {
-    fgControlVersion = "1.0.0"
+    fgControlVersion = "0.1"
     title = "flightgear-control"
 }
 
@@ -53,7 +51,7 @@ distributions {
     //the jar, libs, protocol files
     
     main {
-        baseName = title
+        distributionBaseName = title
         
         contents {
             into('') {
@@ -69,10 +67,19 @@ distributions {
     }
 }
 
-jar {
+//may need to run the 'clean' task first
+test {
+    useTestNG() {
+        useDefaultListeners = true
+        suites "src/main/test/resources/testng.xml"
+    }
+    beforeTest { thisTest -> println("Executing test: ${thisTest.name} [${thisTest.className}]") }
+    afterTest { thisTest, result -> println("Executed test: ${thisTest.name} [${thisTest.className}] with result ${result.resultType}") }
+}
 
-    baseName title
-    version fgControlVersion
+jar {
+    archiveBaseName = title 
+    archiveVersion = fgControlVersion
 
     from(sourceSets.main.output)
     manifest {
@@ -82,7 +89,7 @@ jar {
 //TODO: broken fix it
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'src'
-    version fgControlVersion
+    archiveVersion = fgControlVersion
     
     from sourceSets.main.allSource
 }

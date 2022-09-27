@@ -17,6 +17,7 @@ public abstract class KnownRoutes {
         private static final long serialVersionUID = 3487720676170767955L;
         
         {
+        	add( KnownPositions.HORSESHOE_BAY );
             add( KnownPositions.UBC );
             add( KnownPositions.STANLEY_PARK );
             add( KnownPositions.LONSDALE_QUAY );
@@ -44,6 +45,7 @@ public abstract class KnownRoutes {
             add( KnownPositions.GROUSE_MOUNTAIN );
             add( KnownPositions.WEST_LION );
             add( KnownPositions.MARPOLE_CC );
+            add( KnownPositions.BURNABY_8RINKS );
             add( KnownPositions.VAN_INTER_AIRPORT_YVR );
         }
     };
@@ -122,7 +124,7 @@ public abstract class KnownRoutes {
 
 		{
             {
-            	add(KnownPositions.ABBOTSFORD);
+            	add(KnownPositions.LANGLEY);
             	add(KnownPositions.VICTORIA);
             	add(KnownPositions.SOOKE);
                 add(KnownPositions.TOFINO);

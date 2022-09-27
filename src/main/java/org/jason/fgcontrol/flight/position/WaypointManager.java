@@ -16,6 +16,9 @@ import java.util.List;
  */
 public class WaypointManager {
 
+	public final static String WAYPOINT_NAME_FIELD = "Waypoint Name";
+	public final static String WAYPOINT_NAME_FIELD_DESC = "Colloquial name of waypoint";
+	
     private List<WaypointPosition> waypoints;
     
     public WaypointManager() {
@@ -32,8 +35,24 @@ public class WaypointManager {
     }
     
     //add new waypoint to the end of the flightplan
-    public synchronized void addWaypoint(WaypointPosition pos) {        
-        waypoints.add(waypoints.size(), pos);
+    public synchronized void addWaypoint(WaypointPosition newWaypoint) {        
+        waypoints.add(waypoints.size(), newWaypoint);
+    }
+    
+    //add a new waypoint as the next waypoint in the flightplan
+    //invoker needs to manage abandonment of current waypoint
+    public synchronized void addNextWaypoint(WaypointPosition newWaypoint) {      
+    	waypoints.add(0, newWaypoint);
+    }
+    
+    /**
+     * Remove the first waypoint that matches the target lat/lon
+     * 
+     * @param lat
+     * @param lon
+     */
+    public synchronized void removeWaypoints(double lat, double lon) {
+    	waypoints.removeIf( waypoint -> waypoint.getLatitude() == lat && waypoint.getLongitude() == lon);
     }
     
     public synchronized WaypointPosition getNextWaypoint() {
@@ -48,13 +67,17 @@ public class WaypointManager {
         return waypoints.size();
     }
 
-    public List<WaypointPosition> getWaypoints() {
+    public synchronized List<WaypointPosition> getWaypoints() {
         return waypoints;
     }
 
-    public void setWaypoints(List<WaypointPosition> waypoints) {
+    public synchronized void setWaypoints(List<WaypointPosition> waypoints) {
     	this.waypoints.clear();
         this.waypoints.addAll(waypoints);
+    }
+    
+    public synchronized void reset() {
+    	this.waypoints.clear();
     }
 
     

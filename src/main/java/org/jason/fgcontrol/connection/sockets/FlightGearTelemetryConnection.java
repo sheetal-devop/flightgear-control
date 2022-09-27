@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
@@ -68,12 +69,15 @@ public class FlightGearTelemetryConnection {
     		LOGGER.trace("Telemetry called for {}:{}", host, telemetryPort);
     	}
         
+    	//TODO: move declarations to constructor
         String output = null;
         
         DatagramSocket fgTelemetrySocket = null;
 
         try {
         	
+        	//TODO: find a way to reuse the packet object rather than reallocating new byte arrays for each invocation
+        	//however see below when this can cause problems
             DatagramPacket fgTelemetryPacket = new DatagramPacket(new byte[MAX_RECEIVE_BUFFER_LEN], MAX_RECEIVE_BUFFER_LEN);
         	
             //technically a server connection. we connect to the fg port, which starts sending us data
@@ -82,6 +86,8 @@ public class FlightGearTelemetryConnection {
             fgTelemetrySocket.setReceiveBufferSize(MAX_RECEIVE_BUFFER_LEN);
             
             fgTelemetrySocket.receive(fgTelemetryPacket);
+                        
+            //TODO: switch to new String(byteArray, offset, len, charset), warn message if length doesn't match expectations
             
             //a call to new String(bytes[], charset) seems to be convention for converting the byte[]
             //returned by DatagramPacket.getData() to a string
@@ -90,8 +96,13 @@ public class FlightGearTelemetryConnection {
             if(LOGGER.isTraceEnabled()) {
             	LOGGER.trace("Raw telemetry successfully received from socket.");
             }
-            
-        } catch (IOException e) {
+        } 
+        catch (SocketTimeoutException e) {
+            LOGGER.warn("SocketTimeoutException reading raw telemetry from socket", e);
+
+            throw e;
+        }        
+        catch (IOException e) {
             //comms errors connecting to fg telemetry socket
             
             LOGGER.warn("IOException reading raw telemetry from socket", e);

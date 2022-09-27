@@ -14,6 +14,7 @@ public class FlightUtilities {
     public static final int HEADING_CW_ADJUST = 1;
     public static final int HEADING_CCW_ADJUST = -1;
     
+    public static final double DEGREES_ZERO = 0.0;
     public static final double DEGREES_CIRCLE = 360.0;
     public static final double DEGREES_HALF_CIRCLE = 180.0;
     

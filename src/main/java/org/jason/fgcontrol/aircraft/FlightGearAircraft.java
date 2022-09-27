@@ -17,6 +17,9 @@ import org.jason.fgcontrol.aircraft.fields.FlightGearFields;
 import org.jason.fgcontrol.connection.sockets.FlightGearInputConnection;
 import org.jason.fgcontrol.connection.telnet.FlightGearTelnetConnection;
 import org.jason.fgcontrol.flight.position.TrackPosition;
+import org.jason.fgcontrol.flight.position.WaypointManager;
+import org.jason.fgcontrol.flight.position.WaypointPosition;
+import org.jason.fgcontrol.flight.util.FlightLog;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -45,6 +48,13 @@ public abstract class FlightGearAircraft {
     protected AtomicBoolean stateReading;
     
     protected SimNetworkingConfig networkConfig;
+    
+    protected WaypointManager waypointManager;
+    protected WaypointPosition currentWaypointTarget;
+    
+    protected FlightLog flightLog;
+    
+    protected AtomicBoolean abandonCurrentWaypoint;
 
     public FlightGearAircraft() {
         this(new SimNetworkingConfig());
@@ -58,7 +68,112 @@ public abstract class FlightGearAircraft {
         
         stateWriting = new AtomicBoolean(false);
         stateReading = new AtomicBoolean(false);
+        
+        abandonCurrentWaypoint = new AtomicBoolean(false);
+        
+        initWaypointManager();
+        initFlightLog();
     }
+
+    ////////////
+    //waypoint management
+    
+    protected void initWaypointManager() {
+    	waypointManager = new WaypointManager();
+    }
+    
+    //add new waypoint to the end of the flightplan
+    public void addWaypoint(double lat, double lon) {
+        waypointManager.addWaypoint(new WaypointPosition(lat, lon));
+    }
+    
+    //add new waypoint to the end of the flightplan
+    public void addWaypoint(WaypointPosition newWaypoint) {        
+    	waypointManager.addWaypoint(newWaypoint);
+    }
+    
+    public void addNextWaypoint(double lat, double lon) {      
+    	waypointManager.addNextWaypoint(new WaypointPosition(lat, lon));
+    }
+    
+    public void addNextWaypoint(WaypointPosition newWaypoint) {      
+    	waypointManager.addNextWaypoint(newWaypoint);
+    }
+    
+    public WaypointPosition getNextWaypoint() {
+        return waypointManager.getNextWaypoint();
+    }
+    
+    public WaypointPosition getAndRemoveNextWaypoint() {
+        return waypointManager.getAndRemoveNextWaypoint();
+    }
+    
+    public int getWaypointCount() {
+        return waypointManager.getWaypointCount();
+    }
+
+    public List<WaypointPosition> getWaypoints() {
+        return waypointManager.getWaypoints();
+    }
+    
+    public void setWaypoints(List<WaypointPosition> waypoints) {
+    	waypointManager.setWaypoints(waypoints);
+    }
+    
+    public void removeWaypoints(double lat, double lon) {
+    	waypointManager.removeWaypoints(lat, lon);
+    }
+    
+    public void clearWaypoints() {
+    	waypointManager.reset();
+    }
+    
+    public void setCurrentWaypointTarget(WaypointPosition waypointTarget) {
+    	this.currentWaypointTarget = waypointTarget;
+    }
+    
+    public WaypointPosition getCurrentWaypointTarget() {
+    	return currentWaypointTarget;
+    }
+    
+    /**
+     * Signal to the plane to abandon the current target waypoint. Depending on the flightplan implementation, this 
+     * may not be immediate.
+     */
+    public void abandonCurrentWaypoint() {
+    	abandonCurrentWaypoint.set(true);
+    }
+    
+    public void resetAbandonCurrentWaypoint() {
+    	abandonCurrentWaypoint.set(false);
+    }
+    
+    public boolean shouldAbandonCurrentWaypoint() {
+    	return abandonCurrentWaypoint.get();
+    }
+    
+    ////////////
+    //flight log
+    
+    protected void initFlightLog() {
+    	flightLog = new FlightLog();
+    }
+    
+    public void addWaypointToFlightLog(WaypointPosition newWaypoint) {
+    	flightLog.addWaypoint(newWaypoint);
+    }
+    
+    public void addTrackPositionToFlightLog(TrackPosition trackPosition) {
+    	flightLog.addTrackPosition(trackPosition);	
+    }
+    
+    public void writeFlightLogGPX(String fileName) {
+    	//TODO: return a Document and let the invoker write it how/where they want
+    	flightLog.writeGPXFile(fileName);
+    }
+    
+    ////////////
+    //telemetry
     
     protected void launchTelemetryThread() {
         runTelemetryThread = true;
@@ -81,7 +196,7 @@ public abstract class FlightGearAircraft {
         
         //TODO: fail gracefully if this never succeeds
         //wait for the first read to arrive
-        while(currentState.size() == 0) {
+        while( !stateWriting.get() && currentState.size() == 0) {
         	if(LOGGER.isDebugEnabled()) {
         		LOGGER.debug("Waiting for first telemetry read to complete after thread start");
         	}
@@ -308,9 +423,9 @@ public abstract class FlightGearAircraft {
                             }    
                         );
                         
-//                        if(LOGGER.isDebugEnabled()) {
-//                            LOGGER.debug("Read {} telemetry fields", jsonTelemetry.keySet().size());
-//                        }
+                        if(LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Read {} telemetry fields", jsonTelemetry.keySet().size());
+                        }
                     }
                 }
                 else {
