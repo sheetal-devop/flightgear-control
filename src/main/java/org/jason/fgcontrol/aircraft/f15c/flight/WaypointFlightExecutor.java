@@ -1,4 +1,4 @@
-package org.jason.fgcontrol.aircraft.f15c.app.flight;
+package org.jason.fgcontrol.aircraft.f15c.flight;
 
 import java.io.IOException;
 

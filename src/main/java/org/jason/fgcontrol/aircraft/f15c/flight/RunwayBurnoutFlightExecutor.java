@@ -1,4 +1,4 @@
-package org.jason.fgcontrol.aircraft.f15c.app.flight;
+package org.jason.fgcontrol.aircraft.f15c.flight;
 
 import java.io.IOException;
 
@@ -58,7 +58,7 @@ public abstract class RunwayBurnoutFlightExecutor {
             
             LOGGER.debug("======================\nCycle start.");
                         
-            LOGGER.info("Telemetry Read: {}", telemetryReadOut(plane));
+            LOGGER.debug("Telemetry Read: {}", telemetryReadOut(plane));
             
             try {
                 Thread.sleep(RUNTIME_SLEEP);

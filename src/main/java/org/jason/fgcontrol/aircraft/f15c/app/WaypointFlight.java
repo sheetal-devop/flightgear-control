@@ -8,7 +8,7 @@ import java.util.Properties;
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.fgcontrol.aircraft.f15c.F15C;
 import org.jason.fgcontrol.aircraft.f15c.F15CConfig;
-import org.jason.fgcontrol.aircraft.f15c.app.flight.WaypointFlightExecutor;
+import org.jason.fgcontrol.aircraft.f15c.flight.WaypointFlightExecutor;
 import org.jason.fgcontrol.exceptions.FlightGearSetupException;
 import org.jason.fgcontrol.flight.position.KnownRoutes;
 import org.jason.fgcontrol.flight.position.WaypointPosition;

@@ -6,7 +6,7 @@ import java.util.Properties;
 
 import org.jason.fgcontrol.aircraft.f15c.F15C;
 import org.jason.fgcontrol.aircraft.f15c.F15CConfig;
-import org.jason.fgcontrol.aircraft.f15c.app.flight.RunwayBurnoutFlightExecutor;
+import org.jason.fgcontrol.aircraft.f15c.flight.RunwayBurnoutFlightExecutor;
 import org.jason.fgcontrol.exceptions.AircraftStartupException;
 import org.jason.fgcontrol.exceptions.FlightGearSetupException;
 import org.slf4j.Logger;
