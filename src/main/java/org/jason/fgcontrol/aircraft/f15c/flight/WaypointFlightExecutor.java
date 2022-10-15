@@ -177,7 +177,7 @@ public abstract class WaypointFlightExecutor {
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                    	LOGGER.warn("Stabilization sleep interrupted", e);
                     }
                     
                     stablizeCount++;
@@ -218,8 +218,22 @@ public abstract class WaypointFlightExecutor {
             
             while( !PositionUtilities.hasArrivedAtWaypoint(plane.getPosition(), nextWaypoint, WAYPOINT_ARRIVAL_THRESHOLD) ) {
             
-                LOGGER.info("======================\nCycle {} start.", waypointFlightCycles);
+            	if(LOGGER.isTraceEnabled()) {
+            		LOGGER.trace("======================\nCycle {} start.", waypointFlightCycles);
+            	}
 
+                //allow external interruption of flightplan
+                if(plane.shouldAbandonCurrentWaypoint()) {
+                	
+                	LOGGER.info("Abandoning current waypoint");
+                	
+                	//reset abandon flag
+                	plane.resetAbandonCurrentWaypoint();
+                	
+                	//break out of hasArrivedWaypoint loop and continue on onto the next waypoint in the flightplan
+                	break;
+                }
+                
                 currentPosition = plane.getPosition();
                 
                 distanceToNextWaypoint = PositionUtilities.distanceBetweenPositions(plane.getPosition(), nextWaypoint);
@@ -288,8 +302,10 @@ public abstract class WaypointFlightExecutor {
                     plane.refillFuel();
                 }
 
-                LOGGER.info("Telemetry Read: {}", telemetryReadOut(plane, nextWaypoint, nextWaypointBearing));
-                LOGGER.info("\nCycle {} end\n======================", waypointFlightCycles);
+                if(LOGGER.isTraceEnabled()) {
+                	LOGGER.trace("Telemetry Read: {}", telemetryReadOut(plane, nextWaypoint, nextWaypointBearing));
+                	LOGGER.trace("\nCycle {} end\n======================", waypointFlightCycles);
+                }
                 
                 try {
                     Thread.sleep(cycleSleep);

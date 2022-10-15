@@ -166,7 +166,7 @@ public abstract class WaypointFlightExecutor {
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        LOGGER.warn("Stabilization sleep interrupted", e);
                     }
                     
                     stablizeCount++;
@@ -324,7 +324,7 @@ public abstract class WaypointFlightExecutor {
             try {
                 Thread.sleep(15);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+            	LOGGER.warn("Launch stabilization phase 1 sleep interrupted", e);
             }
             
             i++;
@@ -341,7 +341,7 @@ public abstract class WaypointFlightExecutor {
             try {
                 Thread.sleep(15);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+            	LOGGER.warn("Launch stabilization phase 2 sleep interrupted", e);
             }
             
             i++;
