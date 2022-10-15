@@ -35,6 +35,11 @@ public class WaypointManager {
     }
     
     //add new waypoint to the end of the flightplan
+    public synchronized void addWaypoint(double lat, double lon, String name) {
+        addWaypoint(new WaypointPosition(lat, lon, name));
+    }
+    
+    //add new waypoint to the end of the flightplan
     public synchronized void addWaypoint(WaypointPosition newWaypoint) {        
         waypoints.add(waypoints.size(), newWaypoint);
     }
