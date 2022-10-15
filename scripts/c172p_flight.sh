@@ -1,10 +1,20 @@
 #!/bin/bash
 
-#TODO: generate some of this from a template, since the ports are defined in the source
+#./c172p_*.sh HEADING START_PORT_RANGE START_LAT START_LON NAME
 
-#for visuals use larger geometry: --geometry=1024x768\
+#this is the window geometry, not the sim video resolution, which appears fixed in windowed mode
+#for most use cases use medium geometry: --geometry=640x480\ or --geometry=800x600\
+#for big visuals use larger geometry: --geometry=1024x768\
 #for apps user smaller geometry: --geometry=320x200\
 
+X_RES=800
+Y_RES=600
+
+RES_GEOMETRY_STR=""$X_RES"x"$Y_RES
+
+#pauses sim after launching
+
+#start heading
 #use heading if supplied, otherwise just head north
 HEADING=${1:-0}
 
@@ -13,9 +23,59 @@ HEADING=${1:-0}
 #yvr -> victoria: 189.012
 #yvr -> ubc: 326.577
 
-#max alt for 95% throttle: 5125ft
-ALT=7125
 
+#max alt for 95% throttle: 5125ft
+ALT=5100
+
+
+################
+#ports
+START_PORT_RANGE=${2:-6500}
+
+#check port range constraints (not too low, not above max)
+
+
+
+#port population:
+#START_PORT_RANGE 	=> output
+#+1 		=> telnet
+#+2		=> input 1
+#+3		=> input 2
+#...
+TELEM_OUTPUT_PORT=$START_PORT_RANGE
+TELNET_PORT=$((START_PORT_RANGE+1))
+CONSUMABLES_INPUT_PORT=$((START_PORT_RANGE+2))
+CONTROLS_INPUT_PORT=$((START_PORT_RANGE+3))
+ENGINES_INPUT_PORT=$((START_PORT_RANGE+4))
+FDM_INPUT_PORT=$((START_PORT_RANGE+5))
+ORIENTATION_INPUT_PORT=$((START_PORT_RANGE+6))
+POSITION_INPUT_PORT=$((START_PORT_RANGE+7))
+SIM_INPUT_PORT=$((START_PORT_RANGE+8))
+SIM_FREEZE_INPUT_PORT=$((START_PORT_RANGE+9))
+SIM_MODEL_INPUT_PORT=$((START_PORT_RANGE+10))
+SIM_SPEEDUP_INPUT_PORT=$((START_PORT_RANGE+11))
+SIM_TIME_INPUT_PORT=$((START_PORT_RANGE+12))
+SYSTEMS_INPUT_PORT=$((START_PORT_RANGE+13))
+VELOCITIES_INPUT_PORT=$((START_PORT_RANGE+14))
+
+########
+#start position, default to yvr 49.19524, -123.18084
+START_LAT=${3:-49.19524}
+START_LON=${4:--123.18084}
+
+########
+#name of this aircraft
+#mostly for the log directory so multiple simulators aren't logging to the same place
+DATE_STR="$(date +%s)"
+DEFAULT_NAME="C172P_"$DATE_STR
+NAME=${5:-$DEFAULT_NAME}
+
+BASEDIR=$(dirname "$0")
+
+LOG_DIR=$BASEDIR/../log/fgfs_$NAME
+mkdir -p $LOG_DIR
+
+#extra rendering settings since we want to run a few instances of this
 fgfs \
  --verbose\
  --ignore-autosave\
@@ -29,37 +89,45 @@ fgfs \
  --fog-fastest\
  --fg-scenery=/usr/share/games/flightgear/Scenery\
  --fg-aircraft=/usr/share/games/flightgear/Aircraft\
- --airport=CYVR\
- --generic=socket,out,45,localhost,6501,udp,c172p_output\
- --generic=socket,in,45,localhost,6601,udp,c172p_input_consumables\
- --generic=socket,in,45,localhost,6602,udp,c172p_input_controls\
- --generic=socket,in,45,localhost,6603,udp,c172p_input_engines\
- --generic=socket,in,45,localhost,6604,udp,c172p_input_fdm\
- --generic=socket,in,45,localhost,6605,udp,c172p_input_orientation\
- --generic=socket,in,45,localhost,6606,udp,c172p_input_position\
- --generic=socket,in,45,localhost,6607,udp,c172p_input_sim\
- --generic=socket,in,45,localhost,6608,udp,c172p_input_sim_freeze\
- --generic=socket,in,45,localhost,6609,udp,c172p_input_sim_model\
- --generic=socket,in,45,localhost,6610,udp,c172p_input_sim_speedup\
- --generic=socket,in,45,localhost,6611,udp,c172p_input_sim_time\
- --generic=socket,in,45,localhost,6612,udp,c172p_input_system\
- --generic=socket,in,45,localhost,6613,udp,c172p_input_velocities\
- --telnet=5501\
+ --lat=$START_LAT\
+ --lon=$START_LON\
+ --generic=socket,out,45,localhost,$TELEM_OUTPUT_PORT,udp,c172p_output\
+ --generic=socket,in,45,localhost,$CONSUMABLES_INPUT_PORT,udp,c172p_input_consumables\
+ --generic=socket,in,45,localhost,$CONTROLS_INPUT_PORT,udp,c172p_input_controls\
+ --generic=socket,in,45,localhost,$ENGINES_INPUT_PORT,udp,c172p_input_engines\
+ --generic=socket,in,45,localhost,$FDM_INPUT_PORT,udp,c172p_input_fdm\
+ --generic=socket,in,45,localhost,$ORIENTATION_INPUT_PORT,udp,c172p_input_orientation\
+ --generic=socket,in,45,localhost,$POSITION_INPUT_PORT,udp,c172p_input_position\
+ --generic=socket,in,45,localhost,$SIM_INPUT_PORT,udp,c172p_input_sim\
+ --generic=socket,in,45,localhost,$SIM_FREEZE_INPUT_PORT,udp,c172p_input_sim_freeze\
+ --generic=socket,in,45,localhost,$SIM_MODEL_INPUT_PORT,udp,c172p_input_sim_model\
+ --generic=socket,in,45,localhost,$SIM_SPEEDUP_INPUT_PORT,udp,c172p_input_sim_speedup\
+ --generic=socket,in,45,localhost,$SIM_TIME_INPUT_PORT,udp,c172p_input_sim_time\
+ --generic=socket,in,45,localhost,$SYSTEMS_INPUT_PORT,udp,c172p_input_systems\
+ --generic=socket,in,45,localhost,$VELOCITIES_INPUT_PORT,udp,c172p_input_velocities\
+ --telnet=$TELNET_PORT\
  --disable-ai-traffic\
  --disable-sound\
  --disable-real-weather-fetch\
- --geometry=1024x768\
+ --geometry=$RES_GEOMETRY_STR\
  --texture-filtering=8\
  --disable-anti-alias-hud\
  --enable-auto-coordination\
  --prop:/environment/weather-scenario=Fair weather\
  --prop:/nasal/local_weather/enabled=false\
+ --prop:/sim/rendering/bits-per-pixel=16\
+ --prop:/sim/rendering/clouds3d-enable=false\
  --prop:/sim/rendering/fps-display=1\
  --prop:/sim/rendering/frame-latency-display=1\
  --prop:/sim/rendering/multithreading-mode=AutomaticSelection\
+ --prop:/sim/rendering/particles=false\
+ --prop:/sim/rendering/rembrant/enabled=false\
+ --prop:/sim/rendering/rembrant/bloom=false\
+ --prop:/sim/rendering/shadows/enabled=false\
  --vc=60\
  --heading=$HEADING\
  --altitude=$ALT\
+ --log-dir=$LOG_DIR\
  --enable-freeze\
  --allow-nasal-from-sockets\
  --turbulence=0.0\

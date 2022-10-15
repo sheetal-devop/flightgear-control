@@ -17,6 +17,7 @@ public abstract class KnownRoutes {
         private static final long serialVersionUID = 3487720676170767955L;
         
         {
+        	add( KnownPositions.HORSESHOE_BAY );
             add( KnownPositions.UBC );
             add( KnownPositions.STANLEY_PARK );
             add( KnownPositions.LONSDALE_QUAY );
@@ -30,6 +31,21 @@ public abstract class KnownRoutes {
             add( KnownPositions.BURNABY_8RINKS );
             add( KnownPositions.NEW_WESTMINSTER_QUAY );
             add( KnownPositions.PLANET_ICE_DELTA );
+            add( KnownPositions.VAN_INTER_AIRPORT_YVR );
+        }
+    };
+    
+    public final static ArrayList<WaypointPosition> VANCOUVER_SHORT_TOUR = new ArrayList<>() {
+
+        private static final long serialVersionUID = -1630760784238590060L;
+
+		{
+            add( KnownPositions.UBC );
+            add( KnownPositions.LONSDALE_QUAY );
+            add( KnownPositions.GROUSE_MOUNTAIN );
+            add( KnownPositions.WEST_LION );
+            add( KnownPositions.MARPOLE_CC );
+            add( KnownPositions.BURNABY_8RINKS );
             add( KnownPositions.VAN_INTER_AIRPORT_YVR );
         }
     };
@@ -84,6 +100,34 @@ public abstract class KnownRoutes {
                 add(KnownPositions.PORT_RENFREW);
                 add(KnownPositions.SOOKE);
                 add(KnownPositions.VICTORIA);
+                add(KnownPositions.VAN_INTER_AIRPORT_YVR);
+            }
+        }
+    };
+    
+    public final static ArrayList<WaypointPosition> VAN_ISLAND_TOUR = new ArrayList<>() {
+
+		private static final long serialVersionUID = -6035401483530239855L;
+
+		{
+            {
+                add(KnownPositions.WEST_LION );
+                add(KnownPositions.TOFINO);
+                add(KnownPositions.VAN_INTER_AIRPORT_YVR);
+            }
+        }
+    };
+    
+    public final static ArrayList<WaypointPosition> VAN_ISLAND_TOUR_SOUTH = new ArrayList<>() {
+
+		private static final long serialVersionUID = 1668204581296033784L;
+
+		{
+            {
+            	add(KnownPositions.LANGLEY);
+            	add(KnownPositions.VICTORIA);
+            	add(KnownPositions.SOOKE);
+                add(KnownPositions.TOFINO);
                 add(KnownPositions.VAN_INTER_AIRPORT_YVR);
             }
         }

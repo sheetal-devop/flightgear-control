@@ -1,4 +1,4 @@
-package org.jason.fgcontrol.aircraft.c172p.app;
+package org.jason.fgcontrol.aircraft.c172p.app.poc;
 
 import java.io.IOException;
 

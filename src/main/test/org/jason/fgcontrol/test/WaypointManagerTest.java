@@ -1,6 +1,7 @@
 package org.jason.fgcontrol.test;
 
 import org.jason.fgcontrol.flight.position.KnownPositions;
+import org.jason.fgcontrol.flight.position.KnownRoutes;
 import org.jason.fgcontrol.flight.position.WaypointManager;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -168,4 +169,78 @@ public class WaypointManagerTest {
         Assert.assertEquals(waypointManager.getWaypointCount(), 0);
     }
 
+    @Test
+    public void testAddNextWaypoint() {
+        WaypointManager waypointManager = new WaypointManager();
+        
+        //start of bc tour, taking off from yvr
+        waypointManager.addWaypoint(KnownPositions.VAN_INTER_AIRPORT_YVR);
+        waypointManager.addWaypoint(KnownPositions.ABBOTSFORD);
+        waypointManager.addWaypoint(KnownPositions.PRINCETON);
+        
+        //whoops meant to head west first
+        waypointManager.addNextWaypoint(KnownPositions.VICTORIA);
+        
+        Assert.assertEquals(waypointManager.getWaypointCount(), 4);
+        
+        //a pitstop at the beach wouldn't hurt
+        waypointManager.addNextWaypoint(KnownPositions.TOFINO);
+        
+        Assert.assertEquals(waypointManager.getWaypointCount(), 5);
+        
+        //check
+        Assert.assertEquals(waypointManager.getAndRemoveNextWaypoint().getName(), KnownPositions.TOFINO.getName());
+        Assert.assertEquals(waypointManager.getAndRemoveNextWaypoint().getName(), KnownPositions.VICTORIA.getName());
+        
+        Assert.assertEquals(waypointManager.getAndRemoveNextWaypoint().getName(), KnownPositions.VAN_INTER_AIRPORT_YVR.getName());
+        Assert.assertEquals(waypointManager.getAndRemoveNextWaypoint().getName(), KnownPositions.ABBOTSFORD.getName());
+        Assert.assertEquals(waypointManager.getAndRemoveNextWaypoint().getName(), KnownPositions.PRINCETON.getName());
+        
+        Assert.assertEquals(waypointManager.getWaypointCount(), 0);
+    }
+    
+    @Test
+    public void testFlushWaypoints() {
+    	
+    	WaypointManager waypointManager = new WaypointManager();
+    	
+    	Assert.assertEquals(waypointManager.getWaypointCount(), 0);
+    	
+    	int initialLen = KnownRoutes.PTC_NA_OFFICE_TOUR.size();
+    	
+    	waypointManager.setWaypoints(KnownRoutes.PTC_NA_OFFICE_TOUR);
+    	
+    	Assert.assertEquals(waypointManager.getWaypointCount(), initialLen);
+    	
+    	waypointManager.reset();
+    	
+    	Assert.assertEquals(waypointManager.getWaypointCount(), 0);
+    	
+    }
+    
+    @Test
+    public void testWaypointRemoval() {
+    	WaypointManager waypointManager = new WaypointManager();
+    	
+    	waypointManager.setWaypoints(KnownRoutes.VANCOUVER_TOUR);
+    	
+    	int initialLen = KnownRoutes.VANCOUVER_TOUR.size();
+    	
+    	Assert.assertEquals(waypointManager.getWaypointCount(), initialLen);
+    	
+    	waypointManager.removeWaypoints(KnownPositions.MARPOLE_CC.getLatitude(), KnownPositions.MARPOLE_CC.getLongitude());
+    	
+    	Assert.assertEquals(waypointManager.getWaypointCount(), initialLen - 1);
+    	
+    	
+    	waypointManager.addNextWaypoint(KnownPositions.MARPOLE_CC);
+    	waypointManager.addWaypoint(KnownPositions.MARPOLE_CC);
+    	
+    	Assert.assertEquals(waypointManager.getWaypointCount(), initialLen + 1);
+    	
+    	waypointManager.removeWaypoints(KnownPositions.MARPOLE_CC.getLatitude(), KnownPositions.MARPOLE_CC.getLongitude());
+    	
+    	Assert.assertEquals(waypointManager.getWaypointCount(), initialLen - 1);
+    	
+    }
 }

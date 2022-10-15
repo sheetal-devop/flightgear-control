@@ -16,7 +16,7 @@ import org.jason.fgcontrol.exceptions.FlightGearSetupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class C172P extends FlightGearAircraft{
+public class C172P extends FlightGearAircraft {
     
     private final static Logger LOGGER = LoggerFactory.getLogger(C172P.class);
 
@@ -45,7 +45,7 @@ public class C172P extends FlightGearAircraft{
     }
     
     public C172P(C172PConfig config) throws FlightGearSetupException  {
-        super();
+        super(config);
         
         LOGGER.info("Loading C172P...");
         
@@ -54,7 +54,7 @@ public class C172P extends FlightGearAircraft{
         
         //TODO: implement. possibly add to superclass. depends on superclass init and setup
         launchSimulator();
-                
+        
         LOGGER.info("C172P setup completed");
     }
     
@@ -63,10 +63,7 @@ public class C172P extends FlightGearAircraft{
     }
     
     private void setup(C172PConfig config) throws FlightGearSetupException {
-        LOGGER.info("setup called");
-        
-        //TODO: invoke port setters in superclass per config
-        //networkConfig.setConsumeablesPort(config.getConsumeablesPort);
+        LOGGER.debug("C172P setup called");
         
         try {
             LOGGER.info("Establishing input socket connections.");
@@ -98,8 +95,13 @@ public class C172P extends FlightGearAircraft{
         //launch thread to update telemetry
 
         try {
-            socketsTelemetryConnection = new FlightGearTelemetryConnection(networkConfig.getTelemetryOutputHost(), networkConfig.getTelemetryOutputPort());
-            
+        	LOGGER.info("Input socket connections established.");
+        	
+            socketsTelemetryConnection = new FlightGearTelemetryConnection(
+            		networkConfig.getTelemetryOutputHost(), 
+            		networkConfig.getTelemetryOutputPort()
+            );
+               
             //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
             launchTelemetryThread();
         } catch (SocketException | UnknownHostException e) {
@@ -109,10 +111,14 @@ public class C172P extends FlightGearAircraft{
             throw new FlightGearSetupException(e);
         }
         
-        LOGGER.info("setup returning");
+        LOGGER.info("C172P setup completed");
     }
     
     public void startupPlane() throws AircraftStartupException {
+    	startupPlane(false);
+    }
+    
+    public void startupPlane(boolean performAutostartSleep) throws AircraftStartupException {
         
         LOGGER.info("Starting up the C172P");
                 
@@ -124,15 +130,18 @@ public class C172P extends FlightGearAircraft{
             //execute the startup nasal script
             planeStartupTelnetSession.runNasal("c172p.autostart();");
             
-            LOGGER.debug("Startup nasal script was executed. Sleeping for completion.");
+            LOGGER.debug("Startup nasal script was executed.");
             
             //startup may be asynchronous so we have to wait for the next prompt 
             //TODO: maybe run another telnet command as a check
-            try {
-                Thread.sleep(AUTOSTART_COMPLETION_SLEEP);
-            } catch (InterruptedException e) {
-                LOGGER.warn("Startup wait interrupted", e);
-            }        
+            if(performAutostartSleep) {
+            	LOGGER.debug("Sleeping for autostart completion.");
+	            try {
+	                Thread.sleep(AUTOSTART_COMPLETION_SLEEP);
+	            } catch (InterruptedException e) {
+	                LOGGER.warn("Startup wait interrupted", e);
+	            }        
+            }
             
             LOGGER.debug("Startup nasal script execution completed");
         } catch (IOException | InvalidTelnetOptionException e) {
@@ -149,7 +158,8 @@ public class C172P extends FlightGearAircraft{
         int startupWait = 0;
         int sleep = 250;
         
-        while(!this.isEngineRunning() && startupWait < AUTOSTART_COMPLETION_SLEEP) {
+        
+        while(performAutostartSleep && !this.isEngineRunning() && startupWait < AUTOSTART_COMPLETION_SLEEP) {
             LOGGER.debug("Waiting for engine to complete startup");
             try {
                 Thread.sleep(sleep);
@@ -370,34 +380,50 @@ public class C172P extends FlightGearAircraft{
     //////////////
     //telemetry modifiers
     
-    public void forceStabilize(double targetHeading, double targetRoll, double targetPitch) throws IOException {
-        
-        LOGGER.info("forceStabilize called");
-        
-        //pause before copyStateFields so we're not changing an orientation in the past
-        setPause(true);
-        
-        LinkedHashMap<String, String> orientationFields = copyStateFields(FlightGearFields.ORIENTATION_INPUT_FIELDS);
-        
-//        double currentHeading = getHeading();
-//        
-//        if(Math.abs(currentHeading - targetHeading) > 30) {
-//            if(currentHeading > targetHeading) {
-//                targetHeading = currentHeading - 30;
-//            } else {
-//                targetHeading = currentHeading + 30;
-//            }
-//        }
-        
+    private void forceStablizationWrite(double targetHeading, double targetRoll, double targetPitch) throws IOException {
+    	LinkedHashMap<String, String> orientationFields = copyStateFields(FlightGearFields.ORIENTATION_INPUT_FIELDS);
+    	
         orientationFields.put(FlightGearFields.HEADING_FIELD, String.valueOf(targetHeading) ) ;
         orientationFields.put(FlightGearFields.PITCH_FIELD, String.valueOf(targetPitch) );
         orientationFields.put(FlightGearFields.ROLL_FIELD, String.valueOf(targetRoll) );
-
-        writeControlInput(orientationFields, this.orientationInputConnection);
-
-        setPause(false);
         
-        LOGGER.info("Force stablizing to {}", orientationFields.entrySet().toString());
+        writeControlInput(orientationFields, this.orientationInputConnection);
+        
+        if(LOGGER.isDebugEnabled()) {
+        	LOGGER.debug("Force stablizing to {}", orientationFields.entrySet().toString());
+        }
+    }
+    
+    public void forceStabilize(double targetHeading, double targetRoll, double targetPitch) throws IOException {
+    	forceStabilize(targetHeading, targetRoll, targetPitch, true);
+    }
+    
+    public void forceStabilize(double targetHeading, double targetRoll, double targetPitch, boolean pauseSim) throws IOException {
+        
+    	if(LOGGER.isDebugEnabled()) {
+    		LOGGER.debug("forceStabilize called");
+    	}
+        
+        //pause before copyStateFields so we're not changing an orientation in the past
+        //
+        //for most fields we need to be careful about overwriting fields, but for forcibly 
+        //re-orienting the plane we care less about orientation/roll/pitch
+        if(pauseSim) {
+        	try {
+        		setPause(true);
+        	
+        		forceStablizationWrite(targetHeading, targetRoll, targetPitch);
+        	} finally {
+        		setPause(false);
+        	}
+        } 
+        else {
+        	forceStablizationWrite(targetHeading, targetRoll, targetPitch);
+        }
+        
+        if(LOGGER.isDebugEnabled()) {
+        	LOGGER.debug("forceStabilize returning");
+        }
     }
     
     public synchronized void setFuelTank0Level(double amount) throws IOException {

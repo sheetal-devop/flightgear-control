@@ -42,7 +42,7 @@ public class FlightGearTelnetConnection {
     private final static Logger LOGGER = LoggerFactory.getLogger(FlightGearTelnetConnection.class);
 
     public FlightGearTelnetConnection(String host, int port) throws InvalidTelnetOptionException, IOException {
-        LOGGER.info("Starting up FlightGearManagerTelnet connection");
+        LOGGER.info("Starting up FlightGearManagerTelnet connection to {}:{}", host, port);
         
         this.host = host;
         this.port = port;

@@ -1,53 +1,54 @@
 package org.jason.fgcontrol.aircraft.c172p;
 
-//TODO: refactor with changes to FlightGearPlane host/port configuration
-public class C172PConfig {
+import java.util.Properties;
 
-    private String telnetHostname;
-    private String socketsHostname;
-    private int telnetPort;
-    private int socketsPort;
-    
-    private final static String FG_SOCKETS_DEFAULT_HOST = "localhost";
-    private final static int FG_SOCKETS_TELEM_DEFAULT_PORT = 6501;
-    
-    private final static String FG_TELNET_DEFAULT_HOST = "localhost";
-    private final static int FG_TELNET_DEFAULT_PORT = 5501;
-    
-    public C172PConfig() {
-        this(FG_TELNET_DEFAULT_HOST, FG_TELNET_DEFAULT_PORT, FG_SOCKETS_DEFAULT_HOST, FG_SOCKETS_TELEM_DEFAULT_PORT);
+import org.jason.fgcontrol.aircraft.config.ConfigDirectives;
+import org.jason.fgcontrol.aircraft.config.SimNetworkingConfig;
+
+public class C172PConfig extends SimNetworkingConfig {
+   
+	private final static String DEFAULT_AIRCRAFT_NAME = "C172P_Default";
+	private String aircraftName;
+	
+	public C172PConfig() {
+        super(
+        	SimNetworkingConfig.DEFAULT_TELNET_HOST, 
+        	SimNetworkingConfig.DEFAULT_TELNET_PORT, 
+        	SimNetworkingConfig.DEFAULT_SOCKETS_TELEM_HOST, 
+        	SimNetworkingConfig.DEFAULT_SOCKETS_TELEM_PORT
+        );
+        
+        aircraftName = DEFAULT_AIRCRAFT_NAME;
     }
     
     public C172PConfig(String telnetHostname, int telnetPort, String socketsHostname, int socketsPort) {
-        super();
-        this.telnetHostname = telnetHostname;
-        this.socketsHostname = socketsHostname;
-        this.telnetPort = telnetPort;
-        this.socketsPort = socketsPort;
+        super(
+        		telnetHostname,
+        		telnetPort,
+        		socketsHostname,
+        		socketsPort
+        );
+        
+        aircraftName = DEFAULT_AIRCRAFT_NAME;
     }
     
-    public String getTelnetHostname() {
-        return telnetHostname;
+    public C172PConfig(Properties configProperties) {
+    	super(configProperties);
+    	
+    	//any c172-specific config processing happens here
+    	if(configProperties.containsKey(ConfigDirectives.AIRCRAFT_NAME_DIRECTIVE)) {
+    		aircraftName = configProperties.getProperty(ConfigDirectives.AIRCRAFT_NAME_DIRECTIVE);
+    	} 
+    	else {
+    		aircraftName = DEFAULT_AIRCRAFT_NAME;
+    	}
     }
-    public void setTelnetHostname(String telnetHostname) {
-        this.telnetHostname = telnetHostname;
-    }
-    public String getSocketsHostname() {
-        return socketsHostname;
-    }
-    public void setSocketsHostname(String socketsHostname) {
-        this.socketsHostname = socketsHostname;
-    }
-    public int getTelnetPort() {
-        return telnetPort;
-    }
-    public void setTelnetPort(int telnetPort) {
-        this.telnetPort = telnetPort;
-    }
-    public int getSocketsPort() {
-        return socketsPort;
-    }
-    public void setSocketsPort(int socketsPort) {
-        this.socketsPort = socketsPort;
-    }
+    
+    public String getAircraftName() {
+		return aircraftName;
+	}
+
+	public void setAircraftName(String aircraftName) {
+		this.aircraftName = aircraftName;
+	}    
 }

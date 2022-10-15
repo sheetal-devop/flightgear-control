@@ -78,7 +78,7 @@ public class FlightGearInputConnection implements Closeable {
         //foreach key, write the value into a simple unquoted csv string. fail socket write on missing values
         for( Entry<String, String> entry : inputHash.entrySet()) {
  
-            //TODO: more checks around value
+            //TODO: more checks around value - isEmpty/isBlank
             if( !entry.getValue().equals( "" )) {
                 controlInput.append(entry.getValue());
             }
@@ -101,6 +101,7 @@ public class FlightGearInputConnection implements Closeable {
             try {
                 writeToSocket(controlInput.toString());
                 
+                //print all of what was read if logging is set for it
                 if(LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Wrote control input to socket: {}", controlInput.toString());
                     
@@ -110,7 +111,9 @@ public class FlightGearInputConnection implements Closeable {
                         output.append(String.format("%s => %s\n", field.getKey(), field.getValue()));
                     }
                         
-                    LOGGER.debug("Wrote field data to socket:\n{}\n=======", output.toString() );    
+                    if(LOGGER.isDebugEnabled()) {
+                    	LOGGER.debug("Wrote field data to socket:\n{}\n=======", output.toString() );
+                    }
                 }
             } catch (IOException e) {
                 LOGGER.error("Socket write failed", e);
@@ -138,7 +141,9 @@ public class FlightGearInputConnection implements Closeable {
         
         byte[] fgInputPayload = input.getBytes(utf8_charset);
 
-        LOGGER.debug("Sending input to {}:{}", this.host, this.port);
+        if(LOGGER.isDebugEnabled()) {
+        	LOGGER.debug("Sending input to {}:{}", this.host, this.port);
+        }
 
         try {
             DatagramPacket fgInputPacket = new DatagramPacket(
@@ -152,7 +157,9 @@ public class FlightGearInputConnection implements Closeable {
 
             fgInputSocket.send(fgInputPacket);
 
-            LOGGER.debug("Completed input write to {}:{}", this.host, this.port);
+            if(LOGGER.isDebugEnabled()) {
+            	LOGGER.debug("Completed input write to {}:{}", this.host, this.port);
+            }
         } 
         catch (SocketException e) {
             //a subclass of IOException. timeouts are thrown here 
@@ -174,7 +181,9 @@ public class FlightGearInputConnection implements Closeable {
             }
         }
         
-        LOGGER.debug("writeControlInput for {}:{} returning", this.host, this.port);
+        if(LOGGER.isDebugEnabled()) {
+        	LOGGER.debug("writeControlInput for {}:{} returning", this.host, this.port);
+        }
     }
 
     @Override

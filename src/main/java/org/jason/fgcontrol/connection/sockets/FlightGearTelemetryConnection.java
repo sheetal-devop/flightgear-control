@@ -5,7 +5,9 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
@@ -25,7 +27,8 @@ public class FlightGearTelemetryConnection {
         
     private final static int SOCKET_TIMEOUT = 5000;
     
-    //keep an eye on this. this can silently truncate a telemetry read resulting in consistent read failures 
+    //keep an eye on this. this can silently truncate a telemetry read resulting in consistent
+    //read failures if this is smaller than the data retrieved by the telemetry read 
     private final static int MAX_RECEIVE_BUFFER_LEN = 8192;
     
     //TODO: default values overridable, or used to generate protocol files from templates
@@ -49,6 +52,8 @@ public class FlightGearTelemetryConnection {
         }
         
         this.telemetryPort = telemetryPort;
+        
+        LOGGER.info("Initializing FlightGearTelemetryConnection for {}({}):{}", this.host, this.hostIp, this.telemetryPort);
     }
     
     /**
@@ -60,15 +65,19 @@ public class FlightGearTelemetryConnection {
      */
     public String readTelemetry() throws IOException {
         
-        LOGGER.trace("Telemetry called for {}:{}", host, telemetryPort);
+    	if(LOGGER.isTraceEnabled()) {
+    		LOGGER.trace("Telemetry called for {}:{}", host, telemetryPort);
+    	}
         
-        //empty string by default
-        String output = "";
+    	//TODO: move declarations to constructor
+        String output = null;
         
         DatagramSocket fgTelemetrySocket = null;
 
         try {
         	
+        	//TODO: find a way to reuse the packet object rather than reallocating new byte arrays for each invocation
+        	//however see below when this can cause problems
             DatagramPacket fgTelemetryPacket = new DatagramPacket(new byte[MAX_RECEIVE_BUFFER_LEN], MAX_RECEIVE_BUFFER_LEN);
         	
             //technically a server connection. we connect to the fg port, which starts sending us data
@@ -77,12 +86,23 @@ public class FlightGearTelemetryConnection {
             fgTelemetrySocket.setReceiveBufferSize(MAX_RECEIVE_BUFFER_LEN);
             
             fgTelemetrySocket.receive(fgTelemetryPacket);
+                        
+            //TODO: switch to new String(byteArray, offset, len, charset), warn message if length doesn't match expectations
             
-            output = new String(fgTelemetryPacket.getData()).trim();  
+            //a call to new String(bytes[], charset) seems to be convention for converting the byte[]
+            //returned by DatagramPacket.getData() to a string
+            output = new String(fgTelemetryPacket.getData(), StandardCharsets.UTF_8).trim();  
             
-            LOGGER.trace("Raw telemetry successfully received from socket.");
-            
-        } catch (IOException e) {
+            if(LOGGER.isTraceEnabled()) {
+            	LOGGER.trace("Raw telemetry successfully received from socket.");
+            }
+        } 
+        catch (SocketTimeoutException e) {
+            LOGGER.warn("SocketTimeoutException reading raw telemetry from socket", e);
+
+            throw e;
+        }        
+        catch (IOException e) {
             //comms errors connecting to fg telemetry socket
             
             LOGGER.warn("IOException reading raw telemetry from socket", e);
@@ -96,6 +116,11 @@ public class FlightGearTelemetryConnection {
             else
             {
                 LOGGER.warn("Attempted to close fgTelemetrySocket, but was already closed or null");
+            }
+            
+            //empty string by default
+            if(output == null) {
+            	output = "";
             }
         }
                 
@@ -127,7 +152,9 @@ public class FlightGearTelemetryConnection {
         
         //TODO: count accepted lines and compare against schema
         
-        LOGGER.trace("Parsing up raw telemetry data");
+        if(LOGGER.isTraceEnabled()) {
+        	LOGGER.trace("Parsing up raw telemetry data");
+        }
         
         int telemetryLineCount = 0;
         StringBuilder cleanOutput = new StringBuilder();
@@ -146,8 +173,9 @@ public class FlightGearTelemetryConnection {
             }
         }
         
-        LOGGER.trace("readTelemetry returning. Read {} lines", telemetryLineCount);
-                
+        if(LOGGER.isTraceEnabled()) {
+        	LOGGER.trace("readTelemetry returning. Read {} lines", telemetryLineCount);
+        }        
         
         //return after adding json braces
         return cleanOutput.insert(0, "{").append("}").toString();
