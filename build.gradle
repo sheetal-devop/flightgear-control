@@ -26,7 +26,7 @@ dependencies {
 }
 
 ext {
-    fgControlVersion = "0.1"
+    fgControlVersion = "0.2"
     title = "flightgear-control"
 }
 
