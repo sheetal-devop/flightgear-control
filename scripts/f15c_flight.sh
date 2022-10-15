@@ -14,6 +14,7 @@ RES_GEOMETRY_STR=""$X_RES"x"$Y_RES
 
 #pauses sim after launching
 
+#start heading
 #use heading if supplied, otherwise just head north
 HEADING=${1:-0}
 
