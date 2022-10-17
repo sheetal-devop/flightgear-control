@@ -54,6 +54,7 @@ public abstract class WaypointFlightExecutor {
 	 * be configured by the invoker, and have a set of waypoints loaded. Blocks until flightplan is completed. 
 	 * 
 	 * @param plane		Planey McF15CFace
+	 * 
 	 * @throws IOException 
 	 */
 	public static void runFlight(F15C plane) throws IOException {
@@ -113,6 +114,7 @@ public abstract class WaypointFlightExecutor {
         while(plane.getWaypointCount() > 0) {
             
             nextWaypoint = plane.getAndRemoveNextWaypoint();
+            plane.setCurrentWaypointTarget(nextWaypoint);
             
             //possibly slow the simulator down if the next waypoint is close.
             //it's possible that hard and frequent course adjustments are needed
@@ -136,6 +138,10 @@ public abstract class WaypointFlightExecutor {
             
             double currentHeading;
             int headingComparisonResult;
+            
+            //waypoint approach flag since the f15c travels at high speeds
+            boolean waypointApproach = false;
+            
             while(!FlightUtilities.withinHeadingThreshold(plane, MAX_HEADING_CHANGE, nextWaypointBearing)) {
                 
                 currentHeading = plane.getHeading();
@@ -208,6 +214,7 @@ public abstract class WaypointFlightExecutor {
             
             //on our way. throttle up
             plane.setEngineThrottles(F15CFields.THROTTLE_MAX);
+            waypointApproach = false;
             
             ///////////////////////////////
             //main flight path to way point
@@ -215,7 +222,7 @@ public abstract class WaypointFlightExecutor {
             
             //add our next waypoint to the log
             plane.addWaypointToFlightLog(nextWaypoint);
-            
+
             while( !PositionUtilities.hasArrivedAtWaypoint(plane.getPosition(), nextWaypoint, WAYPOINT_ARRIVAL_THRESHOLD) ) {
             
             	if(LOGGER.isTraceEnabled()) {
@@ -241,11 +248,15 @@ public abstract class WaypointFlightExecutor {
                 plane.addTrackPositionToFlightLog(currentPosition);
                 
                 //adjust the throttle once we've gotten close enough to ease waypoint transitions
+                
                 if(    
                     distanceToNextWaypoint > WAYPOINT_ADJUST_MIN_DIST //&&
                     //waypointFlightCycles % bearingRecalcCycleInterval == 0
                 ) 
                 {
+                	//normal transit between waypoints. 
+                	//far enough away from the last, but not close enough to the next
+                	
                     //reset bearing incase we've drifted, not not if we're too close
                     nextWaypointBearing = PositionUtilities.calcBearingToGPSCoordinates(plane.getPosition(), nextWaypoint);
                     
@@ -254,12 +265,18 @@ public abstract class WaypointFlightExecutor {
                         nextWaypointBearing += FlightUtilities.DEGREES_CIRCLE;
                     }
                     
-                    LOGGER.info("Recalculating bearing to waypoint: {}", nextWaypointBearing);
-                } else if ( distanceToNextWaypoint < WAYPOINT_ARRIVAL_THRESHOLD * 3 ) {
+                    LOGGER.info("Recalculating bearing to waypoint: {}", nextWaypointBearing);   
+                } else if ( !waypointApproach && distanceToNextWaypoint < WAYPOINT_ARRIVAL_THRESHOLD * 3 ) {
+                	
                     //throttle down for waypoint approach to accommodate any late corrections
                     
+                	LOGGER.info("Setting throttle for waypoint approach: {}", THROTTLE_WAYPOINT_APPROACH);
+                	
                     plane.setEngineThrottles(THROTTLE_WAYPOINT_APPROACH);
-                } else if (plane.getEngine0Throttle() != F15CFields.THROTTLE_MAX) {
+                    
+                    waypointApproach = true;
+                    
+                } else if ( !waypointApproach && plane.getEngine0Throttle() != F15CFields.THROTTLE_MAX) {
                     
                     //far enough away from the previous waypoint and not close enough to the next
                     //throttle up to max if we haven't already
