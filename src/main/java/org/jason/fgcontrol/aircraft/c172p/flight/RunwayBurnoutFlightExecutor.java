@@ -26,6 +26,10 @@ public abstract class RunwayBurnoutFlightExecutor {
 	
 	public static void runFlight(C172P plane) throws IOException, AircraftStartupException, InterruptedException {
         
+		if(LOGGER.isDebugEnabled()) {
+			LOGGER.debug("runFlight executing");	
+		}
+		
         //start the engine up to start consuming fuel
         plane.startupPlane(true);
 
@@ -68,17 +72,19 @@ public abstract class RunwayBurnoutFlightExecutor {
         
         while( plane.isEngineRunning() ) {
             
-            LOGGER.debug("======================\nCycle start.");
-                        
-            LOGGER.info("Telemetry Read: {}", telemetryReadOut(plane));
-            
+        	if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug("======================\nCycle start.");
+                
+                LOGGER.debug("Telemetry Read: {}", telemetryReadOut(plane));
+                
+                LOGGER.debug("Cycle end\n======================");
+        	}
+
             try {
                 Thread.sleep(RUNTIME_SLEEP);
             } catch (InterruptedException e) {
                 LOGGER.warn("Runtime sleep interrupted", e);
             }
-            
-            LOGGER.debug("Cycle end\n======================");
         }
         
         LOGGER.debug("Exiting runtime loop");

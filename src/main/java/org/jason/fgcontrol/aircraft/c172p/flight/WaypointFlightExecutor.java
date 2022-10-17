@@ -33,6 +33,7 @@ public abstract class WaypointFlightExecutor {
     private final static double MAX_HEADING_CHANGE = 20.0;
     
     //adjust in smaller increments than MAX_HEADING_CHANGE, since course changes can be radical
+    //TODO: lower this value after waypoint interpolation is implemented
     private final static double COURSE_ADJUSTMENT_INCREMENT = 12.5;
     
     private final static double TARGET_ROLL = 0.0;

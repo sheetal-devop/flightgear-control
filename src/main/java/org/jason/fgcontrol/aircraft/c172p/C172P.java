@@ -101,7 +101,8 @@ public class C172P extends FlightGearAircraft {
             		networkConfig.getTelemetryOutputHost(), 
             		networkConfig.getTelemetryOutputPort()
             );
-               
+              
+            
             //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
             launchTelemetryThread();
         } catch (SocketException | UnknownHostException e) {
