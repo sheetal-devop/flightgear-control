@@ -3,19 +3,19 @@ package org.jason.fgcontrol.aircraft.c172p;
 import java.util.Properties;
 
 import org.jason.fgcontrol.aircraft.config.ConfigDirectives;
-import org.jason.fgcontrol.aircraft.config.SimNetworkingConfig;
+import org.jason.fgcontrol.aircraft.config.SimulatorConfig;
 
-public class C172PConfig extends SimNetworkingConfig {
+public class C172PConfig extends SimulatorConfig {
    
 	private final static String DEFAULT_AIRCRAFT_NAME = "C172P_Default";
 	private String aircraftName;
 	
 	public C172PConfig() {
         super(
-        	SimNetworkingConfig.DEFAULT_TELNET_HOST, 
-        	SimNetworkingConfig.DEFAULT_TELNET_PORT, 
-        	SimNetworkingConfig.DEFAULT_SOCKETS_TELEM_HOST, 
-        	SimNetworkingConfig.DEFAULT_SOCKETS_TELEM_PORT
+        	SimulatorConfig.DEFAULT_TELNET_HOST, 
+        	SimulatorConfig.DEFAULT_TELNET_PORT, 
+        	SimulatorConfig.DEFAULT_SOCKETS_TELEM_HOST, 
+        	SimulatorConfig.DEFAULT_SOCKETS_TELEM_PORT
         );
         
         aircraftName = DEFAULT_AIRCRAFT_NAME;

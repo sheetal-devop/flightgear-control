@@ -1,6 +1,7 @@
 package org.jason.fgcontrol.aircraft;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,8 +13,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
-import org.jason.fgcontrol.aircraft.config.SimNetworkingConfig;
+import org.jason.fgcontrol.aircraft.config.SimulatorConfig;
 import org.jason.fgcontrol.aircraft.fields.FlightGearFields;
+import org.jason.fgcontrol.aircraft.view.CameraViewer;
 import org.jason.fgcontrol.connection.sockets.FlightGearInputConnection;
 import org.jason.fgcontrol.connection.telnet.FlightGearTelnetConnection;
 import org.jason.fgcontrol.flight.position.TrackPosition;
@@ -36,18 +38,22 @@ public abstract class FlightGearAircraft {
     private final static int POST_PAUSE_SLEEP = 125;
     
     private boolean runTelemetryThread;
+    private boolean runCameraViewThread;
     
-    private Thread telemetryThread;
+    private Thread readTelemetryThread;
+    private Thread readCameraViewThread;
     
     protected Map<String, String> currentState;
     
     //writing telemetry
-    protected AtomicBoolean stateWriting;
+    protected AtomicBoolean telemetryStateWriting;
     
     //reading telemetry from socket
-    protected AtomicBoolean stateReading;
+    protected AtomicBoolean telemetryStateReading;
     
-    protected SimNetworkingConfig networkConfig;
+    protected SimulatorConfig simulatorConfig;
+    
+    /////////
     
     protected WaypointManager waypointManager;
     protected WaypointPosition currentWaypointTarget;
@@ -56,20 +62,50 @@ public abstract class FlightGearAircraft {
     
     protected AtomicBoolean abandonCurrentWaypoint;
 
+    protected boolean enableCameraViewer;   
+	private CameraViewer cameraViewer;
+	
+    protected boolean enableCaltrops;
+
     public FlightGearAircraft() {
-        this(new SimNetworkingConfig());
+        this(new SimulatorConfig());
     }
     
-    public FlightGearAircraft(SimNetworkingConfig config) {
-    	networkConfig = config;
+    public FlightGearAircraft(SimulatorConfig config) {
+    	simulatorConfig = config;
     	
         //linkedhashmap to match the xml schema loaded into the simulator
         currentState = Collections.synchronizedMap(new LinkedHashMap<String, String>());
         
-        stateWriting = new AtomicBoolean(false);
-        stateReading = new AtomicBoolean(false);
+        telemetryStateWriting = new AtomicBoolean(false);
+        telemetryStateReading = new AtomicBoolean(false);
         
         abandonCurrentWaypoint = new AtomicBoolean(false);
+        
+        enableCameraViewer = false;
+        cameraViewer = null;
+        
+        ///////////////
+        //if the camera view host is not defined in the config, don't build the camera viewer
+        String cameraViewHost = simulatorConfig.getCameraViewerHost();
+        
+        //just catch the exception and proceed without enabling the camera viewer if we can't access the camera feed
+        //TODO: better bubbling of setup exceptions like this and telemetry reading to the invoker
+        if(cameraViewHost != null) {
+        	int cameraViewPort = simulatorConfig.getCameraViewerPort();
+        	
+        	try {
+				cameraViewer = new CameraViewer(cameraViewHost, cameraViewPort);
+				enableCameraViewer = true;
+			} catch (URISyntaxException e) {
+				LOGGER.error("URI exception setting up camera viewer", e);
+			}
+        }	
+        
+        //no sshd server, handled by application
+        //no caltrops client, handled by application
+        //config comes from the app, so directives are available there
+        ///////////////
         
         initWaypointManager();
         initFlightLog();
@@ -173,12 +209,14 @@ public abstract class FlightGearAircraft {
     }
     
     ////////////
-    //telemetry
+    //background threads
     
+    //telemetry thread
     protected void launchTelemetryThread() {
-        runTelemetryThread = true;
         
-        telemetryThread = new Thread() {
+    	runTelemetryThread = true;
+        
+        readTelemetryThread = new Thread() {
             @Override
             public void run() {
             	if(LOGGER.isTraceEnabled()) {
@@ -192,11 +230,11 @@ public abstract class FlightGearAircraft {
                 }
             }
         };
-        telemetryThread.start();
+        readTelemetryThread.start();
         
         //TODO: fail gracefully if this never succeeds
         //wait for the first read to arrive
-        while( !stateWriting.get() && currentState.size() == 0) {
+        while( !telemetryStateWriting.get() && currentState.size() == 0) {
         	if(LOGGER.isDebugEnabled()) {
         		LOGGER.debug("Waiting for first telemetry read to complete after thread start");
         	}
@@ -211,10 +249,41 @@ public abstract class FlightGearAircraft {
         LOGGER.info("Launched telemetry thread and received first read");
     }
     
+    //cam feed thread
+    protected void launchCameraViewerThread() {
+    	
+    	if(!enableCameraViewer || cameraViewer == null) {
+    		//shouldn't get here if we haven't built this object
+    		LOGGER.error("launchCameraViewThread found a null cameraViewer. aborting launch of camera viewer");
+    		return;
+    	}
+    	
+    	runCameraViewThread = true;
+    	
+    	readCameraViewThread = new Thread() {
+            @Override
+            public void run() {
+            	if(LOGGER.isTraceEnabled()) {
+            		LOGGER.trace("Camera view thread started");
+            	}
+                
+            	readCameraView();
+                
+                if(LOGGER.isTraceEnabled()) {
+                	LOGGER.trace("Camera view thread returning");
+                }
+            }
+    	};
+    	readCameraViewThread.start();
+    }
+    
+    
+    ////////////
+    
     protected LinkedHashMap<String, String> copyStateFields(String[] fields) {
         LinkedHashMap<String, String> retval = new LinkedHashMap<>();
         
-        while(stateWriting.get()) {
+        while(telemetryStateWriting.get()) {
         	if(LOGGER.isTraceEnabled()) {
         		LOGGER.trace("Waiting for state writing to complete");
         	}
@@ -226,7 +295,7 @@ public abstract class FlightGearAircraft {
             }
         }
         
-        stateReading.set(true);
+        telemetryStateReading.set(true);
         for(String field : fields) {
             if(currentState.containsKey(field)) {
                 retval.put(field, currentState.get(field));
@@ -236,13 +305,17 @@ public abstract class FlightGearAircraft {
                 LOGGER.warn("Current state missing field: " + field);
             }
         }
-        stateReading.set(false);
+        telemetryStateReading.set(false);
         
         return retval;
     }
 
     public boolean runningTelemetryThread() {
         return runTelemetryThread;
+    }
+    
+    public boolean runningCameraViewThread() {
+    	return runCameraViewThread;
     }
     
     /**
@@ -254,7 +327,7 @@ public abstract class FlightGearAircraft {
         Map<String, String> retval = new HashMap<>();
                 
         //TODO: time this out, trigger some kind of reset or clean update
-        while(stateWriting.get()) {
+        while(telemetryStateWriting.get()) {
         	if(LOGGER.isTraceEnabled()) {
         		LOGGER.trace("Waiting for state writing to complete");
         	}
@@ -266,9 +339,9 @@ public abstract class FlightGearAircraft {
             }
         }
                 
-        stateReading.set(true);
+        telemetryStateReading.set(true);
         retval.putAll(currentState);
-        stateReading.set(false);
+        telemetryStateReading.set(false);
         
         return retval;
     }
@@ -291,7 +364,7 @@ public abstract class FlightGearAircraft {
         keyList.addAll(fieldNames);
         
         //TODO: time this out, trigger some kind of reset or clean update
-        while(stateWriting.get()) {
+        while(telemetryStateWriting.get()) {
         	if(LOGGER.isTraceEnabled()) {
         		LOGGER.trace("Waiting for state writing to complete");
         	}
@@ -303,7 +376,7 @@ public abstract class FlightGearAircraft {
             }
         }
         
-        stateReading.set(true);
+        telemetryStateReading.set(true);
         
       //TODO: get working for types
 //        retval = currentState.entrySet()
@@ -312,7 +385,7 @@ public abstract class FlightGearAircraft {
 //                .map(Map.Entry::getValue)
 //                .collect(Collectors.toList());
         
-        stateReading.set(false);
+        telemetryStateReading.set(false);
         
         return retval;
     }
@@ -328,7 +401,7 @@ public abstract class FlightGearAircraft {
         String retval = null;
         
         //TODO: time this out, trigger some kind of reset or clean update
-        while(stateWriting.get()) {
+        while(telemetryStateWriting.get()) {
         	if(LOGGER.isTraceEnabled()) {
         		LOGGER.trace("Waiting for state writing to complete");
         	}
@@ -340,9 +413,9 @@ public abstract class FlightGearAircraft {
             }
         }
         
-        stateReading.set(true);
+        telemetryStateReading.set(true);
         retval = currentState.get(fieldName);
-        stateReading.set(false);
+        telemetryStateReading.set(false);
         
         return retval;
     }
@@ -356,11 +429,11 @@ public abstract class FlightGearAircraft {
         int waitTime = 0;
         int interval = 250;
         int maxWait = 2000;
-        while(telemetryThread.isAlive()) {
+        while(readTelemetryThread.isAlive()) {
         	LOGGER.debug("waiting on telemetry thread to terminate");
             
             if(waitTime >= maxWait) {
-                telemetryThread.interrupt();
+                readTelemetryThread.interrupt();
             }
             else {
                 waitTime += interval;
@@ -373,13 +446,13 @@ public abstract class FlightGearAircraft {
         }
         
 
-    	LOGGER.debug("Telemetry thread terminated. isAlive: {}", telemetryThread.isAlive());
+    	LOGGER.debug("Telemetry thread terminated. isAlive: {}", readTelemetryThread.isAlive());
         
         LOGGER.info("Plane shutdown completed");
     }
     
     //internal telemetry retrieval thread
-    private void readTelemetry() {
+    protected void readTelemetry() {
         
         //enable pause on sim freeze? how would we know when the simulator was unpaused without an update?
         String telemetryRead = null;
@@ -391,7 +464,7 @@ public abstract class FlightGearAircraft {
             
             //wait for any state read operations to finish
             //TODO: max wait on this
-            while(stateReading.get()) {
+            while(telemetryStateReading.get()) {
             	if(LOGGER.isTraceEnabled()) {
             		LOGGER.trace("Waiting for state reading to complete");
             	}
@@ -403,7 +476,7 @@ public abstract class FlightGearAircraft {
                 }
             }
             
-            stateWriting.set(true);
+            telemetryStateWriting.set(true);
             //read from socket connection. retrieves json string. write state to map
             //TODO: make this not awful
 
@@ -437,7 +510,7 @@ public abstract class FlightGearAircraft {
                 LOGGER.error("IOException parsing telemetry. Received:\n{}\n===", telemetryRead, ioException);
             }
             finally {
-                stateWriting.set(false);
+                telemetryStateWriting.set(false);
                 
                 //sleep before next update. successful or not
                 try {
@@ -457,6 +530,31 @@ public abstract class FlightGearAircraft {
     	}
     }
     
+    protected void readCameraView() {
+        //enable pause on sim freeze? how would we know when the simulator was unpaused without an update?
+        while(runningCameraViewThread()) {
+            
+        	if(LOGGER.isTraceEnabled()) {
+        		LOGGER.trace("Begin camera view read cycle");
+        	}
+        	
+        	//rest request to endpoint
+        	
+        	//write our result to somewhere
+        	
+        	//token sleep so we yield
+        	try {
+				Thread.sleep(5);
+			} catch (InterruptedException e) {
+				LOGGER.warn("Camera view read trailing sleep interrupted", e);
+			}
+        }
+        
+    	if(LOGGER.isDebugEnabled()) {
+    		LOGGER.debug("readCameraView returning");
+    	}
+    }
+    
     /////////////////
     //simulator management
     
@@ -466,7 +564,7 @@ public abstract class FlightGearAircraft {
         FlightGearTelnetConnection telnetSession = null;
 
         try {
-            telnetSession = new FlightGearTelnetConnection(networkConfig.getTelnetHost(), networkConfig.getTelnetPort());
+            telnetSession = new FlightGearTelnetConnection(simulatorConfig.getTelnetHost(), simulatorConfig.getTelnetPort());
             telnetSession.resetSimulator();
 
             LOGGER.info("Simulator reset completed");
@@ -489,7 +587,7 @@ public abstract class FlightGearAircraft {
         FlightGearTelnetConnection telnetSession = null;
 
         try {
-            telnetSession = new FlightGearTelnetConnection(networkConfig.getTelnetHost(), networkConfig.getTelnetPort());
+            telnetSession = new FlightGearTelnetConnection(simulatorConfig.getTelnetHost(), simulatorConfig.getTelnetPort());
             telnetSession.terminateSimulator();
 
             LOGGER.info("Simulator termination completed");

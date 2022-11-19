@@ -34,7 +34,11 @@ START_PORT_RANGE=${2:-6500}
 
 #check port range constraints (not too low, not above max)
 
-#TODO: selectively enable httpd
+
+SIM_HOST="192.168.1.244"
+
+
+
 
 #port population:
 #START_PORT_RANGE   => output
@@ -93,20 +97,20 @@ fgfs \
  --fg-aircraft=/usr/share/games/flightgear/Aircraft\
  --lat=$START_LAT\
  --lon=$START_LON\
- --generic=socket,out,45,localhost,$TELEM_OUTPUT_PORT,udp,c172p_output\
- --generic=socket,in,45,localhost,$CONSUMABLES_INPUT_PORT,udp,c172p_input_consumables\
- --generic=socket,in,45,localhost,$CONTROLS_INPUT_PORT,udp,c172p_input_controls\
- --generic=socket,in,45,localhost,$ENGINES_INPUT_PORT,udp,c172p_input_engines\
- --generic=socket,in,45,localhost,$FDM_INPUT_PORT,udp,c172p_input_fdm\
- --generic=socket,in,45,localhost,$ORIENTATION_INPUT_PORT,udp,c172p_input_orientation\
- --generic=socket,in,45,localhost,$POSITION_INPUT_PORT,udp,c172p_input_position\
- --generic=socket,in,45,localhost,$SIM_INPUT_PORT,udp,c172p_input_sim\
- --generic=socket,in,45,localhost,$SIM_FREEZE_INPUT_PORT,udp,c172p_input_sim_freeze\
- --generic=socket,in,45,localhost,$SIM_MODEL_INPUT_PORT,udp,c172p_input_sim_model\
- --generic=socket,in,45,localhost,$SIM_SPEEDUP_INPUT_PORT,udp,c172p_input_sim_speedup\
- --generic=socket,in,45,localhost,$SIM_TIME_INPUT_PORT,udp,c172p_input_sim_time\
- --generic=socket,in,45,localhost,$SYSTEMS_INPUT_PORT,udp,c172p_input_systems\
- --generic=socket,in,45,localhost,$VELOCITIES_INPUT_PORT,udp,c172p_input_velocities\
+ --generic=socket,out,45,$SIM_HOST,$TELEM_OUTPUT_PORT,udp,c172p_output\
+ --generic=socket,in,45,$SIM_HOST,$CONSUMABLES_INPUT_PORT,udp,c172p_input_consumables\
+ --generic=socket,in,45,$SIM_HOST,$CONTROLS_INPUT_PORT,udp,c172p_input_controls\
+ --generic=socket,in,45,$SIM_HOST,$ENGINES_INPUT_PORT,udp,c172p_input_engines\
+ --generic=socket,in,45,$SIM_HOST,$FDM_INPUT_PORT,udp,c172p_input_fdm\
+ --generic=socket,in,45,$SIM_HOST,$ORIENTATION_INPUT_PORT,udp,c172p_input_orientation\
+ --generic=socket,in,45,$SIM_HOST,$POSITION_INPUT_PORT,udp,c172p_input_position\
+ --generic=socket,in,45,$SIM_HOST,$SIM_INPUT_PORT,udp,c172p_input_sim\
+ --generic=socket,in,45,$SIM_HOST,$SIM_FREEZE_INPUT_PORT,udp,c172p_input_sim_freeze\
+ --generic=socket,in,45,$SIM_HOST,$SIM_MODEL_INPUT_PORT,udp,c172p_input_sim_model\
+ --generic=socket,in,45,$SIM_HOST,$SIM_SPEEDUP_INPUT_PORT,udp,c172p_input_sim_speedup\
+ --generic=socket,in,45,$SIM_HOST,$SIM_TIME_INPUT_PORT,udp,c172p_input_sim_time\
+ --generic=socket,in,45,$SIM_HOST,$SYSTEMS_INPUT_PORT,udp,c172p_input_systems\
+ --generic=socket,in,45,$SIM_HOST,$VELOCITIES_INPUT_PORT,udp,c172p_input_velocities\
  --telnet=$TELNET_PORT\
  --httpd=$CAM_VIEW_PORT\
  --disable-ai-traffic\

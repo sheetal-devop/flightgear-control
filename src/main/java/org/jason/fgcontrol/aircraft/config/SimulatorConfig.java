@@ -2,16 +2,20 @@ package org.jason.fgcontrol.aircraft.config;
 
 import java.util.Properties;
 
-public class SimNetworkingConfig {
+public class SimulatorConfig {
+	
+	protected final static int UNCONFIG_PORT = -1;
 
     protected final static String DEFAULT_SOCKETS_TELEM_HOST = "localhost";
     protected final static int DEFAULT_SOCKETS_TELEM_PORT = 6501;
     
-    protected final static String DEFAULT_SOCKETS_INPUT_HOST = "localhost";
+    
+    protected final static String DEFAULT_CAMERA_VIEW_HOST = "localhost";   
     
     protected final static String DEFAULT_TELNET_HOST = "localhost";
     protected final static int DEFAULT_TELNET_PORT = 5501;
 
+    protected final static String DEFAULT_SOCKETS_INPUT_HOST = "localhost";
     protected final static int DEFAULT_SOCKETS_INPUT_CONSUMABLES_PORT = 6601;
     protected final static int DEFAULT_SOCKETS_INPUT_CONTROLS_PORT = 6602;
     protected final static int DEFAULT_SOCKETS_INPUT_ENGINES_PORT = 6603;
@@ -26,6 +30,8 @@ public class SimNetworkingConfig {
     protected final static int DEFAULT_SOCKETS_INPUT_SYSTEM_PORT = 6612;
     protected final static int DEFAULT_SOCKETS_INPUT_VELOCITIES_PORT = 6613;
 
+    public final static String DEFAULT_SSHD_HOME_DIR = "/tmp/flightgear-control";
+    
     protected String telemetryOutputHost;
     protected int telemetryOutputPort;
 
@@ -49,7 +55,21 @@ public class SimNetworkingConfig {
     protected int systemsInputPort;
     protected int velocitiesInputPort;
     
-	public SimNetworkingConfig() {
+    protected String caltropsHost;
+    protected int caltropsPort;
+    
+    protected String cameraViewHost;
+    protected int cameraViewPort;
+    
+    protected String cameraStreamHost;
+    protected int cameraStreamPort;
+    
+    protected int sshdPort;
+    protected String sshdHomeDir;
+    
+	//simple option for simple sim setups and testing
+    //default control input ports are still set but the sim probably doesn't have them open
+	public SimulatorConfig() {
         
         telemetryOutputHost = DEFAULT_SOCKETS_TELEM_HOST;
         telemetryOutputPort = DEFAULT_SOCKETS_TELEM_PORT;
@@ -72,11 +92,24 @@ public class SimNetworkingConfig {
         simTimeInputPort = DEFAULT_SOCKETS_INPUT_SIM_TIME_PORT;
         systemsInputPort = DEFAULT_SOCKETS_INPUT_SYSTEM_PORT;
         velocitiesInputPort = DEFAULT_SOCKETS_INPUT_VELOCITIES_PORT;
+        
+        //defaults to signal not to configure
+        caltropsHost = null;
+        caltropsPort = UNCONFIG_PORT;
+        
+        cameraViewHost = null;
+        cameraViewPort = UNCONFIG_PORT;
+        
+        cameraStreamHost = null;
+        cameraStreamPort = UNCONFIG_PORT;
+        
+        sshdPort = UNCONFIG_PORT;
+        sshdHomeDir = DEFAULT_SSHD_HOME_DIR;
     }
-	
-	//simple option for simple sim setups
+
+	//simple option for simple sim setups and testing
 	//default control input ports are still set but the sim probably doesn't have them open
-    public SimNetworkingConfig(String telnetHost, int telnetPort, String socketsTelemHost, int socketsTelemPort) 
+    public SimulatorConfig(String telnetHost, int telnetPort, String socketsTelemHost, int socketsTelemPort) 
     {
     	this();
     	
@@ -87,7 +120,7 @@ public class SimNetworkingConfig {
         this.telnetPort = telnetPort;
 	}
     
-    public SimNetworkingConfig(Properties configProperties) {
+    public SimulatorConfig(Properties configProperties) {
     	//set defaults and let propertiesFile overwrite
     	this();
     	
@@ -109,6 +142,24 @@ public class SimNetworkingConfig {
     	
     	if(configProperties.containsKey(ConfigDirectives.TELNET_PORT_DIRECTIVE)) {
     		telnetPort = Integer.parseInt(configProperties.getProperty(ConfigDirectives.TELNET_PORT_DIRECTIVE));
+    	}
+    	
+    	//httpd server with camera view
+    	if(configProperties.containsKey(ConfigDirectives.CAMERA_VIEW_HOST_DIRECTIVE)) {
+    		cameraViewHost = configProperties.getProperty(ConfigDirectives.CAMERA_VIEW_HOST_DIRECTIVE);
+    	}
+    	
+    	if(configProperties.containsKey(ConfigDirectives.CAMERA_VIEW_PORT_DIRECTIVE)) {
+    		cameraViewPort = Integer.parseInt(configProperties.getProperty(ConfigDirectives.CAMERA_VIEW_PORT_DIRECTIVE));
+    	}
+    	
+    	//application camera view
+    	if(configProperties.containsKey(ConfigDirectives.CAMERA_STREAM_HOST_DIRECTIVE)) {
+    		cameraStreamHost = configProperties.getProperty(ConfigDirectives.CAMERA_STREAM_HOST_DIRECTIVE);
+    	}
+    	
+    	if(configProperties.containsKey(ConfigDirectives.CAMERA_STREAM_PORT_DIRECTIVE)) {
+    		cameraStreamPort = Integer.parseInt(configProperties.getProperty(ConfigDirectives.CAMERA_STREAM_PORT_DIRECTIVE));
     	}
     	
     	//consumeables
@@ -174,6 +225,39 @@ public class SimNetworkingConfig {
     	//velocities
     	if(configProperties.containsKey(ConfigDirectives.VELOCITIES_PORT_DIRECTIVE)) {
     		velocitiesInputPort = Integer.parseInt(configProperties.getProperty(ConfigDirectives.VELOCITIES_PORT_DIRECTIVE));
+    	}
+    	
+    	////////////////
+    	//camera view
+    	
+    	if(configProperties.containsKey(ConfigDirectives.CAMERA_VIEW_HOST_DIRECTIVE)) {
+    		cameraViewHost = configProperties.getProperty(ConfigDirectives.CAMERA_VIEW_HOST_DIRECTIVE);
+    	}
+    	
+    	if(configProperties.containsKey(ConfigDirectives.CAMERA_VIEW_PORT_DIRECTIVE)) {
+    		cameraViewPort = Integer.parseInt(configProperties.getProperty(ConfigDirectives.CAMERA_VIEW_PORT_DIRECTIVE));
+    	}
+    	
+    	////////////////
+    	//caltrops
+    	
+    	if(configProperties.containsKey(ConfigDirectives.CALTROPS_HOST_DIRECTIVE)) {
+    		caltropsHost = configProperties.getProperty(ConfigDirectives.CALTROPS_HOST_DIRECTIVE);
+    	}
+    	
+    	if(configProperties.containsKey(ConfigDirectives.CALTROPS_PORT_DIRECTIVE)) {
+    		caltropsPort = Integer.parseInt(configProperties.getProperty(ConfigDirectives.CALTROPS_PORT_DIRECTIVE));
+    	}
+    	
+    	////////////////
+    	//embedded ssh server
+    	
+    	if(configProperties.containsKey(ConfigDirectives.SSHD_HOME_DIR_DIRECTIVE)) {
+    		sshdHomeDir = configProperties.getProperty(ConfigDirectives.SSHD_HOME_DIR_DIRECTIVE);
+    	}
+    	
+    	if(configProperties.containsKey(ConfigDirectives.SSHD_PORT_DIRECTIVE)) {
+    		sshdPort = Integer.parseInt(configProperties.getProperty(ConfigDirectives.SSHD_PORT_DIRECTIVE));
     	}
     }
 
@@ -289,7 +373,23 @@ public class SimNetworkingConfig {
         this.simModelInputPort = port;
     }
     
-    public int getSimSpeedupInputPort() {
+    public int getSshdPort() {
+		return sshdPort;
+	}
+
+	public void setSshdPort(int sshdPort) {
+		this.sshdPort = sshdPort;
+	}
+
+	public String getSshdHomeDir() {
+		return sshdHomeDir;
+	}
+
+	public void setSshdHomeDir(String sshdHomeDir) {
+		this.sshdHomeDir = sshdHomeDir;
+	}
+
+	public int getSimSpeedupInputPort() {
         return simSpeedupInputPort;
     }
 
@@ -321,26 +421,60 @@ public class SimNetworkingConfig {
         this.velocitiesInputPort = port;
     }
     
-    @Override
+    public String getCameraViewerHost() {
+		return cameraViewHost;
+	}
+
+	public void setCameraViewerHost(String cameraViewerHost) {
+		this.cameraViewHost = cameraViewerHost;
+	}
+
+	public int getCameraViewerPort() {
+		return cameraViewPort;
+	}
+	
+	public void setCameraViewerPort(int cameraViewerPort) {
+		this.cameraViewPort = cameraViewerPort;
+	}
+	
+	public int getCameraStreamPort() {
+		return cameraStreamPort;
+	}
+
+	public void setCameraStreamPort(int cameraStreamPort) {
+		this.cameraStreamPort = cameraStreamPort;
+	}
+
+	public String getCaltropsHost() {
+		return caltropsHost;
+	}
+
+	public void setCaltropsHost(String caltropsHost) {
+		this.caltropsHost = caltropsHost;
+	}
+
+	public int getCaltropsPort() {
+		return caltropsPort;
+	}
+
+	public void setCaltropsPort(int caltropsPort) {
+		this.caltropsPort = caltropsPort;
+	}
+
+	@Override
 	public String toString() {
-		return "SimNetworkingConfig [" + 
-			"telemetryOutputHost=" + telemetryOutputHost + 
-			", telemetryOutputPort="+ telemetryOutputPort + 
-			", telnetHost=" + telnetHost + 
-			", telnetPort=" + telnetPort +
-			", socketInputHost=" + socketInputHost + 
-			", consumeablesInputPort=" + consumeablesInputPort + 
-			", controlsInputPort=" + controlsInputPort + 
-			", enginesInputPort=" + enginesInputPort + 
-			", fdmInputPort=" + fdmInputPort + 
-			", orientationInputPort=" + orientationInputPort + 
-			", positionInputPort=" + positionInputPort + 
-			", simInputPort=" + simInputPort + 
-			", simFreezeInputPort=" + simFreezeInputPort + 
-			", simModelInputPort=" + simModelInputPort + 
-			", simSpeedupInputPort=" + simSpeedupInputPort + 
-			", simTimeInputPort=" + simTimeInputPort + 
-			", systemsInputPort=" + systemsInputPort + 
-			", velocitiesInputPort=" + velocitiesInputPort + "]";
+		return "SimulatorConfig [telemetryOutputHost=" + telemetryOutputHost + ", telemetryOutputPort="
+				+ telemetryOutputPort + ", telnetHost=" + telnetHost + ", telnetPort=" + telnetPort
+				+ ", socketInputHost=" + socketInputHost + ", consumeablesInputPort=" + consumeablesInputPort
+				+ ", controlsInputPort=" + controlsInputPort + ", enginesInputPort=" + enginesInputPort
+				+ ", fdmInputPort=" + fdmInputPort + ", orientationInputPort=" + orientationInputPort
+				+ ", positionInputPort=" + positionInputPort + ", simInputPort=" + simInputPort
+				+ ", simFreezeInputPort=" + simFreezeInputPort + ", simModelInputPort=" + simModelInputPort
+				+ ", simSpeedupInputPort=" + simSpeedupInputPort + ", simTimeInputPort=" + simTimeInputPort
+				+ ", systemsInputPort=" + systemsInputPort + ", velocitiesInputPort=" + velocitiesInputPort
+				+ ", caltropsHost=" + caltropsHost + ", caltropsPort=" + caltropsPort + ", cameraViewHost="
+				+ cameraViewHost + ", cameraViewPort=" + cameraViewPort + ", cameraStreamHost=" + cameraStreamHost
+				+ ", cameraStreamPort=" + cameraStreamPort + ", sshdPort=" + sshdPort + ", sshdHomeDir=" + sshdHomeDir
+				+ "]";
 	}
 }

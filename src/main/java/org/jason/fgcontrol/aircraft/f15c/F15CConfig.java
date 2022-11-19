@@ -3,19 +3,19 @@ package org.jason.fgcontrol.aircraft.f15c;
 import java.util.Properties;
 
 import org.jason.fgcontrol.aircraft.config.ConfigDirectives;
-import org.jason.fgcontrol.aircraft.config.SimNetworkingConfig;
+import org.jason.fgcontrol.aircraft.config.SimulatorConfig;
 
-public class F15CConfig extends SimNetworkingConfig {
+public class F15CConfig extends SimulatorConfig {
    
 	private final static String DEFAULT_AIRCRAFT_NAME = "F15C_Default";
 	private String aircraftName;
 	
     public F15CConfig() {
         super(
-            SimNetworkingConfig.DEFAULT_TELNET_HOST, 
-            SimNetworkingConfig.DEFAULT_TELNET_PORT, 
-            SimNetworkingConfig.DEFAULT_SOCKETS_TELEM_HOST, 
-            SimNetworkingConfig.DEFAULT_SOCKETS_TELEM_PORT
+            SimulatorConfig.DEFAULT_TELNET_HOST, 
+            SimulatorConfig.DEFAULT_TELNET_PORT, 
+            SimulatorConfig.DEFAULT_SOCKETS_TELEM_HOST, 
+            SimulatorConfig.DEFAULT_SOCKETS_TELEM_PORT
         );
         
         aircraftName = DEFAULT_AIRCRAFT_NAME;
