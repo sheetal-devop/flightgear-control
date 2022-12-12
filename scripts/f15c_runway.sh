@@ -78,6 +78,7 @@ fgfs \
  --prop:/sim/rendering/multithreading-mode=AutomaticSelection\
  --prop:/environment/weather-scenario=Fair\ weather\
  --prop:/nasal/local_weather/enabled=false\
+ --prop:/sim/startup/save-on-exit=false\
  --allow-nasal-from-sockets\
  --turbulence=0.0\
  --wind=0\@0

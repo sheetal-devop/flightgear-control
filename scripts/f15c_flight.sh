@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Usage: ./f15c_flight.sh HEADING START_PORT_RANGE START_LAT START_LON NAME
+#Usage: ./f15c_flight.sh START_PORT_RANGE HEADING START_LAT START_LON NAME
 
 #this is the window geometry, not the sim video resolution, which appears fixed in windowed mode
 #for most use cases use medium geometry: --geometry=640x480\ or --geometry=800x600\
@@ -14,21 +14,9 @@ RES_GEOMETRY_STR=""$X_RES"x"$Y_RES
 
 #pauses sim after launching
 
-#start heading
-#use heading if supplied, otherwise just head north
-HEADING=${1:-0}
-
-#known headings in degrees
-#yvr -> abbotsford: 103.836
-#yvr -> victoria: 189.012
-#yvr -> ubc: 326.577
-#yvr -> west lion: 359.09
-
-ALT=9000
-
 ################
 #ports
-START_PORT_RANGE=${2:-7500}
+START_PORT_RANGE=${1:-7500}
 
 #check port range constraints (not too low, not above max)
 
@@ -37,8 +25,9 @@ START_PORT_RANGE=${2:-7500}
 #port population:
 #START_PORT_RANGE   => output
 #+1         => telnet
-#+2     => input 1
-#+3     => input 2
+#+2     => httpd 
+#+3     => input 1
+#+4     => input 2
 #...
 TELEM_OUTPUT_PORT=$START_PORT_RANGE
 TELNET_PORT=$((START_PORT_RANGE+1))
@@ -56,6 +45,19 @@ SIM_SPEEDUP_INPUT_PORT=$((START_PORT_RANGE+12))
 SIM_TIME_INPUT_PORT=$((START_PORT_RANGE+13))
 SYSTEMS_INPUT_PORT=$((START_PORT_RANGE+14))
 VELOCITIES_INPUT_PORT=$((START_PORT_RANGE+15))
+
+########
+#start heading
+#use heading if supplied, otherwise just head north
+HEADING=${2:-0}
+
+#known headings in degrees
+#yvr -> abbotsford: 103.836
+#yvr -> victoria: 189.012
+#yvr -> ubc: 326.577
+#yvr -> west lion: 359.09
+
+ALT=9000
 
 ########
 #start position, default to yvr 49.19524, -123.18084
@@ -112,6 +114,8 @@ fgfs \
  --enable-auto-coordination\
  --prop:/environment/weather-scenario=Fair\ weather\
  --prop:/nasal/local_weather/enabled=false\
+ --prop:/sim/menubar/autovisibility/enabled=true\
+ --prop:/sim/menubar/visibility/enabled=false\
  --prop:/sim/rendering/fps-display=1\
  --prop:/sim/rendering/frame-latency-display=1\
  --prop:/sim/rendering/multithreading-mode=AutomaticSelection\
@@ -120,7 +124,13 @@ fgfs \
  --prop:/sim/rendering/particles=false\
  --prop:/sim/rendering/rembrant/enabled=false\
  --prop:/sim/rendering/rembrant/bloom=false\
+ --prop:/sim/rendering/shading=false\
+ --prop:/sim/rendering/shadow-volume=false\
  --prop:/sim/rendering/shadows/enabled=false\
+ --prop:/sim/startup/save-on-exit=false\
+ --max-fps=40\
+ --disable-clouds3d\
+ --disable-specular-highlight\
  --vc=600\
  --heading=$HEADING\
  --altitude=$ALT\

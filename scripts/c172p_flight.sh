@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#./c172p_*.sh HEADING START_PORT_RANGE START_LAT START_LON NAME
+#./c172p_*.sh START_PORT_RANGE HEADING START_LAT START_LON NAME
 
 #this is the window geometry, not the sim video resolution, which appears fixed in windowed mode
 #for most use cases use medium geometry: --geometry=640x480\ or --geometry=800x600\
@@ -14,23 +14,9 @@ RES_GEOMETRY_STR=""$X_RES"x"$Y_RES
 
 #pauses sim after launching
 
-#start heading
-#use heading if supplied, otherwise just head north
-HEADING=${1:-0}
-
-#known headings in degrees
-#yvr -> abbotsford: 103.836
-#yvr -> victoria: 189.012
-#yvr -> ubc: 326.577
-
-
-#max alt for 95% throttle: 5125ft
-ALT=5100
-
-
 ################
 #ports
-START_PORT_RANGE=${2:-6500}
+START_PORT_RANGE=${1:-6500}
 
 #check port range constraints (not too low, not above max)
 
@@ -59,6 +45,20 @@ SIM_SPEEDUP_INPUT_PORT=$((START_PORT_RANGE+12))
 SIM_TIME_INPUT_PORT=$((START_PORT_RANGE+13))
 SYSTEMS_INPUT_PORT=$((START_PORT_RANGE+14))
 VELOCITIES_INPUT_PORT=$((START_PORT_RANGE+15))
+
+########
+#start heading
+#use heading if supplied, otherwise just head north
+HEADING=${2:-0}
+
+#known headings in degrees
+#yvr -> abbotsford: 103.836
+#yvr -> victoria: 189.012
+#yvr -> ubc: 326.577
+
+
+#max alt for 95% throttle: 5125ft
+ALT=5100
 
 ########
 #start position, default to yvr 49.19524, -123.18084
@@ -118,6 +118,8 @@ fgfs \
  --enable-auto-coordination\
  --prop:/environment/weather-scenario=Fair weather\
  --prop:/nasal/local_weather/enabled=false\
+ --prop:/sim/menubar/autovisibility/enabled=true\
+ --prop:/sim/menubar/visibility/enabled=false\
  --prop:/sim/rendering/bits-per-pixel=16\
  --prop:/sim/rendering/clouds3d-enable=false\
  --prop:/sim/rendering/fps-display=1\
@@ -126,7 +128,13 @@ fgfs \
  --prop:/sim/rendering/particles=false\
  --prop:/sim/rendering/rembrant/enabled=false\
  --prop:/sim/rendering/rembrant/bloom=false\
+ --prop:/sim/rendering/shading=false\
+ --prop:/sim/rendering/shadow-volume=false\
  --prop:/sim/rendering/shadows/enabled=false\
+ --prop:/sim/startup/save-on-exit=false\
+ --max-fps=40\
+ --disable-clouds3d\
+ --disable-specular-highlight\
  --vc=60\
  --heading=$HEADING\
  --altitude=$ALT\

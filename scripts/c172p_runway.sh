@@ -74,6 +74,7 @@ fgfs \
  --prop:/sim/rendering/fps-display=1\
  --prop:/sim/rendering/frame-latency-display=1\
  --prop:/sim/rendering/multithreading-mode=AutomaticSelection\
+ --prop:/sim/startup/save-on-exit=false\
  --allow-nasal-from-sockets\
  --turbulence=0.0\
  --wind=0\@0
