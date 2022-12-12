@@ -5,6 +5,11 @@ Easily and cheaply simulate a complex real-world machine with mechanical causali
 
 Generically fly aircraft by executing the plane's engine startup script and diligently correcting drift and deviation from a flight path by constantly repositioning the plane orientation within the simulator environment along a waypoint track. 
 
+----
+
+#### Requirements ####
+1. JDK 11
+1. FlightGear 2018.3.2 or similar
 
 #### Setup ####
 
