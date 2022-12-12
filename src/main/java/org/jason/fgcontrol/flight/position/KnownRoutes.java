@@ -17,7 +17,6 @@ public abstract class KnownRoutes {
         private static final long serialVersionUID = 3487720676170767955L;
         
         {
-        	add( KnownPositions.HORSESHOE_BAY );
             add( KnownPositions.UBC );
             add( KnownPositions.STANLEY_PARK );
             add( KnownPositions.LONSDALE_QUAY );

@@ -34,6 +34,7 @@ public abstract class KnownPositions {
     //BC Cities/towns
     public final static WaypointPosition ABBOTSFORD = new WaypointPosition(49.05061, -122.30401, "Abbotsford");
     public final static WaypointPosition LANGLEY = new WaypointPosition(49.10440, -122.66024, "Langley");
+    public final static WaypointPosition CHILLIWACK = new WaypointPosition(49.15785, -121.95149, "Chilliwack");
     public final static WaypointPosition PRINCETON = new WaypointPosition(49.45982, -120.50115, "Princeton");
     public final static WaypointPosition PENTICTON = new WaypointPosition(49.49368, -119.59009, "Penticton");
     public final static WaypointPosition KELOWNA = new WaypointPosition(49.88670, -119.48883, "Kelowna");

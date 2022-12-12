@@ -25,6 +25,8 @@ public abstract class WaypointFlightExecutor {
 
     private final static double WAYPOINT_ADJUST_MIN = 0.75 * 5280.0; 
     
+    private final static double SIM_SPEEDUP = 8.0;
+    
     private final static double TARGET_ALTITUDE = 5100.0;
     
     private final static double FLIGHT_MIXTURE = 0.95;
@@ -89,7 +91,7 @@ public abstract class WaypointFlightExecutor {
         //TODO: final and overrideable fields for the hardcoded values
         
         //i'm in a hurry and a c172p only goes so fast
-        plane.setSimSpeedUp(8.0);
+        plane.setSimSpeedUp(SIM_SPEEDUP);
         
         //set the throttle here otherwise the mixture may cap it
         plane.setThrottle(FLIGHT_THROTTLE);
