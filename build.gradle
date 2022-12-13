@@ -95,14 +95,14 @@ jar {
         ])
     }
     
-    exclude {
-        "org/jason/fgcontrol/aircraft/c172p/app/**"
-        "org/jason/fgcontrol/aircraft/f15c/app/**"
-        "org/jason/fgcontrol/connection/sockets/app/**"
-        "org/jason/fgcontrol/connection/telnet/app/**"
-        "org/jason/fgcontrol/test/**"
+    exclude (
+        "org/jason/fgcontrol/aircraft/c172p/app/**",
+        "org/jason/fgcontrol/aircraft/f15c/app/**",
+        "org/jason/fgcontrol/connection/sockets/app/**",
+        "org/jason/fgcontrol/connection/telnet/app/**",
+        "org/jason/fgcontrol/test/**",
         "org/jason/fgcontrol/aircraft/view/app/**"
-    }
+    )
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
