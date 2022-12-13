@@ -432,6 +432,17 @@ public class C172P extends FlightGearAircraft {
         }
     }
     
+    public synchronized void setFuelTanksLevel(double amount) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_INPUT_FIELDS);
+        
+        inputHash.put(C172PFields.FUEL_TANK_0_LEVEL_FIELD, String.valueOf(amount));
+        inputHash.put(C172PFields.FUEL_TANK_1_LEVEL_FIELD, String.valueOf(amount));
+        
+        LOGGER.info("Setting fuel tanks level: {}", amount);
+        
+        writeControlInput(inputHash, this.consumeablesInputConnection);
+    }
+    
     public synchronized void setFuelTank0Level(double amount) throws IOException {
         LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_INPUT_FIELDS);
         
