@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#./c172p_*.sh START_PORT_RANGE HEADING START_LAT START_LON NAME
+#./c172p_*.sh HEADING START_PORT_RANGE START_LAT START_LON NAME
 
 #this is the window geometry, not the sim video resolution, which appears fixed in windowed mode
 #for most use cases use medium geometry: --geometry=640x480\ or --geometry=800x600\
@@ -14,13 +14,31 @@ RES_GEOMETRY_STR=""$X_RES"x"$Y_RES
 
 #pauses sim after launching
 
+#start heading
+#use heading if supplied, otherwise just head north
+HEADING=${1:-0}
+
+#known headings in degrees
+#yvr -> abbotsford: 103.836
+#yvr -> victoria: 189.012
+#yvr -> ubc: 326.577
+
+
+#max alt for 95% throttle: 5125ft
+ALT=5100
+
+
 ################
 #ports
-START_PORT_RANGE=${1:-6500}
+START_PORT_RANGE=${2:-6500}
 
 #check port range constraints (not too low, not above max)
 
-#TODO: selectively enable httpd
+
+SIM_HOST="192.168.1.244"
+
+
+
 
 #port population:
 #START_PORT_RANGE   => output
@@ -45,20 +63,6 @@ SIM_SPEEDUP_INPUT_PORT=$((START_PORT_RANGE+12))
 SIM_TIME_INPUT_PORT=$((START_PORT_RANGE+13))
 SYSTEMS_INPUT_PORT=$((START_PORT_RANGE+14))
 VELOCITIES_INPUT_PORT=$((START_PORT_RANGE+15))
-
-########
-#start heading
-#use heading if supplied, otherwise just head north
-HEADING=${2:-0}
-
-#known headings in degrees
-#yvr -> abbotsford: 103.836
-#yvr -> victoria: 189.012
-#yvr -> ubc: 326.577
-
-
-#max alt for 95% throttle: 5125ft
-ALT=5100
 
 ########
 #start position, default to yvr 49.19524, -123.18084
@@ -93,20 +97,20 @@ fgfs \
  --fg-aircraft=/usr/share/games/flightgear/Aircraft\
  --lat=$START_LAT\
  --lon=$START_LON\
- --generic=socket,out,45,localhost,$TELEM_OUTPUT_PORT,udp,c172p_output\
- --generic=socket,in,45,localhost,$CONSUMABLES_INPUT_PORT,udp,c172p_input_consumables\
- --generic=socket,in,45,localhost,$CONTROLS_INPUT_PORT,udp,c172p_input_controls\
- --generic=socket,in,45,localhost,$ENGINES_INPUT_PORT,udp,c172p_input_engines\
- --generic=socket,in,45,localhost,$FDM_INPUT_PORT,udp,c172p_input_fdm\
- --generic=socket,in,45,localhost,$ORIENTATION_INPUT_PORT,udp,c172p_input_orientation\
- --generic=socket,in,45,localhost,$POSITION_INPUT_PORT,udp,c172p_input_position\
- --generic=socket,in,45,localhost,$SIM_INPUT_PORT,udp,c172p_input_sim\
- --generic=socket,in,45,localhost,$SIM_FREEZE_INPUT_PORT,udp,c172p_input_sim_freeze\
- --generic=socket,in,45,localhost,$SIM_MODEL_INPUT_PORT,udp,c172p_input_sim_model\
- --generic=socket,in,45,localhost,$SIM_SPEEDUP_INPUT_PORT,udp,c172p_input_sim_speedup\
- --generic=socket,in,45,localhost,$SIM_TIME_INPUT_PORT,udp,c172p_input_sim_time\
- --generic=socket,in,45,localhost,$SYSTEMS_INPUT_PORT,udp,c172p_input_systems\
- --generic=socket,in,45,localhost,$VELOCITIES_INPUT_PORT,udp,c172p_input_velocities\
+ --generic=socket,out,45,$SIM_HOST,$TELEM_OUTPUT_PORT,udp,c172p_output\
+ --generic=socket,in,45,$SIM_HOST,$CONSUMABLES_INPUT_PORT,udp,c172p_input_consumables\
+ --generic=socket,in,45,$SIM_HOST,$CONTROLS_INPUT_PORT,udp,c172p_input_controls\
+ --generic=socket,in,45,$SIM_HOST,$ENGINES_INPUT_PORT,udp,c172p_input_engines\
+ --generic=socket,in,45,$SIM_HOST,$FDM_INPUT_PORT,udp,c172p_input_fdm\
+ --generic=socket,in,45,$SIM_HOST,$ORIENTATION_INPUT_PORT,udp,c172p_input_orientation\
+ --generic=socket,in,45,$SIM_HOST,$POSITION_INPUT_PORT,udp,c172p_input_position\
+ --generic=socket,in,45,$SIM_HOST,$SIM_INPUT_PORT,udp,c172p_input_sim\
+ --generic=socket,in,45,$SIM_HOST,$SIM_FREEZE_INPUT_PORT,udp,c172p_input_sim_freeze\
+ --generic=socket,in,45,$SIM_HOST,$SIM_MODEL_INPUT_PORT,udp,c172p_input_sim_model\
+ --generic=socket,in,45,$SIM_HOST,$SIM_SPEEDUP_INPUT_PORT,udp,c172p_input_sim_speedup\
+ --generic=socket,in,45,$SIM_HOST,$SIM_TIME_INPUT_PORT,udp,c172p_input_sim_time\
+ --generic=socket,in,45,$SIM_HOST,$SYSTEMS_INPUT_PORT,udp,c172p_input_systems\
+ --generic=socket,in,45,$SIM_HOST,$VELOCITIES_INPUT_PORT,udp,c172p_input_velocities\
  --telnet=$TELNET_PORT\
  --httpd=$CAM_VIEW_PORT\
  --disable-ai-traffic\
@@ -118,8 +122,6 @@ fgfs \
  --enable-auto-coordination\
  --prop:/environment/weather-scenario=Fair weather\
  --prop:/nasal/local_weather/enabled=false\
- --prop:/sim/menubar/autovisibility/enabled=true\
- --prop:/sim/menubar/visibility/enabled=false\
  --prop:/sim/rendering/bits-per-pixel=16\
  --prop:/sim/rendering/clouds3d-enable=false\
  --prop:/sim/rendering/fps-display=1\
@@ -128,13 +130,7 @@ fgfs \
  --prop:/sim/rendering/particles=false\
  --prop:/sim/rendering/rembrant/enabled=false\
  --prop:/sim/rendering/rembrant/bloom=false\
- --prop:/sim/rendering/shading=false\
- --prop:/sim/rendering/shadow-volume=false\
  --prop:/sim/rendering/shadows/enabled=false\
- --prop:/sim/startup/save-on-exit=false\
- --max-fps=40\
- --disable-clouds3d\
- --disable-specular-highlight\
  --vc=60\
  --heading=$HEADING\
  --altitude=$ALT\

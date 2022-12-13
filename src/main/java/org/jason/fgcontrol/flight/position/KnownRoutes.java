@@ -12,12 +12,11 @@ public abstract class KnownRoutes {
 
     private KnownRoutes() {}
 
-    public final static ArrayList<WaypointPosition> VANCOUVER_TOUR = new ArrayList<>() {
+    public final static ArrayList<WaypointPosition> VANCOUVER_TOUR = new ArrayList<WaypointPosition>() {
 
         private static final long serialVersionUID = 3487720676170767955L;
         
         {
-        	add( KnownPositions.HORSESHOE_BAY );
             add( KnownPositions.UBC );
             add( KnownPositions.STANLEY_PARK );
             add( KnownPositions.LONSDALE_QUAY );
@@ -35,7 +34,7 @@ public abstract class KnownRoutes {
         }
     };
     
-    public final static ArrayList<WaypointPosition> VANCOUVER_SHORT_TOUR = new ArrayList<>() {
+    public final static ArrayList<WaypointPosition> VANCOUVER_SHORT_TOUR = new ArrayList<WaypointPosition>() {
 
         private static final long serialVersionUID = -1630760784238590060L;
 
@@ -50,7 +49,7 @@ public abstract class KnownRoutes {
         }
     };
     
-    public final static ArrayList<WaypointPosition> BC_TOUR = new ArrayList<>() {
+    public final static ArrayList<WaypointPosition> BC_TOUR = new ArrayList<WaypointPosition>() {
 
         private static final long serialVersionUID = 762842417275059036L;
         
@@ -84,7 +83,7 @@ public abstract class KnownRoutes {
         }
     };
     
-    public final static ArrayList<WaypointPosition> BC_SOUTH_TOUR = new ArrayList<>() {
+    public final static ArrayList<WaypointPosition> BC_SOUTH_TOUR = new ArrayList<WaypointPosition>() {
 
 		private static final long serialVersionUID = 9044191298704604870L;
 
@@ -105,7 +104,7 @@ public abstract class KnownRoutes {
         }
     };
     
-    public final static ArrayList<WaypointPosition> VAN_ISLAND_TOUR = new ArrayList<>() {
+    public final static ArrayList<WaypointPosition> VAN_ISLAND_TOUR = new ArrayList<WaypointPosition>() {
 
 		private static final long serialVersionUID = -6035401483530239855L;
 
@@ -118,7 +117,7 @@ public abstract class KnownRoutes {
         }
     };
     
-    public final static ArrayList<WaypointPosition> VAN_ISLAND_TOUR_SOUTH = new ArrayList<>() {
+    public final static ArrayList<WaypointPosition> VAN_ISLAND_TOUR_SOUTH = new ArrayList<WaypointPosition>() {
 
 		private static final long serialVersionUID = 1668204581296033784L;
 
@@ -133,7 +132,7 @@ public abstract class KnownRoutes {
         }
     };
     
-    public final static ArrayList<WaypointPosition> PTC_NA_OFFICE_TOUR = new ArrayList<>() {
+    public final static ArrayList<WaypointPosition> PTC_NA_OFFICE_TOUR = new ArrayList<WaypointPosition>() {
 
         private static final long serialVersionUID = 8537287930892781019L;
         

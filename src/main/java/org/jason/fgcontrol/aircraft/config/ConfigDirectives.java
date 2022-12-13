@@ -21,14 +21,19 @@ velocitiesInputPort=5014
 	 * 
 	 */
 	
+	//telemetry
 	public static final String TELEM_OUTPUT_HOST_DIRECTIVE = "telemetryHost";
 	public static final String TELEM_OUTPUT_PORT_DIRECTIVE = "telemetryPort";
 	
+	//telnet
 	public static final String TELNET_HOST_DIRECTIVE = "telnetHost";
 	public static final String TELNET_PORT_DIRECTIVE = "telnetPort";
 	
+	//httpd server with camera view
+	public static final String HTTPD_CAMERA_HOST_DIRECTIVE = "telnetHost";
+	public static final String HTTPD_CAMERA_PORT_DIRECTIVE = "telnetPort";
 	
-	
+	//telemetry
 	public static final String CONSUMEABLES_PORT_DIRECTIVE = "consumeablesInputPort";
 	public static final String CONTROL_PORT_DIRECTIVE = "controlsInputPort";
 	public static final String ENGINES_PORT_DIRECTIVE = "enginesInputPort";
@@ -42,4 +47,21 @@ velocitiesInputPort=5014
 	public static final String SIM_TIME_PORT_DIRECTIVE = "simTimeInputPort";
 	public static final String SYSTEMS_PORT_DIRECTIVE = "systemsInputPort";
 	public static final String VELOCITIES_PORT_DIRECTIVE = "velocitiesInputPort";
+	
+	//simulator httpd camera view
+	public static final String CAMERA_VIEW_HOST_DIRECTIVE = "cameraViewHost";
+	public static final String CAMERA_VIEW_PORT_DIRECTIVE = "cameraViewPort";
+	
+	//local camera stream 
+	public static final String CAMERA_STREAM_HOST_DIRECTIVE = "cameraStreamHost";
+	public static final String CAMERA_STREAM_PORT_DIRECTIVE = "cameraStreamPort";
+	
+	//caltrops
+	public static final String CALTROPS_HOST_DIRECTIVE = "caltropsHost";
+	public static final String CALTROPS_PORT_DIRECTIVE = "caltropsPort";
+	
+	//sshd
+	public static final String SSHD_PORT_DIRECTIVE = "sshdPort";
+	public static final String SSHD_HOME_DIR_DIRECTIVE = "sshdHomeDir";
+	
 }

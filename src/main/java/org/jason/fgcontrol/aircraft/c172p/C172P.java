@@ -53,14 +53,15 @@ public class C172P extends FlightGearAircraft {
         setup(config);
         
         //TODO: implement. possibly add to superclass. depends on superclass init and setup
-        launchSimulator();
+        //launchSimulator();
         
         LOGGER.info("C172P setup completed");
     }
     
-    private void launchSimulator() {
-        //run script, wait for telemetry port and first read
-    }
+//    private void launchSimulator() {
+//    	//TODO: probably remove this - too many extra things to manage
+//        //run script, wait for telemetry port and first read
+//    }
     
     private void setup(C172PConfig config) throws FlightGearSetupException {
         LOGGER.debug("C172P setup called");
@@ -68,19 +69,19 @@ public class C172P extends FlightGearAircraft {
         try {
             LOGGER.info("Establishing input socket connections.");
             
-            consumeablesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getConsumeablesInputPort());
-            controlInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getControlsInputPort());
-            enginesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getEnginesInputPort());
-            fdmInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getFdmInputPort());
-            orientationInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getOrientationInputPort());
-            positionInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getPositionInputPort());
-            simInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimInputPort());
-            simFreezeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimFreezeInputPort());
-            simModelInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimModelInputPort());
-            simSpeedupInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimSpeedupInputPort());
-            simTimeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimTimeInputPort());
-            systemsInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSystemsInputPort());
-            velocitiesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getVelocitiesInputPort());
+            consumeablesInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getConsumeablesInputPort());
+            controlInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getControlsInputPort());
+            enginesInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getEnginesInputPort());
+            fdmInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getFdmInputPort());
+            orientationInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getOrientationInputPort());
+            positionInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getPositionInputPort());
+            simInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimInputPort());
+            simFreezeInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimFreezeInputPort());
+            simModelInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimModelInputPort());
+            simSpeedupInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimSpeedupInputPort());
+            simTimeInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimTimeInputPort());
+            systemsInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSystemsInputPort());
+            velocitiesInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getVelocitiesInputPort());
             
             LOGGER.info("Input socket connections established.");
         } catch (SocketException | UnknownHostException e) {
@@ -98,12 +99,17 @@ public class C172P extends FlightGearAircraft {
         	LOGGER.info("Input socket connections established.");
         	
             socketsTelemetryConnection = new FlightGearTelemetryConnection(
-            		networkConfig.getTelemetryOutputHost(), 
-            		networkConfig.getTelemetryOutputPort()
+            		simulatorConfig.getTelemetryOutputHost(), 
+            		simulatorConfig.getTelemetryOutputPort()
             );
-               
+              
+            
             //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
             launchTelemetryThread();
+            
+            if(enableCameraViewer) {
+            	launchCameraViewerThread();
+            }
         } catch (SocketException | UnknownHostException e) {
             
             LOGGER.error("Exception occurred during setup", e);
@@ -125,7 +131,7 @@ public class C172P extends FlightGearAircraft {
         FlightGearTelnetConnection planeStartupTelnetSession = null; 
         //nasal script to autostart from c172p menu
         try {
-            planeStartupTelnetSession = new FlightGearTelnetConnection(networkConfig.getTelnetHost(), networkConfig.getTelnetPort());
+            planeStartupTelnetSession = new FlightGearTelnetConnection(simulatorConfig.getTelnetHost(), simulatorConfig.getTelnetPort());
             
             //execute the startup nasal script
             planeStartupTelnetSession.runNasal("c172p.autostart();");
@@ -189,7 +195,7 @@ public class C172P extends FlightGearAircraft {
         //wait for state write to finish. don't care about state reads
         //may not actually need this since this is a synchronized function
         //TODO: test^^^
-        while(stateWriting.get()) {
+        while(telemetryStateWriting.get()) {
             try {
                 LOGGER.debug("writeSocketInput: Waiting for previous state write to complete");
                 Thread.sleep(SOCKET_WRITE_WAIT_SLEEP);
@@ -199,11 +205,11 @@ public class C172P extends FlightGearAircraft {
         }
         
         try {
-            stateWriting.set(true);
+            telemetryStateWriting.set(true);
             socketConnection.writeControlInput(inputHash);
         }
         finally {
-            stateWriting.set(false);
+            telemetryStateWriting.set(false);
         }
     }
     
@@ -424,6 +430,17 @@ public class C172P extends FlightGearAircraft {
         if(LOGGER.isDebugEnabled()) {
         	LOGGER.debug("forceStabilize returning");
         }
+    }
+    
+    public synchronized void setFuelTanksLevel(double amount) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.CONSUMABLES_INPUT_FIELDS);
+        
+        inputHash.put(C172PFields.FUEL_TANK_0_LEVEL_FIELD, String.valueOf(amount));
+        inputHash.put(C172PFields.FUEL_TANK_1_LEVEL_FIELD, String.valueOf(amount));
+        
+        LOGGER.info("Setting fuel tanks level: {}", amount);
+        
+        writeControlInput(inputHash, this.consumeablesInputConnection);
     }
     
     public synchronized void setFuelTank0Level(double amount) throws IOException {

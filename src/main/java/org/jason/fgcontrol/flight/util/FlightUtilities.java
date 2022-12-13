@@ -35,7 +35,7 @@ public class FlightUtilities {
         double currentGroundElevation = plane.getGroundElevation();
         double currentAltitude = plane.getAltitude();
         
-        LOGGER.info("Ground elevation check. Current {} vs altitude {}", currentGroundElevation, currentAltitude);
+        LOGGER.debug("Ground elevation check. Current {} vs altitude {}", currentGroundElevation, currentAltitude);
 
         return currentAltitude - maxGroundElevation > currentGroundElevation;
     }
@@ -43,7 +43,7 @@ public class FlightUtilities {
     public static boolean withinAltitudeThreshold(FlightGearAircraft plane, double maxDifference, double targetAltitude) {
         double currentAltitude = plane.getAltitude();
         
-        LOGGER.info("Altitude check. Current {} vs target {}", currentAltitude, targetAltitude);
+        LOGGER.debug("Altitude check. Current {} vs target {}", currentAltitude, targetAltitude);
         
         return ( Math.abs(plane.getAltitude() - targetAltitude ) < maxDifference);
     }
@@ -111,98 +111,9 @@ public class FlightUtilities {
         return retval;
     }
     
-//    public static int headingCompareTo(double currentHeading, double targetHeading) {
-//        
-//        //if we're already on our way in the right direction
-//        if(currentHeading == targetHeading) {
-//            LOGGER.info("Comparing headings {} : {} => {}: No adjust", currentHeading, targetHeading, HEADING_NO_ADJUST);
-//            return HEADING_NO_ADJUST;
-//        }
-//        
-//        //comparisons are 90 degrees clockwise and counterclockwise
-//        double currentHeadingPlus90Sin = Math.sin( Math.toRadians(currentHeading + COMPARATOR_REFERENCE_DEGREES) );
-//        double currentHeadingMinus90Sin = Math.sin( Math.toRadians(currentHeading - COMPARATOR_REFERENCE_DEGREES) );
-//        
-//        if( currentHeadingMinus90Sin > currentHeadingPlus90Sin ) {
-//            LOGGER.info("Found heading sin min value greater than max, swapping.");
-//            //swap for the upcoming range comparison
-//            double temp = currentHeadingPlus90Sin;
-//            currentHeadingPlus90Sin = currentHeadingMinus90Sin;
-//            currentHeadingMinus90Sin = temp;
-//        }
-//        
-//        double targetHeadingSin = Math.sin( Math.toRadians(targetHeading) );
-//       
-//        //clockwise adjust
-//        if( Math.abs( targetHeadingSin - currentHeadingPlus90Sin) < Math.abs( targetHeadingSin - currentHeadingMinus90Sin) ) {
-//            LOGGER.info("Comparing headings {} : {} => {}: Clockwise adjust", currentHeading, targetHeading, HEADING_CW_ADJUST);
-//            
-//            return HEADING_CW_ADJUST;
-//        }
-//        
-//        //counterclockwise adjust
-//        LOGGER.info("Comparing headings {} : {} => {}: Counterclockwise adjust", currentHeading, targetHeading, HEADING_CCW_ADJUST);
-//
-//        return HEADING_CCW_ADJUST;
-//    }
-    
     public static boolean withinHeadingThreshold(FlightGearAircraft plane, double maxDifference, double targetHeading) {
         return withinHeadingThreshold(plane.getHeading(), maxDifference, targetHeading);
     }    
-    
-    /**
-     * 
-     * 
-     * @param currentHeading
-     * @param maxDifference
-     * @param targetHeading
-     * @return
-     */
-//    public static boolean withinHeadingThreshold(double currentHeading, double maxDifference, double targetHeading) {
-//        
-//        /*
-//         * heading is 0 to 360, both values are true/mag north
-//         * 
-//         * target 0, maxDif 5, min 355, max 5
-//         * 
-//         * target 90, maxDif 10, min 80, max 100
-//         * 
-//         * target 355, maxDif 10, min 345, max 5
-//         */
-//        
-//        if(maxDifference >= DEGREES_HALF_CIRCLE) {
-//            LOGGER.warn("withinHeadingThreshold called with an impractically large threshold");
-//            return true;
-//        }
-//        
-//        double currentHeadingSin = Math.sin( Math.toRadians(currentHeading) );
-//        
-//        LOGGER.info("Heading check. Current {} vs target {}", currentHeading, targetHeading);
-//        
-//        //lower bound - counter clockwise
-//        double lowerBound = targetHeading - maxDifference;
-//        if(lowerBound < 0) lowerBound += DEGREES_CIRCLE;
-//        
-//        //upper bound - clockwise
-//        double upperBound = (targetHeading + maxDifference) % DEGREES_CIRCLE;
-//        
-//        double minHeadingSin = Math.sin( Math.toRadians(lowerBound) );
-//        
-//        //target heading of 355 with a maxDifference of 10, is a min of 345 and a max of 5
-//        double maxHeadingSin = Math.sin( Math.toRadians(upperBound) );
-//        
-//        if( minHeadingSin > maxHeadingSin ) {
-//            LOGGER.info("Found heading sin min value greater than max, swapping.");
-//            //swap for the upcoming range comparison
-//            double temp = maxHeadingSin;
-//            maxHeadingSin = minHeadingSin;
-//            minHeadingSin = temp;
-//        }
-//        
-//        LOGGER.info("Target heading sin range min {} to max {}, current: {}", minHeadingSin, maxHeadingSin, currentHeadingSin);
-//        
-//        return currentHeadingSin < maxHeadingSin && currentHeadingSin > minHeadingSin;
-//    }
     
     public static boolean withinHeadingThreshold(double currentHeading, double maxDifference, double targetHeading) {
         
@@ -219,23 +130,7 @@ public class FlightUtilities {
             LOGGER.warn("withinHeadingThreshold called with an impractically large threshold");
             return true;
         }
-        
-        //attempt 1
-//        double theta1 = Math.toRadians(currentHeading);
-//        double theta2 = Math.toRadians(targetHeading);
-//        
-//        double deltaTheta = theta2 - theta1;
-//        
-//        if( deltaTheta < 0 ) {
-//            deltaTheta += (2.0 * Math.PI);
-//        }
-//        
-//        double deltaThetaDegs = Math.toDegrees(deltaTheta);
-//        
-//        return deltaThetaDegs < maxDifference;
-        
-        
-        //attempt 2
+
         double theta1 = Math.toRadians(currentHeading);
         double theta2 = Math.toRadians(targetHeading);
         double thetaMaxDiff = Math.toRadians(maxDifference);
@@ -244,36 +139,6 @@ public class FlightUtilities {
         double cosMaxDiff = Math.cos(thetaMaxDiff);
         
         return cosDeltaTheta > cosMaxDiff;
-        
-        
-        ////////////////
-//        double currentHeadingSin = Math.sin( Math.toRadians(currentHeading) );
-//        
-//        LOGGER.info("Heading check. Current {} vs target {}", currentHeading, targetHeading);
-//        
-//        //lower bound - counter clockwise
-//        double lowerBound = targetHeading - maxDifference;
-//        if(lowerBound < 0) lowerBound += DEGREES_CIRCLE;
-//        
-//        //upper bound - clockwise
-//        double upperBound = (targetHeading + maxDifference) % DEGREES_CIRCLE;
-//        
-//        double minHeadingSin = Math.sin( Math.toRadians(lowerBound) );
-//        
-//        //target heading of 355 with a maxDifference of 10, is a min of 345 and a max of 5
-//        double maxHeadingSin = Math.sin( Math.toRadians(upperBound) );
-//        
-//        if( minHeadingSin > maxHeadingSin ) {
-//            LOGGER.info("Found heading sin min value greater than max, swapping.");
-//            //swap for the upcoming range comparison
-//            double temp = maxHeadingSin;
-//            maxHeadingSin = minHeadingSin;
-//            minHeadingSin = temp;
-//        }
-//        
-//        LOGGER.info("Target heading sin range min {} to max {}, current: {}", minHeadingSin, maxHeadingSin, currentHeadingSin);
-//        
-//        return currentHeadingSin < maxHeadingSin && currentHeadingSin > minHeadingSin;
     }
     
     public static void headingCheck(FlightGearAircraft plane, double maxDifference, double targetHeading) throws IOException {
@@ -294,7 +159,7 @@ public class FlightUtilities {
         
         //pitch is -180 to 180
         
-        LOGGER.info("Pitch check. Current {} vs target {}", currentPitch, targetPitch);
+        LOGGER.debug("Pitch check. Current {} vs target {}", currentPitch, targetPitch);
         
         return Math.abs(currentPitch - targetPitch) < maxDifference;
     }
@@ -318,7 +183,7 @@ public class FlightUtilities {
         
         //roll is +180 to -180
         
-        LOGGER.info("Roll check. Current {} vs target {}", currentRoll, targetRoll);
+        LOGGER.debug("Roll check. Current {} vs target {}", currentRoll, targetRoll);
         
         return Math.abs(currentRoll - targetRoll) < maxDifference;
     }
@@ -350,7 +215,7 @@ public class FlightUtilities {
         //the plane can be acceled or deceled to the specified speed, 
         //but then the fdm takes over and stabilizes the air speed
         
-        LOGGER.info("Airspeed check. Current {} vs target {}", currentAirSpeed, targetAirspeed);
+        LOGGER.debug("Airspeed check. Current {} vs target {}", currentAirSpeed, targetAirspeed);
         
         if( Math.abs(currentAirSpeed - targetAirspeed) > maxDifference) {
             LOGGER.info("Correcting airspeed to target: {}", targetAirspeed);

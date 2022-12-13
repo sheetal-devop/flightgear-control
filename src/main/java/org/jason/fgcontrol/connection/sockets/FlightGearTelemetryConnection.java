@@ -54,6 +54,9 @@ public class FlightGearTelemetryConnection {
         this.telemetryPort = telemetryPort;
         
         LOGGER.info("Initializing FlightGearTelemetryConnection for {}({}):{}", this.host, this.hostIp, this.telemetryPort);
+        
+    	//TODO: if this is configured with the wrong port or host, it won't be known until the first read, 
+    	//because the constructor doesn't actually establish a connection. maybe call a throwaway read
     }
     
     /**

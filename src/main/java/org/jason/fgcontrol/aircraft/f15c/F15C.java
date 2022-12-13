@@ -51,35 +51,35 @@ public class F15C extends FlightGearAircraft {
         setup(config);
         
         //TODO: implement. possibly add to superclass. depends on superclass init and setup
-        launchSimulator();
+        //launchSimulator();
                 
         LOGGER.info("F15C setup completed");
     }
     
-    private void launchSimulator() {
-        //run script, wait for telemetry port and first read
-    }
+//    private void launchSimulator() {
+//        //run script, wait for telemetry port and first read
+//    }
     
     private void setup(F15CConfig config) throws FlightGearSetupException {
         LOGGER.info("setup called");
         
         //TODO: invoke port setters in superclass per config
-        //networkConfig.setConsumeablesPort(config.getConsumeablesPort);
+        //simulatorConfig.setConsumeablesPort(config.getConsumeablesPort);
         
         try {
             LOGGER.info("Establishing input socket connections.");
             
-            consumeablesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getConsumeablesInputPort());
-            controlInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getControlsInputPort());
-            fdmInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getFdmInputPort());
-            orientationInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getOrientationInputPort());
-            positionInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getPositionInputPort());
-            simInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimInputPort());
-            simFreezeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimFreezeInputPort());
-            simModelInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimModelInputPort());
-            simSpeedupInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimSpeedupInputPort());
-            simTimeInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getSimTimeInputPort());
-            velocitiesInputConnection = new FlightGearInputConnection(networkConfig.getSocketInputHost(), networkConfig.getVelocitiesInputPort());
+            consumeablesInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getConsumeablesInputPort());
+            controlInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getControlsInputPort());
+            fdmInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getFdmInputPort());
+            orientationInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getOrientationInputPort());
+            positionInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getPositionInputPort());
+            simInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimInputPort());
+            simFreezeInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimFreezeInputPort());
+            simModelInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimModelInputPort());
+            simSpeedupInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimSpeedupInputPort());
+            simTimeInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimTimeInputPort());
+            velocitiesInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getVelocitiesInputPort());
             
             LOGGER.info("Input socket connections established.");
         } catch (SocketException | UnknownHostException e) {
@@ -95,8 +95,8 @@ public class F15C extends FlightGearAircraft {
 
         try {
             socketsTelemetryConnection = new FlightGearTelemetryConnection(
-            	networkConfig.getTelemetryOutputHost(), 
-            	networkConfig.getTelemetryOutputPort()
+            	simulatorConfig.getTelemetryOutputHost(), 
+            	simulatorConfig.getTelemetryOutputPort()
             );
             
             //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
@@ -118,7 +118,7 @@ public class F15C extends FlightGearAircraft {
         FlightGearTelnetConnection planeStartupTelnetSession = null; 
         //nasal script to autostart from F15C menu
         try {
-            planeStartupTelnetSession = new FlightGearTelnetConnection(networkConfig.getTelnetHost(), networkConfig.getTelnetPort());
+            planeStartupTelnetSession = new FlightGearTelnetConnection(simulatorConfig.getTelnetHost(), simulatorConfig.getTelnetPort());
             
             //execute the startup nasal script
             planeStartupTelnetSession.runNasal("aircraft.quickstart();");
@@ -178,7 +178,7 @@ public class F15C extends FlightGearAircraft {
         //wait for state write to finish. don't care about state reads
         //may not actually need this since this is a synchronized function
         //TODO: test^^^
-        while(stateWriting.get()) {
+        while(telemetryStateWriting.get()) {
             try {
                 LOGGER.debug("writeSocketInput: Waiting for previous state write to complete");
                 Thread.sleep(SOCKET_WRITE_WAIT_SLEEP);
@@ -188,11 +188,11 @@ public class F15C extends FlightGearAircraft {
         }
         
         try {
-            stateWriting.set(true);
+            telemetryStateWriting.set(true);
             socketConnection.writeControlInput(inputHash);
         }
         finally {
-            stateWriting.set(false);
+            telemetryStateWriting.set(false);
         }
     }
     

@@ -14,29 +14,30 @@ START_PORT_RANGE=${1:-6500}
 
 #check port range constraints (not too low, not above max)
 
-
+#TODO: selectively enable httpd
 
 #port population:
 #START_PORT_RANGE   => output
 #+1         => telnet
-#+2     => input 1
-#+3     => input 2
+#+2     => httpd => not used with runway operation
+#+3     => input 1
+#+4     => input 2
 #...
 TELEM_OUTPUT_PORT=$START_PORT_RANGE
 TELNET_PORT=$((START_PORT_RANGE+1))
-CONSUMABLES_INPUT_PORT=$((START_PORT_RANGE+2))
-CONTROLS_INPUT_PORT=$((START_PORT_RANGE+3))
-ENGINES_INPUT_PORT=$((START_PORT_RANGE+4))
-FDM_INPUT_PORT=$((START_PORT_RANGE+5))
-ORIENTATION_INPUT_PORT=$((START_PORT_RANGE+6))
-POSITION_INPUT_PORT=$((START_PORT_RANGE+7))
-SIM_INPUT_PORT=$((START_PORT_RANGE+8))
-SIM_FREEZE_INPUT_PORT=$((START_PORT_RANGE+9))
-SIM_MODEL_INPUT_PORT=$((START_PORT_RANGE+10))
-SIM_SPEEDUP_INPUT_PORT=$((START_PORT_RANGE+11))
-SIM_TIME_INPUT_PORT=$((START_PORT_RANGE+12))
-SYSTEMS_INPUT_PORT=$((START_PORT_RANGE+13))
-VELOCITIES_INPUT_PORT=$((START_PORT_RANGE+14))
+CONSUMABLES_INPUT_PORT=$((START_PORT_RANGE+3))
+CONTROLS_INPUT_PORT=$((START_PORT_RANGE+4))
+ENGINES_INPUT_PORT=$((START_PORT_RANGE+5))
+FDM_INPUT_PORT=$((START_PORT_RANGE+6))
+ORIENTATION_INPUT_PORT=$((START_PORT_RANGE+7))
+POSITION_INPUT_PORT=$((START_PORT_RANGE+8))
+SIM_INPUT_PORT=$((START_PORT_RANGE+9))
+SIM_FREEZE_INPUT_PORT=$((START_PORT_RANGE+10))
+SIM_MODEL_INPUT_PORT=$((START_PORT_RANGE+11))
+SIM_SPEEDUP_INPUT_PORT=$((START_PORT_RANGE+12))
+SIM_TIME_INPUT_PORT=$((START_PORT_RANGE+13))
+SYSTEMS_INPUT_PORT=$((START_PORT_RANGE+14))
+VELOCITIES_INPUT_PORT=$((START_PORT_RANGE+15))
 
 fgfs \
  --verbose\
@@ -77,6 +78,7 @@ fgfs \
  --prop:/sim/rendering/multithreading-mode=AutomaticSelection\
  --prop:/environment/weather-scenario=Fair\ weather\
  --prop:/nasal/local_weather/enabled=false\
+ --prop:/sim/startup/save-on-exit=false\
  --allow-nasal-from-sockets\
  --turbulence=0.0\
  --wind=0\@0

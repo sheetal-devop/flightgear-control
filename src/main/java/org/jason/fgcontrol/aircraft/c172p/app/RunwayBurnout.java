@@ -59,8 +59,9 @@ public class RunwayBurnout {
             plane.setDamageEnabled(false);
             
             //a full fuel tank will take a while
-            plane.setFuelTank0Level(testFuelAmount);
-            plane.setFuelTank1Level(testFuelAmount);
+            plane.setFuelTanksLevel(testFuelAmount);
+            
+            Thread.sleep(5000);
             
             RunwayBurnoutFlightExecutor.runFlight(plane);
             

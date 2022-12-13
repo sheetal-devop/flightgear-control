@@ -1,10 +1,14 @@
 ext { 
     libs = [
         flightgear_control: [
+            'com.google.guava:guava:31.1-jre',
             'commons-net:commons-net:3.8.0',
             'org.apache.commons:commons-math3:3.6.1',
             'org.json:json:20210307',
             'ch.qos.logback:logback-classic:1.2.3'
+        ],
+        flightgear_control_gateway: [
+        
         ],
         geotools: [
             'org.geotools:gt-referencing:26.1.01'

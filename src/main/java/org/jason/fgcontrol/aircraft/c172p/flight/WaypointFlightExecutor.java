@@ -25,6 +25,8 @@ public abstract class WaypointFlightExecutor {
 
     private final static double WAYPOINT_ADJUST_MIN = 0.75 * 5280.0; 
     
+    private final static double SIM_SPEEDUP = 8.0;
+    
     private final static double TARGET_ALTITUDE = 5100.0;
     
     private final static double FLIGHT_MIXTURE = 0.95;
@@ -33,6 +35,7 @@ public abstract class WaypointFlightExecutor {
     private final static double MAX_HEADING_CHANGE = 20.0;
     
     //adjust in smaller increments than MAX_HEADING_CHANGE, since course changes can be radical
+    //TODO: lower this value after waypoint interpolation is implemented
     private final static double COURSE_ADJUSTMENT_INCREMENT = 12.5;
     
     private final static double TARGET_ROLL = 0.0;
@@ -88,7 +91,7 @@ public abstract class WaypointFlightExecutor {
         //TODO: final and overrideable fields for the hardcoded values
         
         //i'm in a hurry and a c172p only goes so fast
-        plane.setSimSpeedUp(8.0);
+        plane.setSimSpeedUp(SIM_SPEEDUP);
         
         //set the throttle here otherwise the mixture may cap it
         plane.setThrottle(FLIGHT_THROTTLE);
@@ -166,7 +169,7 @@ public abstract class WaypointFlightExecutor {
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        LOGGER.warn("Stabilization sleep interrupted", e);
                     }
                     
                     stablizeCount++;
@@ -324,7 +327,7 @@ public abstract class WaypointFlightExecutor {
             try {
                 Thread.sleep(15);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+            	LOGGER.warn("Launch stabilization phase 1 sleep interrupted", e);
             }
             
             i++;
@@ -341,7 +344,7 @@ public abstract class WaypointFlightExecutor {
             try {
                 Thread.sleep(15);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+            	LOGGER.warn("Launch stabilization phase 2 sleep interrupted", e);
             }
             
             i++;

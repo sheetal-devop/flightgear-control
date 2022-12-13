@@ -10,6 +10,10 @@ public class TrackPosition extends LatLonPosition {
     
     public final static double DEFAULT_ALTITUDE = 1000;
     
+    public TrackPosition() {
+        this(0.0, 0.0);
+    }
+    
     public TrackPosition(double latitude, double longitude) {
         this(latitude, longitude, DEFAULT_ALTITUDE, DEFAULT_TIME);
     }
