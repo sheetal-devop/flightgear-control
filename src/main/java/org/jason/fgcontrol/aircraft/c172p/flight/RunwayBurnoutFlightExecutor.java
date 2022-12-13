@@ -25,10 +25,20 @@ public abstract class RunwayBurnoutFlightExecutor {
     private static final Logger LOGGER = LoggerFactory.getLogger(RunwayBurnoutFlightExecutor.class);
 	
 	public static void runFlight(C172P plane) throws IOException, AircraftStartupException, InterruptedException {
-        
+		
 		if(LOGGER.isDebugEnabled()) {
 			LOGGER.debug("runFlight executing");	
 		}
+		
+		//seeing a previous invocation of setFuelTanks possibly not crossing the finish line
+		//before the call to getFuelTank0Level below. hopefully buying time by sleeping
+        Thread.sleep(2000);
+		
+		//engine startup may internally set its own fuel value. cache it here and set it 
+		//TODO: fix
+		double startFuelLevel = plane.getFuelTank0Level();
+		
+		LOGGER.info("Using fuel level {}", startFuelLevel);
 		
         //start the engine up to start consuming fuel
         plane.startupPlane(true);
@@ -46,14 +56,30 @@ public abstract class RunwayBurnoutFlightExecutor {
         plane.setMixture(0.95);
         
         //step up the throttle. autostart sets it at 20% on the ground
+        //sleep between each step to let the engine react
         plane.setThrottle(0.25);
+        Thread.sleep(1000);
+        
         plane.setThrottle(0.35);
+        Thread.sleep(1000);
+        
         plane.setThrottle(0.45);
+        Thread.sleep(1000);
+        
         plane.setThrottle(0.55);
+        Thread.sleep(1000);
+        
         plane.setThrottle(0.65);
+        Thread.sleep(1000);
+        
         plane.setThrottle(0.75);
+        Thread.sleep(1000);
+        
         plane.setThrottle(0.85);
+        Thread.sleep(1000);
+        
         plane.setThrottle(0.95);
+        Thread.sleep(1000);
 
         //highest it goes at 100%.
         plane.setThrottle(C172PFields.THROTTLE_MAX);
@@ -61,12 +87,13 @@ public abstract class RunwayBurnoutFlightExecutor {
         //have seen this set the throttle back to 20
         //possible that we're not waiting on the next state read after writing the input to the socket
         //highest it goes at 100%. set after throttle
+        //mixture at 95 and throttle at 100 may suit our needs
         //plane.setMixture(1);
                     
         //speed up time in the simulator
         //full tank 32x - 752s -> not a 2x speedup from 16x, possibly overwhelms the cpu
-        //full tank 16x - 824s
-        plane.setSimSpeedUp(16);
+        //full tank 16x - 824s -> might not be a 2x speedup from 8x depending on cpu load        
+        plane.setSimSpeedUp(8);
         
         long startTime = System.currentTimeMillis();
         
