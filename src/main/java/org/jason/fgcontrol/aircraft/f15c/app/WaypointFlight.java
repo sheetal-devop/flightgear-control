@@ -8,6 +8,7 @@ import java.util.Properties;
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.fgcontrol.aircraft.f15c.F15C;
 import org.jason.fgcontrol.aircraft.f15c.F15CConfig;
+import org.jason.fgcontrol.aircraft.f15c.flight.F15CFlightParameters;
 import org.jason.fgcontrol.aircraft.f15c.flight.WaypointFlightExecutor;
 import org.jason.fgcontrol.exceptions.FlightGearSetupException;
 import org.jason.fgcontrol.flight.position.KnownRoutes;
@@ -52,10 +53,15 @@ public class WaypointFlight {
         	
             plane = new F15C(f15cConfig);
         
+    		plane.refillFuel();
+            
             plane.setWaypoints(route);
             
             plane.setDamageEnabled(false);
             plane.setGMT(LAUNCH_TIME_GMT);
+            
+            F15CFlightParameters parameters = new F15CFlightParameters();
+            parameters.setBearingRecalculationCycleSleep(500L);
             
             WaypointFlightExecutor.runFlight(plane);
             

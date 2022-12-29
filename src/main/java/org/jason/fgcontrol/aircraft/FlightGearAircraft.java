@@ -1,7 +1,6 @@
 package org.jason.fgcontrol.aircraft;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,7 +14,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.fgcontrol.aircraft.config.SimulatorConfig;
 import org.jason.fgcontrol.aircraft.fields.FlightGearFields;
-import org.jason.fgcontrol.aircraft.view.CameraViewer;
 import org.jason.fgcontrol.connection.sockets.FlightGearInputConnection;
 import org.jason.fgcontrol.connection.telnet.FlightGearTelnetConnection;
 import org.jason.fgcontrol.flight.position.TrackPosition;
@@ -63,7 +61,10 @@ public abstract class FlightGearAircraft {
     protected AtomicBoolean abandonCurrentWaypoint;
 
     protected boolean enableCameraViewer;   
-	private CameraViewer cameraViewer;
+	//private CameraViewer cameraViewer;
+	
+	protected String cameraViewHost;
+	protected int cameraViewPort;
 	
     protected boolean enableCaltrops;
 
@@ -83,7 +84,7 @@ public abstract class FlightGearAircraft {
         abandonCurrentWaypoint = new AtomicBoolean(false);
         
         enableCameraViewer = false;
-        cameraViewer = null;
+        //cameraViewer = null;
         
         ///////////////
         //if the camera view host is not defined in the config, don't build the camera viewer
@@ -94,12 +95,15 @@ public abstract class FlightGearAircraft {
         if(cameraViewHost != null) {
         	int cameraViewPort = simulatorConfig.getCameraViewerPort();
         	
-        	try {
-				cameraViewer = new CameraViewer(cameraViewHost, cameraViewPort);
-				enableCameraViewer = true;
-			} catch (URISyntaxException e) {
-				LOGGER.error("URI exception setting up camera viewer", e);
-			}
+//        	try {
+//				cameraViewer = new CameraViewer(cameraViewHost, cameraViewPort);
+//				enableCameraViewer = true;
+//			} catch (URISyntaxException e) {
+//				LOGGER.error("URI exception setting up camera viewer", e);
+//			}
+        	
+        	this.cameraViewHost = cameraViewHost;
+        	this.cameraViewPort = cameraViewPort;
         }	
         
         //no sshd server, handled by application
@@ -250,32 +254,32 @@ public abstract class FlightGearAircraft {
     }
     
     //cam feed thread
-    protected void launchCameraViewerThread() {
-    	
-    	if(!enableCameraViewer || cameraViewer == null) {
-    		//shouldn't get here if we haven't built this object
-    		LOGGER.error("launchCameraViewThread found a null cameraViewer. aborting launch of camera viewer");
-    		return;
-    	}
-    	
-    	runCameraViewThread = true;
-    	
-    	readCameraViewThread = new Thread() {
-            @Override
-            public void run() {
-            	if(LOGGER.isTraceEnabled()) {
-            		LOGGER.trace("Camera view thread started");
-            	}
-                
-            	readCameraView();
-                
-                if(LOGGER.isTraceEnabled()) {
-                	LOGGER.trace("Camera view thread returning");
-                }
-            }
-    	};
-    	readCameraViewThread.start();
-    }
+//    protected void launchCameraViewerThread() {
+//    	
+//    	if(!enableCameraViewer || cameraViewer == null) {
+//    		//shouldn't get here if we haven't built this object
+//    		LOGGER.error("launchCameraViewThread found a null cameraViewer. aborting launch of camera viewer");
+//    		return;
+//    	}
+//    	
+//    	runCameraViewThread = true;
+//    	
+//    	readCameraViewThread = new Thread() {
+//            @Override
+//            public void run() {
+//            	if(LOGGER.isTraceEnabled()) {
+//            		LOGGER.trace("Camera view thread started");
+//            	}
+//                
+//            	readCameraView();
+//                
+//                if(LOGGER.isTraceEnabled()) {
+//                	LOGGER.trace("Camera view thread returning");
+//                }
+//            }
+//    	};
+//    	readCameraViewThread.start();
+//    }
     
     
     ////////////

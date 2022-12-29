@@ -107,9 +107,9 @@ public class C172P extends FlightGearAircraft {
             //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
             launchTelemetryThread();
             
-            if(enableCameraViewer) {
-            	launchCameraViewerThread();
-            }
+//            if(enableCameraViewer) {
+//            	launchCameraViewerThread();
+//            }
         } catch (SocketException | UnknownHostException e) {
             
             LOGGER.error("Exception occurred during setup", e);

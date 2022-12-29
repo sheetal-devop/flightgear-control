@@ -19,33 +19,9 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class WaypointFlightExecutor {
 
-	//TODO: put some of these fields into a FlightParameters and allow override
+	//TODO: put some of these fields into a F15CFlightParameters and allow override
 	
     private final static Logger LOGGER = LoggerFactory.getLogger(WaypointFlightExecutor.class);
-
-    private final static double WAYPOINT_ADJUST_MIN = 0.75 * 5280.0; 
-    
-    private final static double SIM_SPEEDUP = 8.0;
-    
-    private final static double TARGET_ALTITUDE = 5100.0;
-    
-    private final static double FLIGHT_MIXTURE = 0.95;
-    private final static double FLIGHT_THROTTLE = 0.95;
-    
-    private final static double MAX_HEADING_CHANGE = 20.0;
-    
-    //adjust in smaller increments than MAX_HEADING_CHANGE, since course changes can be radical
-    //TODO: lower this value after waypoint interpolation is implemented
-    private final static double COURSE_ADJUSTMENT_INCREMENT = 12.5;
-    
-    private final static double TARGET_ROLL = 0.0;
-    private final static double FLIGHT_ROLL_MAX = 2.0;
-    
-    private final static double TARGET_PITCH = 2.0;
-    private final static double FLIGHT_PITCH_MAX = 4.0;  
-    
-    //adjust this according to the route. packed together waypoints can result in the plane orbiting where it wants to go
-    private final static double WAYPOINT_ARRIVAL_THRESHOLD = 0.5 * 5280.0;
 	
 	/**
 	 * Fly the plane. Assume simulator is launched with the plane in the air and the engine started. Plane object should 
@@ -55,17 +31,16 @@ public abstract class WaypointFlightExecutor {
 	 * @throws IOException 
 	 */
 	public static void runFlight(C172P plane) throws IOException {
-		runFlight(plane, new FlightParameters());
+		runFlight(plane, new C172PFlightParameters());
 	}
 	
-	public static void runFlight(C172P plane, FlightParameters parameters) throws IOException {
-		//TODO: override any FlightParameters
+	public static void runFlight(C172P plane, C172PFlightParameters parameters) throws IOException {
 		
 		WaypointPosition startingWaypoint = plane.getNextWaypoint();
 		plane.setCurrentWaypointTarget(startingWaypoint);
 		
 		//figure out the heading of our first waypoint based upon our current position
-        double initialBearing = PositionUtilities.calcBearingToGPSCoordinates(plane.getPosition(), startingWaypoint);    
+        double initialBearing = PositionUtilities.calcBearingToGPSCoordinatesNormalized(plane.getPosition(), startingWaypoint);    
         
         //point the plane at our first waypoint
         //***we really have to trust the sim is launched with the correct initial heading
@@ -81,35 +56,61 @@ public abstract class WaypointFlightExecutor {
         //sometimes the flaps are down, which causes the plane to drift off course
         plane.resetControlSurfaces();
         
-        stabilizeLaunch(plane, initialBearing);
+        ////////////////////////////        
+        //flight parameters
+        //not much of a min, but both tanks largely filled means even weight and more stable flight
+        double minFuelGal = parameters.getLowFuelAmountThreshold();
+        double minBatteryCharge = parameters.getLowBatteryAmountThreshold();
         
-        /////////////////////////////////
-        //fly our waypoints
+        double maxHeadingChange = parameters.getMaxHeadingChange();
+        double courseAdjustmentIncrement = parameters.getCourseAdjustmentIncrement();
+        
+        double targetAltitude = parameters.getTargetAltitude();
+        double maxAltitudeDeviation = parameters.getMaxAltitudeDeviation();
+        
+        double targetRoll = parameters.getTargetRoll();
+        double maxRoll = parameters.getFlightRollMax();
+        double targetPitch = parameters.getTargetPitch();
+        double maxPitch = parameters.getFlightPitchMax();
+        
+        int bearingRecalcCycleInterval = parameters.getBearingRecalculationCycleInterval();   
+        
+        double waypointArrivalThreshold = parameters.getWaypointArrivalThreshold();
+        double waypointAdjustMinimum = parameters.getWaypointAdjustMinimumDistance();
+        
+        long cycleSleep = parameters.getBearingRecalculationCycleSleep();
+        
+        int stabilizationCycleCount = parameters.getStabilizationCycleCount();
+        long stabilizationCycleSleep = parameters.getStabilizationCycleSleep();
+        
+        //catch the plane launched externally and steer it towards the inital bearing
+        //TODO: move the mixture set outside of this function?
+        stabilizeLaunch(plane, initialBearing, 
+        	parameters.getFlightMixture(),
+        	maxRoll, targetRoll, maxPitch, targetPitch, courseAdjustmentIncrement
+        );
+        
         plane.setBatterySwitch(false);
         plane.setAntiIce(true);
         
         //TODO: final and overrideable fields for the hardcoded values
         
         //i'm in a hurry and a c172p only goes so fast
-        plane.setSimSpeedUp(SIM_SPEEDUP);
+        plane.setSimSpeedUp(parameters.getSimSpeedup());
         
         //set the throttle here otherwise the mixture may cap it
-        plane.setThrottle(FLIGHT_THROTTLE);
+        plane.setThrottle(parameters.getFlightThrottle());
         
-        //not much of a min, but both tanks largely filled means even weight and more stable flight
-        double minFuelGal = 16.0;
-        double minBatteryCharge = 0.25;
         
-        //needs to be tuned depending on aircraft speed, sim speedup, and waypoint closeness
-        int bearingRecalcCycleInterval = 5;    
-        
+        ////////////////////////////
+        //intermediate values
+        int waypointFlightCycles;
         WaypointPosition nextWaypoint;
         TrackPosition currentPosition;
         double distanceToNextWaypoint;
         double nextWaypointBearing = initialBearing;
-        long cycleSleep = 5;
-        int waypointFlightCycles;
         
+        //main flight loop
         while(plane.getWaypointCount() > 0) {
             
             nextWaypoint = plane.getAndRemoveNextWaypoint();
@@ -117,12 +118,8 @@ public abstract class WaypointFlightExecutor {
             
             LOGGER.info("Headed to next waypoint: {}", nextWaypoint.toString());
             
-            nextWaypointBearing = PositionUtilities.calcBearingToGPSCoordinates(plane.getPosition(), nextWaypoint);
-            
-            //normalize to 0-360
-            if(nextWaypointBearing < 0) {
-                nextWaypointBearing += FlightUtilities.DEGREES_CIRCLE;
-            }
+            //bearing normalized to 0-360
+            nextWaypointBearing = PositionUtilities.calcBearingToGPSCoordinatesNormalized(plane.getPosition(), nextWaypoint);
             
             LOGGER.info("Bearing to next waypoint: {}", nextWaypointBearing);
             
@@ -131,11 +128,12 @@ public abstract class WaypointFlightExecutor {
             
             double currentHeading;
             int headingComparisonResult;
-            while(!FlightUtilities.withinHeadingThreshold(plane, MAX_HEADING_CHANGE, nextWaypointBearing)) {
+            while(!FlightUtilities.withinHeadingThreshold(plane, maxHeadingChange, nextWaypointBearing)) {
                 
                 currentHeading = plane.getHeading();
                 headingComparisonResult = FlightUtilities.headingCompareTo(plane, nextWaypointBearing);
                 
+                //TODO: add waypoint info to log message
                 LOGGER.info("Easing hard turn from current heading {} to target {}", currentHeading, nextWaypointBearing);
                 
                 //adjust clockwise or counter? 
@@ -147,27 +145,32 @@ public abstract class WaypointFlightExecutor {
                     break;
                 } else if(headingComparisonResult == FlightUtilities.HEADING_CW_ADJUST) {
                     //1: adjust clockwise
-                    intermediateHeading = (intermediateHeading + COURSE_ADJUSTMENT_INCREMENT ) % FlightUtilities.DEGREES_CIRCLE;
+                    intermediateHeading = (intermediateHeading + courseAdjustmentIncrement ) % FlightUtilities.DEGREES_CIRCLE;
                 } else {
                     //-1: adjust counterclockwise
-                    intermediateHeading -= COURSE_ADJUSTMENT_INCREMENT;
+                    intermediateHeading -= courseAdjustmentIncrement;
                     
                     //normalize 0-360
                     if(intermediateHeading < 0) intermediateHeading += FlightUtilities.DEGREES_CIRCLE;
                 }
                 
-                LOGGER.info("++++Stabilizing to intermediate heading {} from current {} with target {}", intermediateHeading, currentHeading, nextWaypointBearing);
+                //TODO: add waypoint info to log message
+                LOGGER.info("++++Stabilizing to intermediate heading {} from current {} with target {}", 
+                		intermediateHeading, currentHeading, nextWaypointBearing);
                 
                 //low count here. if we're not on track by the end, the heading check should fail and get us back here
                 //seeing close waypoints get overshot
                 int stablizeCount = 0;
-                while(stablizeCount < 5) {
+                while(stablizeCount < stabilizationCycleCount) {
                     
-                    FlightUtilities.altitudeCheck(plane, 500, TARGET_ALTITUDE);
-                    stabilizeCheck(plane, intermediateHeading);
+                    FlightUtilities.altitudeCheck(plane, maxAltitudeDeviation, targetAltitude);
+                    
+                    stabilizeCheck(plane, intermediateHeading,
+                        maxRoll, targetRoll, maxPitch, targetPitch, courseAdjustmentIncrement
+                    );
                     
                     try {
-                        Thread.sleep(10);
+                        Thread.sleep(stabilizationCycleSleep);
                     } catch (InterruptedException e) {
                         LOGGER.warn("Stabilization sleep interrupted", e);
                     }
@@ -175,13 +178,8 @@ public abstract class WaypointFlightExecutor {
                     stablizeCount++;
                 }
                 
-                //recalculate bearing since we've moved
-                nextWaypointBearing = PositionUtilities.calcBearingToGPSCoordinates(plane.getPosition(), nextWaypoint);
-                
-                //normalize to 0-360
-                if(nextWaypointBearing < FlightUtilities.DEGREES_ZERO) {
-                    nextWaypointBearing += FlightUtilities.DEGREES_CIRCLE;
-                }
+                //recalculate bearing since we've moved, normalize to 0-360
+                nextWaypointBearing = PositionUtilities.calcBearingToGPSCoordinatesNormalized(plane.getPosition(), nextWaypoint);
             }
             
             LOGGER.info("Heading change within tolerance");
@@ -193,7 +191,7 @@ public abstract class WaypointFlightExecutor {
             //add our next waypoint to the log
             plane.addWaypointToFlightLog(nextWaypoint);
             
-            while( !PositionUtilities.hasArrivedAtWaypoint(plane.getPosition(), nextWaypoint, WAYPOINT_ARRIVAL_THRESHOLD) ) {
+            while( !PositionUtilities.hasArrivedAtWaypoint(plane.getPosition(), nextWaypoint, waypointArrivalThreshold) ) {
             
             	if(LOGGER.isTraceEnabled()) {
             		LOGGER.trace("======================\nCycle {} start.", waypointFlightCycles);
@@ -217,30 +215,27 @@ public abstract class WaypointFlightExecutor {
                 
                 plane.addTrackPositionToFlightLog(currentPosition);                    
                 
+                //periodically recalculate bearing to next waypoint
                 if(    
-                    distanceToNextWaypoint >= WAYPOINT_ADJUST_MIN &&
+                    distanceToNextWaypoint >= waypointAdjustMinimum &&
                     waypointFlightCycles % bearingRecalcCycleInterval == 0
                 ) 
                 {
-                    //reset bearing incase we've drifted, not not if we're too close
-                    nextWaypointBearing = PositionUtilities.calcBearingToGPSCoordinates(plane.getPosition(), nextWaypoint);
-                    
-                    //normalize to 0-360
-                    if(nextWaypointBearing < 0) {
-                        nextWaypointBearing += FlightUtilities.DEGREES_CIRCLE;
-                    }
+                    //reset bearing incase we've drifted, not not if we're too close. normalize to 0-360
+                    nextWaypointBearing = PositionUtilities.calcBearingToGPSCoordinatesNormalized(plane.getPosition(), nextWaypoint);
                     
                     LOGGER.info("Recalculating bearing to waypoint: {}", nextWaypointBearing);
                 }
                 
                 // check altitude first, if we're in a nose dive that needs to be corrected first
-                //TODO: altitude threshold into field 
-                FlightUtilities.altitudeCheck(plane, 500, TARGET_ALTITUDE);
+                FlightUtilities.altitudeCheck(plane, maxAltitudeDeviation, targetAltitude);
 
                 // TODO: ground elevation check. it's a problem if your target alt is 5000ft and
                 // you're facing a 5000ft mountain
 
-                stabilizeCheck(plane, nextWaypointBearing);                    
+                stabilizeCheck(plane, nextWaypointBearing,
+                	maxRoll, targetRoll, maxPitch, targetPitch, courseAdjustmentIncrement
+                );                    
                 
                 if(!plane.isEngineRunning()) {
                     LOGGER.error("Engine found not running.");
@@ -293,6 +288,15 @@ public abstract class WaypointFlightExecutor {
 		//TODO: move functionality from runFlight to here
 	}
 	
+    /**
+     * Build a String to help log plane telemetry.
+     * 
+     * @param plane
+     * @param nextWaypoint
+     * @param waypointBearing
+     * @param waypointDistanceRemaining
+     * @return
+     */
     private static String telemetryReadOut(C172P plane, WaypointPosition nextWaypoint, double waypointBearing, double waypointDistanceRemaining) {
         
         return 
@@ -316,13 +320,22 @@ public abstract class WaypointFlightExecutor {
             String.format("\nLongitude: %f", plane.getLongitude());
     }
     
-    private static void stabilizeLaunch(C172P plane, double bearing) throws IOException {
+    private static void stabilizeLaunch(C172P plane, 
+    		double bearing, 
+    		double mixture,
+        	double maxRoll,
+        	double targetRoll,
+        	double maxPitch,
+        	double targetPitch,
+        	double courseAdjustmentIncrement
+    ) throws IOException {
     	LOGGER.info("============== Stabilizing plane on launch");
     	
+    	//TODO: unhardcode these values probably arrived at via trial and error
         int i = 0;
         while(i < 100) {
             
-            stabilizeCheck(plane, bearing);
+            stabilizeCheck(plane, bearing, maxRoll, targetRoll, maxPitch, targetPitch, courseAdjustmentIncrement);
             
             try {
                 Thread.sleep(15);
@@ -333,13 +346,13 @@ public abstract class WaypointFlightExecutor {
             i++;
         }
         
-        plane.setMixture(FLIGHT_MIXTURE);
+        plane.setMixture(mixture);
         
         //wait for mixture to take effect
         i = 0;
         while(i < 20) {
             
-            stabilizeCheck(plane, bearing);
+        	stabilizeCheck(plane, bearing, maxRoll, targetRoll, maxPitch, targetPitch, courseAdjustmentIncrement);
             
             try {
                 Thread.sleep(15);
@@ -353,14 +366,22 @@ public abstract class WaypointFlightExecutor {
     	LOGGER.info("============== Completed launch stabilization");
     }
     
-    private static void stabilizeCheck(C172P plane, double bearing) throws IOException {
+    private static void stabilizeCheck(
+    	C172P plane, 
+    	double bearing, 
+    	double maxRoll,
+    	double targetRoll,
+    	double maxPitch,
+    	double targetPitch,
+    	double courseAdjustmentIncrement
+    ) throws IOException {
         if( 
-            !FlightUtilities.withinRollThreshold(plane, FLIGHT_ROLL_MAX, TARGET_ROLL) ||
-            !FlightUtilities.withinPitchThreshold(plane, FLIGHT_PITCH_MAX, TARGET_PITCH) ||
-            !FlightUtilities.withinHeadingThreshold(plane, COURSE_ADJUSTMENT_INCREMENT, bearing)
+            !FlightUtilities.withinRollThreshold(plane, maxRoll, targetRoll) ||
+            !FlightUtilities.withinPitchThreshold(plane, maxPitch, targetPitch) ||
+            !FlightUtilities.withinHeadingThreshold(plane, courseAdjustmentIncrement, bearing)
         ) 
         {
-            plane.forceStabilize(bearing, TARGET_ROLL, TARGET_PITCH, false);
+            plane.forceStabilize(bearing, targetRoll, targetPitch, false);
                 
             //keep seeing flaps extending on their own, probably as part of the plane autostart.
             //everything else on the c172p model seems to react to the launch altitude, but not this.

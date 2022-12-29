@@ -1,4 +1,4 @@
-package org.jason.fgcontrol.test;
+package org.jason.fgcontrol.flight.position.app;
 
 public class HeadingTest {
     public static void main(String []args) {

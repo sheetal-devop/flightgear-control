@@ -10,11 +10,18 @@ ext {
         flightgear_control_gateway: [
         
         ],
+        mina_sshd: [
+            'org.apache.sshd:sshd-core:2.9.2'
+        ],
         geotools: [
             'org.geotools:gt-referencing:26.1.01'
         ],
         flightgear_control_test: [
             'org.testng:testng:7.4.0'
+        ],
+        rest: [
+            'io.rest-assured:rest-assured:5.3.0',
+            'org.apache.httpcomponents:httpcore:4.4.16'
         ]
     ]
 }

@@ -30,7 +30,7 @@ public class WaypointFlight {
         
         //local tour
         //C172P script launches from YVR
-        ArrayList<WaypointPosition> route = KnownRoutes.VANCOUVER_TOUR ;
+        ArrayList<WaypointPosition> route = KnownRoutes.VANCOUVER_TOUR;
         
         //bc tour - much longer
         //C172P script launches from YVR

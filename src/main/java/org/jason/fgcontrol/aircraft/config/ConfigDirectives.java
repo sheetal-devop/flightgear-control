@@ -56,12 +56,10 @@ velocitiesInputPort=5014
 	public static final String CAMERA_STREAM_HOST_DIRECTIVE = "cameraStreamHost";
 	public static final String CAMERA_STREAM_PORT_DIRECTIVE = "cameraStreamPort";
 	
-	//caltrops
-	public static final String CALTROPS_HOST_DIRECTIVE = "caltropsHost";
-	public static final String CALTROPS_PORT_DIRECTIVE = "caltropsPort";
-	
 	//sshd
 	public static final String SSHD_PORT_DIRECTIVE = "sshdPort";
 	public static final String SSHD_HOME_DIR_DIRECTIVE = "sshdHomeDir";
+	public static final String SSHD_USER_DIRECTIVE = "sshUser";
+	public static final String SSHD_PASS_DIRECTIVE = "sshPass";
 	
 }

@@ -2,8 +2,13 @@ apply plugin: 'java'
 apply plugin: 'distribution'
 apply from: 'dependencies.gradle'
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+//sourceCompatibility = JavaVersion.VERSION_11
+//targetCompatibility = JavaVersion.VERSION_11
+
+//perc requires jdk 8
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
 
 repositories {
     //need both of these maven repos for geotools
@@ -22,13 +27,15 @@ dependencies {
     implementation libs.flightgear_control
     implementation libs.flightgear_control_gateway
     implementation libs.geotools
+    implementation libs.mina_sshd
+    implementation libs.rest
     
     implementation libs.flightgear_control_test
     testImplementation libs.flightgear_control_test
 }
 
 ext {
-    fgControlVersion = "0.3"
+    fgControlVersion = "0.4"
     title = "flightgear-control"
 }
 
@@ -69,6 +76,15 @@ distributions {
     }
 }
 
+compileJava {
+    //TODO: remove once jdk8 streamer is built
+    exclude (
+        //"org/jason/fgcontrol/view/*",
+        //"org/jason/fgcontrol/view/app/*",
+        //"org/jason/fgcontrol/view/mjpeg/*",
+    )
+}
+
 //may need to run the 'clean' task first
 test {
     useTestNG() {
@@ -99,9 +115,11 @@ jar {
         "org/jason/fgcontrol/aircraft/c172p/app/**",
         "org/jason/fgcontrol/aircraft/f15c/app/**",
         "org/jason/fgcontrol/connection/sockets/app/**",
+        "org/jason/fgcontrol/connection/rest/app/**",
         "org/jason/fgcontrol/connection/telnet/app/**",
-        "org/jason/fgcontrol/test/**",
-        "org/jason/fgcontrol/aircraft/view/app/**"
+        "org/jason/fgcontrol/flight/position/app/**",
+        "org/jason/fgcontrol/sshd/app/**",
+        "org/jason/fgcontrol/view/app/**",
     )
 }
 
@@ -118,9 +136,11 @@ task sourcesJar(type: Jar, dependsOn: classes) {
         "org/jason/fgcontrol/aircraft/c172p/app/**",
         "org/jason/fgcontrol/aircraft/f15c/app/**",
         "org/jason/fgcontrol/connection/sockets/app/**",
+        "org/jason/fgcontrol/connection/rest/app/**",
         "org/jason/fgcontrol/connection/telnet/app/**",
-        "org/jason/fgcontrol/test/**",
-        "org/jason/fgcontrol/aircraft/view/app/**"
+        "org/jason/fgcontrol/flight/position/app/**",
+        "org/jason/fgcontrol/sshd/app/**",
+        "org/jason/fgcontrol/view/app/**",
     )
 }
 
