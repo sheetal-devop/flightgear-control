@@ -133,8 +133,8 @@ public abstract class WaypointFlightExecutor {
                 currentHeading = plane.getHeading();
                 headingComparisonResult = FlightUtilities.headingCompareTo(plane, nextWaypointBearing);
                 
-                //TODO: add waypoint info to log message
-                LOGGER.info("Easing hard turn from current heading {} to target {}", currentHeading, nextWaypointBearing);
+                LOGGER.debug("Easing hard turn from current heading {} to target heading {} for waypoint", 
+                		currentHeading, nextWaypointBearing, nextWaypoint.getName());
                 
                 //adjust clockwise or counter? 
                 //this may actually change in the middle of the transition itself
@@ -155,8 +155,8 @@ public abstract class WaypointFlightExecutor {
                 }
                 
                 //TODO: add waypoint info to log message
-                LOGGER.info("++++Stabilizing to intermediate heading {} from current {} with target {}", 
-                		intermediateHeading, currentHeading, nextWaypointBearing);
+                LOGGER.info("++++Stabilizing to intermediate heading {} from current {} with target {} for next waypoint {}", 
+                		intermediateHeading, currentHeading, nextWaypointBearing, nextWaypoint.getName());
                 
                 //low count here. if we're not on track by the end, the heading check should fail and get us back here
                 //seeing close waypoints get overshot
@@ -200,7 +200,7 @@ public abstract class WaypointFlightExecutor {
                 //allow external interruption of flightplan
                 if(plane.shouldAbandonCurrentWaypoint()) {
                 	
-                	LOGGER.info("Abandoning current waypoint");
+                	LOGGER.info("Abandoning current waypoint {}", nextWaypoint.toString());
                 	
                 	//reset abandon flag
                 	plane.resetAbandonCurrentWaypoint();
@@ -224,7 +224,7 @@ public abstract class WaypointFlightExecutor {
                     //reset bearing incase we've drifted, not not if we're too close. normalize to 0-360
                     nextWaypointBearing = PositionUtilities.calcBearingToGPSCoordinatesNormalized(plane.getPosition(), nextWaypoint);
                     
-                    LOGGER.info("Recalculating bearing to waypoint: {}", nextWaypointBearing);
+                    LOGGER.info("Recalculating bearing to waypoint {}: {}", nextWaypoint.getName() , nextWaypointBearing);   
                 }
                 
                 // check altitude first, if we're in a nose dive that needs to be corrected first

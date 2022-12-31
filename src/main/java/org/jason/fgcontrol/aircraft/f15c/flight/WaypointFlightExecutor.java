@@ -148,7 +148,8 @@ public abstract class WaypointFlightExecutor {
                 
                 headingComparisonResult = FlightUtilities.headingCompareTo(plane, nextWaypointBearing);
                 
-                LOGGER.info("Easing hard turn from current heading {} to target {}", currentHeading, nextWaypointBearing);
+                LOGGER.debug("Easing hard turn from current heading {} to target heading {} for waypoint", 
+                		currentHeading, nextWaypointBearing, nextWaypoint.getName());
                 
                 //adjust clockwise or counter? 
                 //this may actually change in the middle of the transition itself
@@ -227,7 +228,7 @@ public abstract class WaypointFlightExecutor {
                 //allow external interruption of flightplan
                 if(plane.shouldAbandonCurrentWaypoint()) {
                 	
-                	LOGGER.info("Abandoning current waypoint");
+                	LOGGER.info("Abandoning current waypoint {}", nextWaypoint.toString());
                 	
                 	//reset abandon flag
                 	plane.resetAbandonCurrentWaypoint();
@@ -255,7 +256,7 @@ public abstract class WaypointFlightExecutor {
                     //reset bearing incase we've drifted, not not if we're too close
                     nextWaypointBearing = PositionUtilities.calcBearingToGPSCoordinatesNormalized(plane.getPosition(), nextWaypoint);
                     
-                    LOGGER.info("Recalculating bearing to waypoint: {}", nextWaypointBearing);   
+                    LOGGER.info("Recalculating bearing to waypoint {}: {}", nextWaypoint.getName() , nextWaypointBearing);   
                 } else if ( !waypointApproach && distanceToNextWaypoint < waypointArrivalThreshold * 3 ) {
                 	
                     //throttle down for waypoint approach to accommodate any late corrections
