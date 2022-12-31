@@ -13,7 +13,7 @@ public class C172PFlightParameters {
     
     private final static double SIM_SPEEDUP = 8.0;
     
-    private final static double TARGET_ALTITUDE = 5100.0;
+    private final static double TARGET_ALTITUDE = 6000.0;
     private final static double MAX_ALTITUDE_DEVIATION = 500.0;
     
     private final static double FLIGHT_MIXTURE = 0.95;
