@@ -106,7 +106,7 @@ public class FlightUtilities {
             retval = HEADING_CCW_ADJUST;
         }
         
-        LOGGER.info("Comparing headings {} : {} => {}", currentHeading, targetHeading, retval);
+        LOGGER.debug("Comparing headings {} : {} => {}", currentHeading, targetHeading, retval);
         
         return retval;
     }
