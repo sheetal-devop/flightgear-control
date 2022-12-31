@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+    <!--
+         ^^^^ Configuration debug to true to force logback debug output.
+         This is helpful since it will display the path of the logback.xml file
+         used by the test execution.
+     -->
+
+    <!-- the name of the test suite appenders -->
+    <property scope="context" name="consoleAppenderName" value="STDOUT" />
+    <property scope="context" name="fileAppenderName" value="fileAppender" />
+    <property scope="context" name="logDirectory" value="log/" />
+
+    <!-- standardize log message format -->
+    <property scope="context" name="logPattern" value="%date{yyyy-MM-dd HH:mm:ss.SSSZ} [L: %level] [O: %logger{8}] [M: %method] [T: %thread] %msg%n%rootException" />
+
+    <!-- The appender for console output - namely STDOUT. IDEs likely interface with this -->
+    <appender name="${consoleAppenderName}" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${logPattern}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- The appender for logfile output. All logged output goes here.  -->
+    <appender name="${fileAppenderName}" class="ch.qos.logback.core.FileAppender">
+        <file>${logDirectory}/flightgear.log</file>
+        <encoder>
+            <pattern>${logPattern}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 3rd party -->
+    <!-- <logger name="org.apache" level="WARN" /> -->
+    <logger name="org.apache.http.impl.conn" level="DEBUG" />
+    
+    <!-- loggers -->
+    <logger name="org.jason.fgcontrol" level="INFO" />
+    <logger name="org.jason.fgcontrol.aircraft" level="INFO" />
+    <logger name="org.jason.fgcontrol.connection.sockets" level="INFO" />
+    
+    <!-- apps -->
+    <logger name="org.jason.fgcontrol.aircraft.c172p.app" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.aircraft.c172p.app.poc" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.aircraft.f15c.app" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.aircraft.f15c.app.poc" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.connection.rest.app" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.connection.sockets.app" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.connection.telnet.app" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.flight.position.app" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.sshd.app" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.view.app" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.view.mjpeg.app" level="DEBUG" />
+    
+    <logger name="org.jason.fgcontrol.view" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.view.mjpeg" level="DEBUG" />
+    
+    <root level="DEBUG">
+        <appender-ref ref="${consoleAppenderName}" />
+        <appender-ref ref="${fileAppenderName}" />
+    </root>
+</configuration>
