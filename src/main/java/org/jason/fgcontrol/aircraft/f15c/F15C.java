@@ -101,6 +101,11 @@ public class F15C extends FlightGearAircraft {
             
             //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
             launchTelemetryThread();
+            
+            if(enableCameraStreamer) {
+            	LOGGER.info("Launching Camera Stream Thread");
+            	launchCameraStreamerThread();
+            }
         } catch (SocketException | UnknownHostException e) {
             
             LOGGER.error("Exception occurred during setup", e);
@@ -452,7 +457,7 @@ public class F15C extends FlightGearAircraft {
     //////////////
     //telemetry modifiers
     
-    private void forceStablizationWrite(double targetHeading, double targetRoll, double targetPitch) throws IOException {
+    private void forceStabilizationWrite(double targetHeading, double targetRoll, double targetPitch) throws IOException {
     	LinkedHashMap<String, String> orientationFields = copyStateFields(FlightGearFields.ORIENTATION_INPUT_FIELDS);
     	
         orientationFields.put(FlightGearFields.HEADING_FIELD, String.valueOf(targetHeading) ) ;
@@ -462,7 +467,7 @@ public class F15C extends FlightGearAircraft {
         writeControlInput(orientationFields, this.orientationInputConnection);
         
         if(LOGGER.isDebugEnabled()) {
-        	LOGGER.debug("Force stablizing to {}", orientationFields.entrySet().toString());
+        	LOGGER.debug("Force stabilizing to {}", orientationFields.entrySet().toString());
         }
     }
     
@@ -472,8 +477,8 @@ public class F15C extends FlightGearAircraft {
     
     public void forceStabilize(double targetHeading, double targetRoll, double targetPitch, boolean pauseSim) throws IOException {
         
-    	if(LOGGER.isDebugEnabled()) {
-    		LOGGER.debug("forceStabilize called");
+    	if(LOGGER.isTraceEnabled()) {
+    		LOGGER.trace("forceStabilize called");
     	}
                 
         //pause before copyStateFields so we're not changing an orientation in the past
@@ -484,16 +489,16 @@ public class F15C extends FlightGearAircraft {
         	try {
         		setPause(true);
         	
-        		forceStablizationWrite(targetHeading, targetRoll, targetPitch);
+        		forceStabilizationWrite(targetHeading, targetRoll, targetPitch);
         	} finally {
         		setPause(false);
         	}
         } else {
-        	forceStablizationWrite(targetHeading, targetRoll, targetPitch);
+        	forceStabilizationWrite(targetHeading, targetRoll, targetPitch);
         }
                
-        if(LOGGER.isDebugEnabled()) {
-        	LOGGER.debug("forceStabilize returning");
+        if(LOGGER.isTraceEnabled()) {
+        	LOGGER.trace("forceStabilize returning");
         }
     }
     

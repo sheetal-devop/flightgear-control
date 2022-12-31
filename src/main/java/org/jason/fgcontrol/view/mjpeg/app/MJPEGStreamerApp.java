@@ -35,7 +35,7 @@ public class MJPEGStreamerApp {
 				
 				LOGGER.info("Running mjpeg streamer thread");
 				
-				mjpegStreamer.run();
+				mjpegStreamer.start();
 				
 				LOGGER.info("Mjpeg streamer thread exiting");
 			}
@@ -47,10 +47,15 @@ public class MJPEGStreamerApp {
 		
 		LOGGER.info("Mjpeg streamer thread started");
 		
-		try {
-			Thread.sleep(180 * 1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		int i = 0;
+		while(i < 60) {
+			try {
+				LOGGER.info("Runtime sleep");
+				Thread.sleep(3 * 1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			i++;
 		}
 		
 		LOGGER.info("Mjpeg streamer shutting down");

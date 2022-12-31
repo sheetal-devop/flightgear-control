@@ -37,9 +37,7 @@ public class ReadCameraViewerOnce {
 		try {
 			CameraViewer cameraViewer = new CameraViewer(host, port);
 			
-			cameraViewer.update();
-			
-			byte[] result = cameraViewer.readBuffer();
+			byte[] result = cameraViewer.readCurrentView();
 			
 			BufferedImage img = ImageIO.read(new ByteArrayInputStream(result));
 			

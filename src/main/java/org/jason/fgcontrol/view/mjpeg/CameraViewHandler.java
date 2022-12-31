@@ -22,9 +22,19 @@ public class CameraViewHandler implements HttpHandler {
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(CameraViewHandler.class);
 
+	//even though the img src is just the web endpoint, it seems to use the correct port that the server is listening on 
+	private final static byte[] HTTP_BODY = 
+		("<!DOCTYPE html><html><body><img src=\"" + 
+		MJPEGStreamer.STREAM_HTTP_ENDPOINT + 
+		"\"></body></html>").getBytes();
 	
-	private final static byte[] HTTP_BODY = "<!DOCTYPE html><html><body><img src=\"./stream\"></body></html>".getBytes();
 	private final static int HTTP_BODY_LEN = HTTP_BODY.length;
+
+	//TODO: needed?
+//	private final static byte[] HTTP_BODY_STREAM_IN_USE = 
+//		"<!DOCTYPE html><html><body><b>Stream is currently in use</b></body></html>".getBytes();
+//	
+//	private final static int HTTP_BODY_STREAM_IN_USE_LEN = HTTP_BODY_STREAM_IN_USE.length;
 	
 	@Override
 	public void handle(HttpExchange httpExchange) throws IOException {
@@ -36,9 +46,12 @@ public class CameraViewHandler implements HttpHandler {
         		LOGGER.debug("Writing cameraView output stream");
         	}
         	
+        	//if stream view is not currently in use
 	        httpExchange.sendResponseHeaders(HttpURLConnection.HTTP_OK, HTTP_BODY_LEN);
 	        os = httpExchange.getResponseBody();
 	        os.write(HTTP_BODY);
+	        
+	        
 	        os.flush();
         }
         catch(Exception e) {

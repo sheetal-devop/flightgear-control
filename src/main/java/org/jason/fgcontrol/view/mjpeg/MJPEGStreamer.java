@@ -11,14 +11,15 @@ import org.slf4j.LoggerFactory;
 import com.sun.net.httpserver.HttpServer;
 
 @SuppressWarnings("restriction")
-public class MJPEGStreamer implements Runnable {
+public class MJPEGStreamer {
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(MJPEGStreamer.class);
 	private int serverPort;
 	
-	private final static int HTTP_SERVER_BACKLOG = 0;
+	public final static String STREAM_HTTP_ENDPOINT = "/stream";
+	public final static String CAMERA_VIEW_HTTP_ENDPOINT = "/cameraView";
 	
-	private final static long RUN_SLEEP = 2 * 1000L;
+	private final static int HTTP_SERVER_BACKLOG = 0;
 	
 	//TODO: proper singleton implementation
 	//stream can only be viewed by a single viewer
@@ -33,6 +34,13 @@ public class MJPEGStreamer implements Runnable {
 	
 	private final static int SHUTDOWN_TIMEOUT = 3;	//in seconds
 	
+	/**
+	 * Create an mjpeg streamer for our camera view.
+	 * 
+	 * @param cameraViewer
+	 * @param serverPort
+	 * @throws IOException
+	 */
 	public MJPEGStreamer(CameraViewer cameraViewer, int serverPort) throws IOException {
 
 		this.serverPort = serverPort;
@@ -42,7 +50,7 @@ public class MJPEGStreamer implements Runnable {
 		
 		setup();
 		
-		LOGGER.info("Initialized mjpegstreamer listening on port {}", serverPort);
+		LOGGER.info("Initialized MJPEGStreamer listening on port {}", serverPort);
 	}
 	
 	protected void setup() throws IOException {
@@ -51,13 +59,15 @@ public class MJPEGStreamer implements Runnable {
 		server = HttpServer.create(new InetSocketAddress(serverPort), HTTP_SERVER_BACKLOG);
 		
 		//web endpoint that shows the camera stream
-		server.createContext("/cameraView", cameraViewHandler);
+		server.createContext(CAMERA_VIEW_HTTP_ENDPOINT, cameraViewHandler);
 		
 		//the camera stream itself
-		server.createContext("/stream", streamHandler);
+		server.createContext(STREAM_HTTP_ENDPOINT, streamHandler);
 		
 		//TODO: figure out why vvvv
-		//using newCachedThreadPool causes a 1 min wait before shutdown
+		//using newCachedThreadPool causes a 1 min wait before shutdown 
+		//  ==> likely from test program sleep time plus default timeouts
+		//keep at null for the near future
 		//server.setExecutor(Executors.newCachedThreadPool());
 		server.setExecutor(null);
 		
@@ -68,27 +78,16 @@ public class MJPEGStreamer implements Runnable {
 		//server.setExecutor(Executors.newSingleThreadExecutor());
 	}
 	
-	@Override
-	public void run() {
-
-		LOGGER.debug("MJPEGStreamer run() invoked");
+	/**
+	 * Start up the underlying server. Invoker needs to manage in thread.
+	 */
+	public void start() {
 		
-		LOGGER.info("MJPEGStreamer server starting");
+		LOGGER.debug("MJPEGStreamer server starting");
 		
 		server.start();
 		
-		LOGGER.info("MJPEGStreamer server started");
-		
-		while(streamHandler.isRunning()) {
-			try {
-				LOGGER.info("MJPEGStreamer server running. Sleeping");
-				Thread.sleep(RUN_SLEEP);
-			} catch (InterruptedException e) {
-				LOGGER.warn("Sleep interrupted", e);
-			}
-		}
-		
-		LOGGER.debug("MJPEGStreamer run() exiting");
+		LOGGER.debug("MJPEGStreamer server started");
 	}
 
 	public void shutdown() {
@@ -100,16 +99,16 @@ public class MJPEGStreamer implements Runnable {
 		
 		LOGGER.info("MJPEGStreamer server stopping");
 		
-		server.removeContext("/cameraView");
-		server.removeContext("/stream");
+		server.removeContext(CAMERA_VIEW_HTTP_ENDPOINT);
+		server.removeContext(STREAM_HTTP_ENDPOINT);
 		
-		LOGGER.info("MJPEGStreamer contexts removed");
+		LOGGER.debug("MJPEGStreamer contexts removed");
 		
 		if(server != null) {
 			//timeout in seconds
 			server.stop(SHUTDOWN_TIMEOUT);
 		}
 		
-		LOGGER.info("MJPEGStreamer server stopped");
+		LOGGER.debug("MJPEGStreamer server stopped");
 	}
 }

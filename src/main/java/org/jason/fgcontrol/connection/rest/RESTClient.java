@@ -2,7 +2,6 @@ package org.jason.fgcontrol.connection.rest;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.util.LinkedHashMap;
 
 import org.slf4j.Logger;
@@ -56,12 +55,12 @@ public class RESTClient {
 	 * @param headers
 	 */
 	public RESTClient(LinkedHashMap<String, String> headers, int connectionTimeout, int socketTimeout) {
+		
 		RestAssuredConfig config = RestAssured.config()
 		        .httpClient(HttpClientConfig.httpClientConfig()
+		        		.reuseHttpClientInstance()
 		                .setParam(CONNECTION_TIMEOUT, connectionTimeout)
 		                .setParam(SO_TIMEOUT, socketTimeout));
-		
-		//TODO: allow list of header names
 		
 		if(headers != null && headers.size() > 0) {
 			request = RestAssured.given().config(config).headers(headers);
@@ -70,40 +69,41 @@ public class RESTClient {
 			request = RestAssured.given().config(config);
 		}
 	}
-	
-	public boolean makeGETRequest(URI uri) {
-		
+
+	public boolean makeGETRequestIsSuccessful(String uri) {
+
 		boolean retval = false;
-	
+
 		try {
-			retval = (makeGETRequestURIAndGetStatusCode(uri) == HttpURLConnection.HTTP_OK);
+			retval = (makeGETRequestAndGetStatusCode(uri) == HttpURLConnection.HTTP_OK);
 		} catch (IOException | InterruptedException e) {
 			LOGGER.error("Exception occurred making REST request", e);
 		}
-		
+
 		return retval;
 	}
 	
-	public int makeGETRequestURIAndGetStatusCode(URI uri) throws IOException, InterruptedException {
-	
-		return makeGETRequestURI(uri).getStatusCode();
+	public int makeGETRequestAndGetStatusCode(String uri) throws IOException, InterruptedException {
+		return makeGETRequest(uri).getStatusCode();
 	}
 	
-	public Response makeGETRequestURI(URI uri) throws IOException, InterruptedException {
+	public Response makeGETRequest(String uri) throws IOException, InterruptedException {
+		
+		if(LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Making request to uri: {}", uri);
+		}
 		
 		//synchronous request
-		return request.get(uri);
+		return request.baseUri(uri).get();
 	}
 	
-	public byte[] makeGETRequestURIAndGetBody(URI uri) throws IOException, InterruptedException {
+	public byte[] makeGETRequestAndGetBody(String uri) throws IOException, InterruptedException {
+		
+		if(LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Making request to uri: {}", uri);
+		}
 		
 		//synchronous request
-		return request.get(uri).getBody().asByteArray();
+		return makeGETRequest(uri).getBody().asByteArray();
 	}
-	
-//	public Response makeGETRequestURI(URI uri, Response response) throws IOException, InterruptedException {
-//		
-//		//synchronous request
-//		return RestAssured.given().config(config).get(uri);
-//	}
 }

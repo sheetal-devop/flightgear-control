@@ -107,9 +107,9 @@ public class C172P extends FlightGearAircraft {
             //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
             launchTelemetryThread();
             
-//            if(enableCameraViewer) {
-//            	launchCameraViewerThread();
-//            }
+            if(enableCameraStreamer) {
+            	launchCameraStreamerThread();
+            }
         } catch (SocketException | UnknownHostException e) {
             
             LOGGER.error("Exception occurred during setup", e);
@@ -386,7 +386,7 @@ public class C172P extends FlightGearAircraft {
     //////////////
     //telemetry modifiers
     
-    private void forceStablizationWrite(double targetHeading, double targetRoll, double targetPitch) throws IOException {
+    private void forceStabilizationWrite(double targetHeading, double targetRoll, double targetPitch) throws IOException {
     	LinkedHashMap<String, String> orientationFields = copyStateFields(FlightGearFields.ORIENTATION_INPUT_FIELDS);
     	
         orientationFields.put(FlightGearFields.HEADING_FIELD, String.valueOf(targetHeading) ) ;
@@ -396,7 +396,7 @@ public class C172P extends FlightGearAircraft {
         writeControlInput(orientationFields, this.orientationInputConnection);
         
         if(LOGGER.isDebugEnabled()) {
-        	LOGGER.debug("Force stablizing to {}", orientationFields.entrySet().toString());
+        	LOGGER.debug("Force stabilizing to {}", orientationFields.entrySet().toString());
         }
     }
     
@@ -418,17 +418,17 @@ public class C172P extends FlightGearAircraft {
         	try {
         		setPause(true);
         	
-        		forceStablizationWrite(targetHeading, targetRoll, targetPitch);
+        		forceStabilizationWrite(targetHeading, targetRoll, targetPitch);
         	} finally {
         		setPause(false);
         	}
         } 
         else {
-        	forceStablizationWrite(targetHeading, targetRoll, targetPitch);
+        	forceStabilizationWrite(targetHeading, targetRoll, targetPitch);
         }
         
-        if(LOGGER.isDebugEnabled()) {
-        	LOGGER.debug("forceStabilize returning");
+        if(LOGGER.isTraceEnabled()) {
+        	LOGGER.trace("forceStabilize returning");
         }
     }
     

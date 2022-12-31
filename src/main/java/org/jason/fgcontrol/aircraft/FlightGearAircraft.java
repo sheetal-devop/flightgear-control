@@ -1,6 +1,7 @@
 package org.jason.fgcontrol.aircraft;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,6 +21,8 @@ import org.jason.fgcontrol.flight.position.TrackPosition;
 import org.jason.fgcontrol.flight.position.WaypointManager;
 import org.jason.fgcontrol.flight.position.WaypointPosition;
 import org.jason.fgcontrol.flight.util.FlightLog;
+import org.jason.fgcontrol.view.CameraViewer;
+import org.jason.fgcontrol.view.mjpeg.MJPEGStreamer;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -60,13 +63,15 @@ public abstract class FlightGearAircraft {
     
     protected AtomicBoolean abandonCurrentWaypoint;
 
-    protected boolean enableCameraViewer;   
+    protected boolean enableCameraStreamer;   
 	//private CameraViewer cameraViewer;
 	
 	protected String cameraViewHost;
 	protected int cameraViewPort;
 	
     protected boolean enableCaltrops;
+
+	private MJPEGStreamer cameraStreamer;
 
     public FlightGearAircraft() {
         this(new SimulatorConfig());
@@ -83,7 +88,7 @@ public abstract class FlightGearAircraft {
         
         abandonCurrentWaypoint = new AtomicBoolean(false);
         
-        enableCameraViewer = false;
+        enableCameraStreamer = false;
         //cameraViewer = null;
         
         ///////////////
@@ -94,19 +99,27 @@ public abstract class FlightGearAircraft {
         //TODO: better bubbling of setup exceptions like this and telemetry reading to the invoker
         if(cameraViewHost != null) {
         	int cameraViewPort = simulatorConfig.getCameraViewerPort();
+        	int streamerPort = simulatorConfig.getCameraStreamPort();
         	
-//        	try {
-//				cameraViewer = new CameraViewer(cameraViewHost, cameraViewPort);
-//				enableCameraViewer = true;
-//			} catch (URISyntaxException e) {
-//				LOGGER.error("URI exception setting up camera viewer", e);
-//			}
+        	CameraViewer cameraViewer = null;
+        	
+        	try {
+				cameraViewer = new CameraViewer(cameraViewHost, cameraViewPort);
+				
+				cameraStreamer = new MJPEGStreamer(cameraViewer, streamerPort);
+				enableCameraStreamer = true;
+			} catch (URISyntaxException e) {
+				LOGGER.error("URI exception setting up camera viewer", e);
+			} catch (IOException e) {
+				LOGGER.error("IOException setting up camera viewer", e);
+			}
         	
         	this.cameraViewHost = cameraViewHost;
         	this.cameraViewPort = cameraViewPort;
         }	
         
-        //no sshd server, handled by application
+        //sshd server
+        
         //no caltrops client, handled by application
         //config comes from the app, so directives are available there
         ///////////////
@@ -254,32 +267,31 @@ public abstract class FlightGearAircraft {
     }
     
     //cam feed thread
-//    protected void launchCameraViewerThread() {
-//    	
-//    	if(!enableCameraViewer || cameraViewer == null) {
-//    		//shouldn't get here if we haven't built this object
-//    		LOGGER.error("launchCameraViewThread found a null cameraViewer. aborting launch of camera viewer");
-//    		return;
-//    	}
-//    	
-//    	runCameraViewThread = true;
-//    	
-//    	readCameraViewThread = new Thread() {
-//            @Override
-//            public void run() {
-//            	if(LOGGER.isTraceEnabled()) {
-//            		LOGGER.trace("Camera view thread started");
-//            	}
-//                
-//            	readCameraView();
-//                
-//                if(LOGGER.isTraceEnabled()) {
-//                	LOGGER.trace("Camera view thread returning");
-//                }
-//            }
-//    	};
-//    	readCameraViewThread.start();
-//    }
+    protected void launchCameraStreamerThread() {
+    	
+    	if(!enableCameraStreamer || cameraStreamer == null) {
+    		//shouldn't get here if we haven't built this object
+    		LOGGER.error("launchCameraViewThread found a null cameraViewer. aborting launch of camera viewer");
+    		return;
+    	}
+    	
+    	readCameraViewThread = new Thread() {
+            @Override
+            public void run() {
+            	if(LOGGER.isTraceEnabled()) {
+            		LOGGER.trace("Camera view thread started");
+            	}
+                
+            	//null check done earlier in function
+            	cameraStreamer.start();
+                
+                if(LOGGER.isTraceEnabled()) {
+                	LOGGER.trace("Camera view thread returning");
+                }
+            }
+    	};
+    	readCameraViewThread.start();
+    }
     
     
     ////////////
@@ -451,7 +463,16 @@ public abstract class FlightGearAircraft {
         
 
     	LOGGER.debug("Telemetry thread terminated. isAlive: {}", readTelemetryThread.isAlive());
-        
+    	
+    	LOGGER.debug("Shutting down camera streamer");
+    	
+    	//stop camera streamer
+    	if(enableCameraStreamer) {
+    		cameraStreamer.shutdown();
+    	}
+
+    	LOGGER.debug("Camera streamer shutdown completed.");
+    	
         LOGGER.info("Plane shutdown completed");
     }
     
@@ -500,8 +521,8 @@ public abstract class FlightGearAircraft {
                             }    
                         );
                         
-                        if(LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Read {} telemetry fields", jsonTelemetry.keySet().size());
+                        if(LOGGER.isTraceEnabled()) {
+                            LOGGER.trace("Read {} telemetry fields", jsonTelemetry.keySet().size());
                         }
                     }
                 }
@@ -531,31 +552,6 @@ public abstract class FlightGearAircraft {
         
     	if(LOGGER.isDebugEnabled()) {
     		LOGGER.debug("readTelemetry returning");
-    	}
-    }
-    
-    protected void readCameraView() {
-        //enable pause on sim freeze? how would we know when the simulator was unpaused without an update?
-        while(runningCameraViewThread()) {
-            
-        	if(LOGGER.isTraceEnabled()) {
-        		LOGGER.trace("Begin camera view read cycle");
-        	}
-        	
-        	//rest request to endpoint
-        	
-        	//write our result to somewhere
-        	
-        	//token sleep so we yield
-        	try {
-				Thread.sleep(5);
-			} catch (InterruptedException e) {
-				LOGGER.warn("Camera view read trailing sleep interrupted", e);
-			}
-        }
-        
-    	if(LOGGER.isDebugEnabled()) {
-    		LOGGER.debug("readCameraView returning");
     	}
     }
     

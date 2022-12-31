@@ -27,7 +27,7 @@ public class RESTClientPollingTest {
 		String outputDir = "/home/jason/";
 		
 		//flightgear running on localhost with httpd enabled on port 5222
-		URI simStreamURI = URI.create("http://localhost:5222/screenshot?type=jpg");
+		String simStreamURI = URI.create("http://localhost:5222/screenshot?type=jpg").toString();
 		
 		//dump the image data from the response to disk
 		try {
@@ -36,7 +36,7 @@ public class RESTClientPollingTest {
 			
 				System.out.println("GET request for simulator view");
 				
-				byte[] result = restClient.makeGETRequestURIAndGetBody(simStreamURI);
+				byte[] result = restClient.makeGETRequestAndGetBody(simStreamURI);
 				
 				BufferedImage img = ImageIO.read(new ByteArrayInputStream(result));
 	

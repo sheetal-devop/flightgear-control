@@ -13,13 +13,11 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-@SuppressWarnings("restriction")
+@SuppressWarnings("restriction") //for api resource location variability not observed in the jdks (v8) we're testing
 public class StreamHandler implements HttpHandler {
 	
-	private final static Logger LOGGER = LoggerFactory.getLogger(MJPEGStreamer.class);
-	
-	//private final static int BUFFER_SIZE = 100;
-	
+	private final static Logger LOGGER = LoggerFactory.getLogger(StreamHandler.class);
+		
 	private static final String NL = "\r\n";
     private static final String BOUNDARY = "--boundary";
     private static final String HEAD = NL + NL + BOUNDARY + NL +
@@ -48,6 +46,9 @@ public class StreamHandler implements HttpHandler {
     	return this.running;
     }
     
+    /**
+     * Externally shut down streaming
+     */
     public void shutdown() {
     	LOGGER.info("Shutting down StreamHandler");
     	this.running = false;
@@ -60,11 +61,7 @@ public class StreamHandler implements HttpHandler {
 	 */
 	@Override
 	public void handle(HttpExchange httpExchange) throws IOException {
-		
-		//is this in use?
-		//2022-12-19 00:28:50.677-0800 [L: INFO] [O: o.j.f.v.m.MJPEGStreamer] [M: handle] [T: Thread-3] Closing StreamHandler output stream
 
-		
 		this.running = true;
 		
 		//set these ahead of the stream read loop
@@ -84,16 +81,6 @@ public class StreamHandler implements HttpHandler {
 			//read from the CameraViewer and write the data to the http response output stream
 			int timeoutCount = 0;
 			while (this.running) {
-				// System.out.print("Outputting...");
-				// byte[] img = imageSource.getImage();
-	
-	//for typical use cases we might not need to buffer the images
-	//			for(byte[] imgData : cameraViewer.readBuffer(BUFFER_SIZE)) {
-	//
-	//				os.write((HEAD + imgData.length + NL + NL).getBytes());
-	//				os.write(imgData);
-	//				os.flush();
-	//			}
 				
 				if(LOGGER.isDebugEnabled()) {
 					LOGGER.debug("StreamHandler.handle loop iteration starting");
@@ -127,7 +114,10 @@ public class StreamHandler implements HttpHandler {
 				}
 				catch(IOException e) {
 					
-					//TODO: are we sure about this?
+					//debug
+					//LOGGER.warn("IOException in stream loop", e);
+					
+					//TODO: are we sure about this? => pretty sure
 					if(
 						e.getMessage().equalsIgnoreCase("broken pipe") ||
 						e.getMessage().equalsIgnoreCase("stream is closed")						
@@ -137,6 +127,7 @@ public class StreamHandler implements HttpHandler {
 						//TODO: maybe don't shut down here if we need to re-use
 						LOGGER.warn("IOException likely signalling shutdown: " + e.getMessage());
 						
+						//signal the containing while loop that we're done streaming
 						shutdown();
 					} else {
 						LOGGER.warn("IOException likely related to a timed-out read- Continuing", e);
@@ -144,11 +135,17 @@ public class StreamHandler implements HttpHandler {
 						
 						if(timeoutCount >= MAX_TIMEOUT_COUNT ) {
 							LOGGER.error("Too many timeouts, bailing.");
+							
+							//signal the containing while loop that we're done streaming
 							shutdown();
 						}
 					}
 				} catch (InterruptedException e) {
 					LOGGER.warn("FrameSleep interrupted", e);
+				}
+				
+				if(LOGGER.isDebugEnabled()) {
+					LOGGER.debug("StreamHandler.handle loop iteration ending");
 				}
 			}
 	

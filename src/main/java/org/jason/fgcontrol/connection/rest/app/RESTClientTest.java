@@ -20,11 +20,11 @@ public class RESTClientTest {
 		String outputDir = "/home/jason/";
 		
 		//flightgear running on localhost with httpd enabled
-		URI simStreamURI = URI.create("http://localhost:5222/screenshot?type=jpg");
+		String simStreamURI = URI.create("http://localhost:5222/screenshot?type=jpg").toString();
 		
 		//just print out the status code from the get request
 		try {
-			System.out.println("REST get stream uri statuscode: " + restClient.makeGETRequestURIAndGetStatusCode(simStreamURI));
+			System.out.println("REST get stream uri statuscode: " + restClient.makeGETRequestAndGetStatusCode(simStreamURI));
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -32,7 +32,7 @@ public class RESTClientTest {
 		//dump the image data from the response to disk
 		try {
 			System.out.println("GET request for simulator view");
-			Response result = restClient.makeGETRequestURI(simStreamURI);
+			Response result = restClient.makeGETRequest(simStreamURI);
 			
 			
 			BufferedImage img = ImageIO.read(new ByteArrayInputStream(result.getBody().asByteArray()));
