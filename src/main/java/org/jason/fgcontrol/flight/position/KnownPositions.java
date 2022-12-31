@@ -54,6 +54,7 @@ public abstract class KnownPositions {
     public final static WaypointPosition PRINCE_RUPERT = new WaypointPosition(54.31340, -130.31885, "Prince Rupert");
     public final static WaypointPosition BELLA_BELLA = new WaypointPosition(52.15920, -128.14856, "Bella Bella");
     public final static WaypointPosition PORT_HARDY = new WaypointPosition(50.71742, -127.49618, "Port Hardy");
+    public final static WaypointPosition COMOX = new WaypointPosition(49.67373, -124.92724, "Comox");
     public final static WaypointPosition TOFINO = new WaypointPosition(49.15329, -125.90675, "Tofino");
     public final static WaypointPosition PORT_RENFREW = new WaypointPosition(48.55292, -124.42235, "Port Renfrew");
     public final static WaypointPosition SOOKE = new WaypointPosition(48.37408, -123.73550, "Sooke");

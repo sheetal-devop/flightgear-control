@@ -125,8 +125,9 @@ public abstract class KnownRoutes {
             {
             	add(KnownPositions.LANGLEY);
             	add(KnownPositions.VICTORIA);
-            	add(KnownPositions.SOOKE);
                 add(KnownPositions.TOFINO);
+                //add(KnownPositions.PORT_HARDY);
+                //add(KnownPositions.COMOX);
                 add(KnownPositions.VAN_INTER_AIRPORT_YVR);
             }
         }
