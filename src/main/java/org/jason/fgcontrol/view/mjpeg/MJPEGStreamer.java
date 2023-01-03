@@ -10,6 +10,13 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.net.httpserver.HttpServer;
 
+/**
+ * MJPEG Streaming from an external REST endpoint- in our case, the FlightGear simulator's http server's /screenshot endpoint.
+ * Enforce a single viewer. Discarded views can be re-opened.
+ * 
+ * @author jason
+ *
+ */
 @SuppressWarnings("restriction")
 public class MJPEGStreamer {
 
@@ -18,19 +25,14 @@ public class MJPEGStreamer {
 	
 	public final static String STREAM_HTTP_ENDPOINT = "/stream";
 	public final static String CAMERA_VIEW_HTTP_ENDPOINT = "/cameraView";
+	public final static String CAMERA_VIEW_HTTP_ENDPOINT_PROTO = "http";
 	
 	private final static int HTTP_SERVER_BACKLOG = 0;
 	
-	//TODO: proper singleton implementation
-	//stream can only be viewed by a single viewer
-	//closing a browser tab should allow a new browser tab to view the stream
 	private StreamHandler streamHandler;
-	
-	
 	private CameraViewHandler cameraViewHandler;
 	
 	private HttpServer server;
-	
 	
 	private final static int SHUTDOWN_TIMEOUT = 3;	//in seconds
 	
