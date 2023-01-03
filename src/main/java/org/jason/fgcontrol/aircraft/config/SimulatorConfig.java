@@ -31,7 +31,7 @@ public class SimulatorConfig {
     protected final static int DEFAULT_SOCKETS_INPUT_VELOCITIES_PORT = 6613;
 
     public final static String DEFAULT_SSHD_HOME_DIR = "/tmp/flightgear-control";
-    public final static int DEFAULT_SSHD_PORT = 6614;
+    public final static int DEFAULT_SSHD_PORT = UNCONFIG_PORT;
 	public final static String DEFAULT_SSHD_USER = "edge";
 	public final static String DEFAULT_SSHD_PASS = "twxedge";
     
@@ -95,13 +95,15 @@ public class SimulatorConfig {
         systemsInputPort = DEFAULT_SOCKETS_INPUT_SYSTEM_PORT;
         velocitiesInputPort = DEFAULT_SOCKETS_INPUT_VELOCITIES_PORT;
         
-        //defaults to signal not to configure
+        //defaults to signal not to configure- config must define all
         cameraViewHost = null;
         cameraViewPort = UNCONFIG_PORT;
-        
+
+        //defaults to signal not to configure- config must define all
         cameraStreamHost = null;
         cameraStreamPort = UNCONFIG_PORT;
         
+        //port dictates whether or not to configure an sshd server
         sshdPort = UNCONFIG_PORT;
         sshdHomeDir = DEFAULT_SSHD_HOME_DIR;
         sshdUser = DEFAULT_SSHD_USER;
@@ -254,7 +256,26 @@ public class SimulatorConfig {
     		sshdPass = configProperties.getProperty(ConfigDirectives.SSHD_PASS_DIRECTIVE);
     	}
     }
+    
+    /////////////
+    //subcomponent enable flags
+    
+    public boolean isSSHDServerEnabled() {
+    	return sshdPort != UNCONFIG_PORT;
+    }
 
+    public boolean isCameraStreamEnabled() {
+    	return (
+    		cameraViewHost != null &&
+    		cameraViewPort != UNCONFIG_PORT &&
+    		cameraStreamHost != null &&
+    		cameraStreamPort != UNCONFIG_PORT
+    	);
+    }
+    
+    /////////////
+    //getters/setters
+    
 	public String getTelemetryOutputHost() {
         return telemetryOutputHost;
     }
