@@ -1,5 +1,7 @@
 package org.jason.fgcontrol.sshd.app;
 
+import java.io.IOException;
+
 import org.jason.fgcontrol.sshd.SSHDServer;
 
 /**
@@ -15,12 +17,20 @@ public class SSHServerApp {
 		
 		SSHDServer sshdServer = null;
 		try {
-			sshdServer = new SSHDServer();
+			//default
+			//sshdServer = new SSHDServer();
+			
+			//matches existing user
+			sshdServer = new SSHDServer("service", "servicepass", 9999, "/tmp/sshd");
 		
-			new Thread(sshdServer).start();
-		
+			sshdServer.start();
+			
+			System.out.println("SSHD server started");
+			
 			Thread.sleep(60 * 1000);
 		} catch (InterruptedException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
 			if(sshdServer != null) {

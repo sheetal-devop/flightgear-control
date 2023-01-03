@@ -9,12 +9,9 @@ import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.AsyncAuthException;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.password.PasswordChangeRequiredException;
-import org.apache.sshd.server.channel.ChannelSession;
-import org.apache.sshd.server.command.Command;
-import org.apache.sshd.server.command.CommandFactory;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.session.ServerSession;
-import org.apache.sshd.server.shell.ProcessShellFactory;
+import org.apache.sshd.server.shell.InteractiveProcessShellFactory;
 import org.jason.fgcontrol.aircraft.config.SimulatorConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +19,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Launch an SSH server with set credentials and home directory. 
  *
- * TODO: homedir doesn't quite work
+ * TODO: homedir doesn't quite work - even test with proper permissions and a real
+ * user with a real directory.
+ * 
  *
  */
-public class SSHDServer implements Runnable {
+public class SSHDServer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SSHDServer.class);
 
@@ -36,8 +35,8 @@ public class SSHDServer implements Runnable {
 	private String edgeUser;
 	private String edgePass;
 	private String homeDir;
-	private boolean isRunning;
-	private boolean isShutdown;
+	
+	private SshServer sshdServer;
 	
 	public SSHDServer() {
 		this(
@@ -81,7 +80,6 @@ public class SSHDServer implements Runnable {
 		this.port = port;
 		this.homeDir = homeDir;
 		
-		//TODO: config param for this. though probably will always be 0.0.0.0
 		setBindAddress(DEFAULT_BIND_ADDR);
 	}
 	
@@ -100,9 +98,14 @@ public class SSHDServer implements Runnable {
 	private SshServer buildSshServer() {
 		SshServer sshdServer = SshServer.setUpDefaultServer();
 		
+		
 		sshdServer.setHost(bindAddress);
 		sshdServer.setPort(port);
-				
+		
+		//skip this method of auth in the challenge
+		sshdServer.setPublickeyAuthenticator(null);
+		sshdServer.setKeyPairProvider(null);
+		
 		sshdServer.setPasswordAuthenticator(new PasswordAuthenticator() {
 			@Override
 			public boolean authenticate(String username, String password, ServerSession session)
@@ -112,12 +115,41 @@ public class SSHDServer implements Runnable {
 		});
 		sshdServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider());
 		
-		//seems to use user.dir instead of HOME_DIR upon login
-		Path homePath = Paths.get(homeDir);
-		VirtualFileSystemFactory vfs = new VirtualFileSystemFactory(homePath);
-		vfs.setUserHomeDir(edgeUser, homePath);
+		//TODO: see if we can get the shell we want this way 
+		//sshdServer.setSessionFactory(new SessionFactory(new ServerSessionImpl()));
 		
-		sshdServer.setFileSystemFactory(vfs);
+		//seems to use user.dir instead of HOME_DIR upon login
+		//no logging around filesystemfactories
+		Path homePath = Paths.get(homeDir);
+		
+		VirtualFileSystemFactory vfs = new VirtualFileSystemFactory(homePath);
+		
+//		VirtualFileSystemFactory vfs = new VirtualFileSystemFactory() {
+//			@Override
+//		    public FileSystem createFileSystem(SessionContext session) throws IOException {
+//				
+//				
+//				return null;
+//
+//			}
+//		};
+		
+		vfs.setUserHomeDir(edgeUser, homePath);
+		vfs.setDefaultHomeDir(homePath);
+		
+		
+		
+		//vfs.createFileSystem(null);
+		
+		
+		//LOGGER.info("Using homedir for user {}: {}", edgeUser, vfs.getUserHomeDir(edgeUser));
+
+		
+		//vfs.setDefaultHomeDir(homePath);
+		
+		//LOGGER.info("Using homedir for user {}: {}", edgeUser, vfs.getUserHomeDir(edgeUser));
+		
+		
 		
 		//will see remote echo if you manually ssh into this
 		
@@ -127,77 +159,66 @@ public class SSHDServer implements Runnable {
 		///bin/bash on debian, and option --no-rc is --norc
 		//TODO: neofetch and motd
 		//"--init-file <(echo \"/usr/bin/neofetch\")",
-		sshdServer.setShellFactory(new ProcessShellFactory(
-			"bash",
-			"/bin/bash",
-			"-i"
-		));
 		
+		//working basically, wrong homedir and chars echoed
+//		sshdServer.setShellFactory(new ProcessShellFactory(
+//			"bash",
+//			"/bin/bash",
+//			"-i"
+//		));
 		
-		sshdServer.setCommandFactory(new CommandFactory() {
+		//works-ish
+		//whoami is not the logged-in user
+//		sshdServer.setShellFactory(new ProcessShellFactory(
+//				"bash",
+//				"/bin/bash",
+//				"--noprofile",
+//				"--norc",
+//				"-i"
+//		));
+		
+		//no character echo, can't delete typed chars- char code gets entered. still users user.dir as home
+		//whoami is not the logged-in user
+		/*
+		 * $ ls 
+			ls: cannot access ''$'\177\177\177\177': No such file or directory
 
-			@Override
-			public Command createCommand(ChannelSession channel, String command) throws IOException {
-				
-				String[] commandFields = command.split(" ");
-				
-	            return new ProcessShellFactory( commandFields[0], commandFields ).createShell(channel);
-			}
-			
-		});
+		 * can't run single commands on login (ssh user@host pwd)
+		 */
+		sshdServer.setShellFactory(new InteractiveProcessShellFactory());
+		
+		sshdServer.setFileSystemFactory(vfs);
+		
+		//seems to have no effect- can authenticate and run commands without this
+//		sshdServer.setCommandFactory(new CommandFactory() {
+//
+//			@Override
+//			public Command createCommand(ChannelSession channel, String command) throws IOException {
+//				
+//				String[] commandFields = command.split(" ");
+//				
+//	            return new ProcessShellFactory( commandFields[0], commandFields ).createShell(channel);
+//			}
+//			
+//		});
 		
 		return sshdServer;
 	}
-
-	@Override
-	public void run() {
-		//start the sshd server
-		SshServer sshdServer = buildSshServer();
+	
+	public void start() throws IOException {
+		sshdServer = buildSshServer();
 		
-		try {
-			sshdServer.start();
-			isRunning = true;
-			isShutdown = false;
-		} catch (IOException e) {
-			LOGGER.error("Failed to launch SSHD server", e);
-		}
-			
-		//sleep until shutdown is invoked
-		while(isRunning) {
-			
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				LOGGER.warn("SSHD server run time sleep interrupted", e);
-			}
-		}
-		
-		//exit the sshd server
-		
-		if (sshdServer != null) {
-			try {
-				sshdServer.close();
-			} catch (IOException e) {
-				LOGGER.error("Exception shutting down SSHD server", e);
-			}
-		}
-		
-		isShutdown = true;
+		sshdServer.start();
 	}
 	
 	public void shutdown() {
 		
 		LOGGER.info("SSHD server shutdown invoked");
 		
-		isRunning = false;
-		
-		while(!isShutdown) {
-			
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				LOGGER.warn("SSHD server shut down sleep interrupted", e);
-			}
+		try {
+			sshdServer.close();
+		} catch (IOException e) {
+			LOGGER.warn("Exception shutting down SSHD Server", e);
 		}
 		
 		LOGGER.info("SSHD server shutdown completed");
