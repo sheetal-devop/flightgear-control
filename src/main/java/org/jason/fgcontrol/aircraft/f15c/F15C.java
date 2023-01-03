@@ -102,13 +102,27 @@ public class F15C extends FlightGearAircraft {
             //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
             launchTelemetryThread();
             
-            if(enableCameraStreamer) {
-            	LOGGER.info("Launching Camera Stream Thread");
-            	launchCameraStreamerThread();
+            if(enabledCameraStreamer) {
+            	launchCameraStreamer();
             }
-        } catch (SocketException | UnknownHostException e) {
             
-            LOGGER.error("Exception occurred during setup", e);
+            if(enabledSSHDServer) {
+            	launchSSHDServer();
+            }
+        } catch (SocketException e) {
+            
+            LOGGER.error("Socket Exception occurred during setup", e);
+            
+            throw new FlightGearSetupException(e);
+            
+        } catch (UnknownHostException e) {
+            
+            LOGGER.error("Socket Exception occurred during setup", e);
+            
+            throw new FlightGearSetupException(e);
+            
+        } catch (IOException e) {
+            LOGGER.error("IOException occurred during setup", e);
             
             throw new FlightGearSetupException(e);
         }

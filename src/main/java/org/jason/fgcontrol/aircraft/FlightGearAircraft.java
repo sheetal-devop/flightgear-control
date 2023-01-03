@@ -21,6 +21,7 @@ import org.jason.fgcontrol.flight.position.TrackPosition;
 import org.jason.fgcontrol.flight.position.WaypointManager;
 import org.jason.fgcontrol.flight.position.WaypointPosition;
 import org.jason.fgcontrol.flight.util.FlightLog;
+import org.jason.fgcontrol.sshd.SSHDServer;
 import org.jason.fgcontrol.view.CameraViewer;
 import org.jason.fgcontrol.view.mjpeg.MJPEGStreamer;
 import org.json.JSONException;
@@ -36,13 +37,13 @@ public abstract class FlightGearAircraft {
     private final static int TELEMETRY_READ_TRAILING_SLEEP = 100;
     private final static int TELEMETRY_WRITE_WAIT_SLEEP = 100;
     
+    //private final static int MAX_TELEMETRY_READ_LEN = 16384;
+    
     private final static int POST_PAUSE_SLEEP = 125;
     
     private boolean runTelemetryThread;
-    private boolean runCameraViewThread;
     
     private Thread readTelemetryThread;
-    private Thread readCameraViewThread;
     
     protected Map<String, String> currentState;
     
@@ -63,15 +64,17 @@ public abstract class FlightGearAircraft {
     
     protected AtomicBoolean abandonCurrentWaypoint;
 
-    protected boolean enableCameraStreamer;   
-	//private CameraViewer cameraViewer;
+    protected boolean enabledCameraStreamer;   
 	
-	protected String cameraViewHost;
+    protected String cameraViewHost;
 	protected int cameraViewPort;
-	
-    protected boolean enableCaltrops;
+	protected String cameraViewProto;
+	protected String cameraViewResource;
 
 	private MJPEGStreamer cameraStreamer;
+	
+	protected boolean enabledSSHDServer;
+	private SSHDServer sshdServer;
 
     public FlightGearAircraft() {
         this(new SimulatorConfig());
@@ -88,16 +91,18 @@ public abstract class FlightGearAircraft {
         
         abandonCurrentWaypoint = new AtomicBoolean(false);
         
-        enableCameraStreamer = false;
-        //cameraViewer = null;
+        enabledCameraStreamer = false;
+        enabledSSHDServer = false;
         
         ///////////////
         //if the camera view host is not defined in the config, don't build the camera viewer
-        String cameraViewHost = simulatorConfig.getCameraViewerHost();
         
         //just catch the exception and proceed without enabling the camera viewer if we can't access the camera feed
-        //TODO: better bubbling of setup exceptions like this and telemetry reading to the invoker
-        if(cameraViewHost != null) {
+        if(simulatorConfig.isCameraStreamEnabled()) {
+        	LOGGER.info("Setting up camera streaming");
+        	
+        	String cameraViewHost = simulatorConfig.getCameraViewerHost();
+        	
         	int cameraViewPort = simulatorConfig.getCameraViewerPort();
         	int streamerPort = simulatorConfig.getCameraStreamPort();
         	
@@ -107,18 +112,45 @@ public abstract class FlightGearAircraft {
 				cameraViewer = new CameraViewer(cameraViewHost, cameraViewPort);
 				
 				cameraStreamer = new MJPEGStreamer(cameraViewer, streamerPort);
-				enableCameraStreamer = true;
+				
+	        	//will likely need to be available for edge apps to set uri for external viewing
+	        	this.cameraViewHost = cameraViewHost;
+	        	this.cameraViewPort = cameraViewPort;
+	        	this.cameraViewProto = MJPEGStreamer.CAMERA_VIEW_HTTP_ENDPOINT_PROTO;
+	        	this.cameraViewResource = MJPEGStreamer.CAMERA_VIEW_HTTP_ENDPOINT;
+	        	
+				
+				enabledCameraStreamer = true;
 			} catch (URISyntaxException e) {
-				LOGGER.error("URI exception setting up camera viewer", e);
+				LOGGER.error("URI exception setting up camera streaming", e);
 			} catch (IOException e) {
-				LOGGER.error("IOException setting up camera viewer", e);
+				LOGGER.error("IOException setting up camera streaming", e);
+			} finally {
+				if(!enabledCameraStreamer) {
+					LOGGER.error("Camera Streaming setup failed. Continuing");
+				}
 			}
-        	
-        	this.cameraViewHost = cameraViewHost;
-        	this.cameraViewPort = cameraViewPort;
-        }	
+        }
+        else {
+        	LOGGER.info("Proceeding with Camera streaming disabled");
+        }
         
         //sshd server
+        
+        if(simulatorConfig.isSSHDServerEnabled()) {
+        	LOGGER.info("Setting up SSHD");
+        	
+        	String user = simulatorConfig.getSshdUser();
+        	String pass = simulatorConfig.getSshdPass();
+        	String homeDir = simulatorConfig.getSshdHomeDir();
+        	int port = simulatorConfig.getSshdPort();
+        	
+        	sshdServer = new SSHDServer(user,pass,port,homeDir);
+        	enabledSSHDServer = true;
+        }
+        else {
+        	LOGGER.info("Proceeding with SSHD disabled");
+        }
         
         //no caltrops client, handled by application
         //config comes from the app, so directives are available there
@@ -267,32 +299,36 @@ public abstract class FlightGearAircraft {
     }
     
     //cam feed thread
-    protected void launchCameraStreamerThread() {
+    protected void launchCameraStreamer() {
     	
-    	if(!enableCameraStreamer || cameraStreamer == null) {
-    		//shouldn't get here if we haven't built this object
-    		LOGGER.error("launchCameraViewThread found a null cameraViewer. aborting launch of camera viewer");
+    	if(!enabledCameraStreamer || cameraStreamer == null) {
+    		LOGGER.error("launchCameraViewThread found a null cameraViewer. aborting launch of camera viewer.");
+    		return;
+    	}
+
+        LOGGER.info("Camera Streaming starting...");
+    	
+        //null check done earlier in function
+    	//underlying http server internally launched in background thread, so don't create one here
+        cameraStreamer.start();
+
+        LOGGER.info("Camera Streaming started.");
+    }
+    
+    protected void launchSSHDServer() throws IOException {
+    	if(!enabledSSHDServer || sshdServer == null ) {
+    		LOGGER.error("launchSSHDServerThread found a null SSHDServer. aborting launch of SSHD Server.");
     		return;
     	}
     	
-    	readCameraViewThread = new Thread() {
-            @Override
-            public void run() {
-            	if(LOGGER.isTraceEnabled()) {
-            		LOGGER.trace("Camera view thread started");
-            	}
-                
-            	//null check done earlier in function
-            	cameraStreamer.start();
-                
-                if(LOGGER.isTraceEnabled()) {
-                	LOGGER.trace("Camera view thread returning");
-                }
-            }
-    	};
-    	readCameraViewThread.start();
+    	LOGGER.info("SSHD Server starting...");
+    	
+        //null check done earlier in function
+    	//underlying sshd server internally launched in background thread, so don't create one here
+		sshdServer.start();
+		
+		LOGGER.info("SSHD Server started.");
     }
-    
     
     ////////////
     
@@ -330,17 +366,13 @@ public abstract class FlightGearAircraft {
         return runTelemetryThread;
     }
     
-    public boolean runningCameraViewThread() {
-    	return runCameraViewThread;
-    }
-    
     /**
      * Get the telemetry map. Useful if we need a lot of fields at once.
      * 
      * @return a copy of the telemetry map
      */
     public synchronized Map<String, String> getTelemetry() {
-        Map<String, String> retval = new HashMap<>();
+        Map<String, String> retval = new HashMap<String, String>();
                 
         //TODO: time this out, trigger some kind of reset or clean update
         while(telemetryStateWriting.get()) {
@@ -436,19 +468,25 @@ public abstract class FlightGearAircraft {
         return retval;
     }
     
+    /**
+     * Shut down the aircraft, simulator connections, and subcomponents.
+     */
     public void shutdown() {
-    	LOGGER.debug("Plane shutdown invoked");
+    	LOGGER.info("Aircraft shutdown initiated.");
         
-        //stop telemetry read
+    	LOGGER.info("Telemetry thread shutting down...");
+    	
+        //stop telemetry read thread
         runTelemetryThread = false;
                 
         int waitTime = 0;
         int interval = 250;
-        int maxWait = 2000;
+        int maxWait = 4000;
         while(readTelemetryThread.isAlive()) {
         	LOGGER.debug("waiting on telemetry thread to terminate");
             
             if(waitTime >= maxWait) {
+            	LOGGER.warn("interrupting readTelemetryThread as part of shutdown");
                 readTelemetryThread.interrupt();
             }
             else {
@@ -460,26 +498,40 @@ public abstract class FlightGearAircraft {
                 }
             }
         }
-        
 
     	LOGGER.debug("Telemetry thread terminated. isAlive: {}", readTelemetryThread.isAlive());
     	
-    	LOGGER.debug("Shutting down camera streamer");
+    	LOGGER.info("Telemetry thread shut down completed.");
     	
     	//stop camera streamer
-    	if(enableCameraStreamer) {
+    	if(enabledCameraStreamer) {
+    		LOGGER.info("Shutting down camera streamer...");
     		cameraStreamer.shutdown();
+    		LOGGER.info("Camera streamer shutdown completed.");
     	}
-
-    	LOGGER.debug("Camera streamer shutdown completed.");
     	
-        LOGGER.info("Plane shutdown completed");
+    	//stop sshd server
+    	if(enabledSSHDServer) {
+    		LOGGER.info("Shutting down SSHD server...");
+    		sshdServer.shutdown();
+    		LOGGER.info("SSHD server completed.");
+    	}
+    	
+    	LOGGER.info("Aircraft shutdown completed.");
     }
     
-    //internal telemetry retrieval thread
+    
+    /**
+     * Internal telemetry retrieval process.
+     * 
+     * TODO: time out initial lock seek.
+     * TODO: switch from atomicboolean to an actual lock
+     * TODO: Stringbuffer implementation
+     * TODO: length check incoming telemetry 
+     * 
+     */
     protected void readTelemetry() {
         
-        //enable pause on sim freeze? how would we know when the simulator was unpaused without an update?
         String telemetryRead = null;
         while(runningTelemetryThread()) {
             
@@ -502,15 +554,18 @@ public abstract class FlightGearAircraft {
             }
             
             telemetryStateWriting.set(true);
+            
             //read from socket connection. retrieves json string. write state to map
             //TODO: make this not awful
 
             try {
+            	//flush read buffer and read in the new telemetry data
+            	telemetryRead = null;
                 telemetryRead = readTelemetryRaw();
               
                 //TODO: incomplete updates happen infrequently, attempt to clean and correct
                 
-                if(telemetryRead != null) {
+                if(telemetryRead != null && telemetryRead.charAt(0) == '{') {
                     //if for some reason telemetryRead is not proper json, the update is dropped
                     final JSONObject jsonTelemetry = new JSONObject(telemetryRead);
                     
@@ -550,8 +605,8 @@ public abstract class FlightGearAircraft {
             }
         }
         
-    	if(LOGGER.isDebugEnabled()) {
-    		LOGGER.debug("readTelemetry returning");
+    	if(LOGGER.isTraceEnabled()) {
+    		LOGGER.trace("readTelemetry returning");
     	}
     }
     
@@ -726,9 +781,7 @@ public abstract class FlightGearAircraft {
      * @throws IOException
      */
     public synchronized void setPause(boolean isPaused) throws IOException {
-
-        // TODO: check telemetry if already paused
-
+    	
         LinkedHashMap<String, String> inputHash = copyStateFields(FlightGearFields.SIM_FREEZE_FIELDS);
 
         // oh get fucked. requires an int value for the bool, despite the schema specifying a bool.
