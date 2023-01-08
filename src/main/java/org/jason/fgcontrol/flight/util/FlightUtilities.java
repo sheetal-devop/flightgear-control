@@ -20,8 +20,6 @@ public class FlightUtilities {
     
     public static final double COMPARATOR_REFERENCE_DEGREES = 90.0;
     
-    //private final static int VELOCITIES_CHANGE_SLEEP = 2500;
-    
     //TODO: maybe make these functions boolean so we can easily determine if a change was made
 
     //TODO: this affects altitude. don't want a subsequent altitude check teleporting the plane into a mountain
@@ -89,9 +87,9 @@ public class FlightUtilities {
         
         int retval = HEADING_NO_ADJUST;
         
-        if(currentHeading < 0.0) currentHeading += DEGREES_CIRCLE;    
+        if(currentHeading < DEGREES_ZERO) currentHeading += DEGREES_CIRCLE;    
         if(currentHeading >= DEGREES_CIRCLE) currentHeading %= DEGREES_CIRCLE;
-        if(targetHeading < 0.0) targetHeading += DEGREES_CIRCLE;    
+        if(targetHeading < DEGREES_ZERO) targetHeading += DEGREES_CIRCLE;    
         if(targetHeading >= DEGREES_CIRCLE) targetHeading %= DEGREES_CIRCLE;
 
         //if we're already on our way in the right direction
