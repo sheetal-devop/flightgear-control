@@ -13,6 +13,7 @@ public abstract class C172PFields {
     /////////////
     // consumables
 
+    public final static double FUEL_LEVEL_MIN = 0.0;
     public final static double WATER_CONTAMINATION_MIN = 0.0;
     
     public final static String FUEL_TANK_0_CAPACITY_FIELD = "/consumables/fuel/tank/capacity-gal_us";
