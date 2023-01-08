@@ -11,6 +11,8 @@ public abstract class F15CFields {
     /////////////
     // consumables
     
+    public final static double FUEL_LEVEL_MIN = 0.0;
+	
     public final static String FUEL_TANK_TOTAL_LEVEL_FIELD = "/consumables/fuel/total-fuel-gal_us";
     public final static String FUEL_TANK_TOTAL_LEVEL_FIELD_DESC = "Fuel total level for in gallons";
     
