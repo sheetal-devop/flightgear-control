@@ -17,6 +17,7 @@ import org.jason.fgcontrol.aircraft.config.SimulatorConfig;
 import org.jason.fgcontrol.aircraft.fields.FlightGearFields;
 import org.jason.fgcontrol.connection.sockets.FlightGearInputConnection;
 import org.jason.fgcontrol.connection.telnet.FlightGearTelnetConnection;
+import org.jason.fgcontrol.exceptions.FlightGearSetupException;
 import org.jason.fgcontrol.flight.position.TrackPosition;
 import org.jason.fgcontrol.flight.position.WaypointManager;
 import org.jason.fgcontrol.flight.position.WaypointPosition;
@@ -33,9 +34,10 @@ public abstract class FlightGearAircraft {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(FlightGearAircraft.class);
     
-    private final static int TELEMETRY_READ_WAIT_SLEEP = 100;
-    private final static int TELEMETRY_READ_TRAILING_SLEEP = 100;
-    private final static int TELEMETRY_WRITE_WAIT_SLEEP = 100;
+    private final static long TELEMETRY_FIRST_READ_TIMEOUT = 3000L;
+    private final static long TELEMETRY_READ_WAIT_SLEEP = 100L;
+    private final static long TELEMETRY_READ_TRAILING_SLEEP = 100L;
+    private final static long TELEMETRY_WRITE_WAIT_SLEEP = 100L;
     
     //private final static int MAX_TELEMETRY_READ_LEN = 16384;
     
@@ -99,7 +101,7 @@ public abstract class FlightGearAircraft {
         
         //just catch the exception and proceed without enabling the camera viewer if we can't access the camera feed
         if(simulatorConfig.isCameraStreamEnabled()) {
-        	LOGGER.info("Setting up camera streaming");
+        	LOGGER.info("Configuring camera streaming.");
         	
         	String cameraViewHost = simulatorConfig.getCameraViewerHost();
         	
@@ -121,6 +123,8 @@ public abstract class FlightGearAircraft {
 	        	
 				
 				enabledCameraStreamer = true;
+				
+				LOGGER.info("Camera streaming configuration completed successfully.");
 			} catch (URISyntaxException e) {
 				LOGGER.error("URI exception setting up camera streaming", e);
 			} catch (IOException e) {
@@ -128,7 +132,7 @@ public abstract class FlightGearAircraft {
 			} finally {
 				if(!enabledCameraStreamer) {
 					LOGGER.error("Camera Streaming setup failed. Continuing");
-				}
+				} 
 			}
         }
         else {
@@ -138,7 +142,7 @@ public abstract class FlightGearAircraft {
         //sshd server
         
         if(simulatorConfig.isSSHDServerEnabled()) {
-        	LOGGER.info("Setting up SSHD");
+        	LOGGER.info("Configuring SSHD Server.");
         	
         	String user = simulatorConfig.getSshdUser();
         	String pass = simulatorConfig.getSshdPass();
@@ -147,6 +151,8 @@ public abstract class FlightGearAircraft {
         	
         	sshdServer = new SSHDServer(user,pass,port,homeDir);
         	enabledSSHDServer = true;
+        	
+        	LOGGER.info("SSHD Server configuration completed successfully.");
         }
         else {
         	LOGGER.info("Proceeding with SSHD disabled");
@@ -257,12 +263,23 @@ public abstract class FlightGearAircraft {
     	flightLog.writeGPXFile(fileName);
     }
     
+    public int getFlightLogTrackPositionCount() {
+    	return flightLog.getTrackPositionCount();
+    }
+    
+    public int getFlightLogWaypointCount() {
+    	return flightLog.getTrackPositionCount();
+    }
+    
     ////////////
     //background threads
     
     //telemetry thread
-    protected void launchTelemetryThread() {
+    protected void launchTelemetryThread() throws FlightGearSetupException {
         
+    	boolean initialReadCompleted = false;
+    	long waitTime = 0L;
+    	
     	runTelemetryThread = true;
         
         readTelemetryThread = new Thread() {
@@ -282,20 +299,36 @@ public abstract class FlightGearAircraft {
         readTelemetryThread.start();
         
         //TODO: fail gracefully if this never succeeds
-        //wait for the first read to arrive
-        while( !telemetryStateWriting.get() && currentState.size() == 0) {
+        //wait for the first read to arrive, it may take a bit
+        while( waitTime <= TELEMETRY_FIRST_READ_TIMEOUT) {
+        	
+        	if( currentState.size() > 0 ) {
+        		initialReadCompleted = true;
+        		break;
+        	}
+        	
         	if(LOGGER.isDebugEnabled()) {
         		LOGGER.debug("Waiting for first telemetry read to complete after thread start");
         	}
             
             try {
                 Thread.sleep(TELEMETRY_WRITE_WAIT_SLEEP);
+            	waitTime += TELEMETRY_WRITE_WAIT_SLEEP;
             } catch (InterruptedException e) {
                 LOGGER.warn("getTelemetry: Socket read wait interrupted", e);
             }
         }
         
-        LOGGER.info("Launched telemetry thread and received first read");
+        if(initialReadCompleted) {
+        	LOGGER.info("Launched telemetry thread and received initial read");
+        }
+        else {
+        	LOGGER.error("Could not complete initial telemetry read. Aborting.");
+        	
+        	//stop the telemetry thread
+        	runTelemetryThread = false;
+        	throw new FlightGearSetupException("Could not complete initial telemetry read. Check that the simulator is running and listening on the correct ports.");
+        }
     }
     
     //cam feed thread

@@ -89,10 +89,10 @@ public class WaypointFlight {
 	        //pause so the plane doesn't list from its heading and crash
 	        plane.setPause(true);
         } catch (FlightGearSetupException e) {
-            e.printStackTrace();
+            LOGGER.error("FlightGearSetupException occurred", e);
         } catch (IOException e) {
-            e.printStackTrace();
-        } 
+            LOGGER.error("IOException occurred", e);
+        }
         finally {
             if(plane != null) {
                 
@@ -101,18 +101,23 @@ public class WaypointFlight {
                 try {
                     plane.terminateSimulator();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                	LOGGER.error("IOException occurred during shutdown", e);
                 } catch (InvalidTelnetOptionException e) {
-                    e.printStackTrace();
+                	LOGGER.error("InvalidTelnetOptionException occurred during shutdown", e);
                 }
-            }
             
-            plane.writeFlightLogGPX(System.getProperty("user.dir") + "/c172p_"+System.currentTimeMillis() + ".gpx");
+	            if(plane.getFlightLogTrackPositionCount() > 0) {
+	                plane.writeFlightLogGPX(System.getProperty("user.dir") + "/c172p_"+System.currentTimeMillis() + ".gpx");
+	            }
+	            else {
+	            	LOGGER.warn("No track positions in flightlog");
+	            }
+	            
+	            long tripTime = (System.currentTimeMillis() - startTime);
+	            
+	            LOGGER.info("Completed course in: {}ms => {} minutes", tripTime, ( ((double)tripTime / 1000.0) / 60.0 ) );
+            }
         }
-        
-        long tripTime = (System.currentTimeMillis() - startTime);
-        
-        LOGGER.info("Completed course in: {}ms => {} minutes", tripTime, ( ((double)tripTime / 1000.0) / 60.0 ) );
     }
 }
 
