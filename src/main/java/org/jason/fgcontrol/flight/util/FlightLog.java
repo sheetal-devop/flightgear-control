@@ -54,6 +54,14 @@ public class FlightLog {
         trackPositions.add(p);
     }
     
+    public int getTrackPositionCount() {
+    	return trackPositions.size();
+    }
+    
+    public int getWaypointCount() {
+    	return waypoints.size();
+    }
+    
     public void writeGPXFile(String filename) {
     	
         //TODO: create path if it doesn't exist
