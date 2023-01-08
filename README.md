@@ -8,7 +8,7 @@ Generically fly aircraft by executing the plane's engine startup script and dili
 ----
 
 #### Requirements ####
-1. JDK 11
+1. JDK 8
 1. FlightGear 2018.3.2 or similar
 
 #### Setup ####
@@ -21,6 +21,12 @@ Generically fly aircraft by executing the plane's engine startup script and dili
 1. Netcat can be used to view the simulator telemetry data directly. If you are launching FlightGear from a provided bash script, the first port in the supplied start port range will output simulator telemetry in a readable form. For example, if launching the simulator with `scripts/c172p_runway.sh 6500`, execute `nc -l -u -p 6500 127.0.0.1` to view simulator telemetry.
 1. Import this project into your IDE as a gradle project.
 1. Generate the project jar using the gradle jar task for use/integration in other projects. 
+
+#### Building ####
+Use tasks `jar`, `appjar`, and `sourcesjar` to generate the jars for this project.
+* `jar` - The primary output jar for incorporating into other projects.
+* `appjar` - Driver applications for testing functionality locally.
+* `sourcesjar` - Sources jar to accompany the main jar for incorporating into other projects.
 
 #### Flights ####
 
