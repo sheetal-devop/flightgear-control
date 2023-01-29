@@ -13,13 +13,11 @@ import org.jason.fgcontrol.connection.sockets.FlightGearTelemetryConnection;
  *
  */
 public class TelemetryRead {
-    private final static String FG_SOCKETS_HOST = "localhost";
-    private final static int FG_SOCKETS_TELEM_PORT = 6501;
 
     private FlightGearTelemetryConnection fgSocketsClient;
     
-    public TelemetryRead() throws SocketException, UnknownHostException  {
-        fgSocketsClient = new FlightGearTelemetryConnection(FG_SOCKETS_HOST, FG_SOCKETS_TELEM_PORT);
+    public TelemetryRead(String host, int port) throws SocketException, UnknownHostException  {
+        fgSocketsClient = new FlightGearTelemetryConnection(host, port);
     }
     
     public String readTelemetry() throws IOException {
@@ -30,11 +28,31 @@ public class TelemetryRead {
         
         TelemetryRead telemetryReader = null;
         
+        int port = -1;
+        
+        if(args.length != 2) {
+        	System.err.println("Usage: TelemetryRead [host] [port]");
+        	System.exit(-1);
+        }
+        
+        String host = args[0];
+        
+        try {
+        	port = Integer.parseInt(args[1]);
+        } catch (Exception e) {
+        	
+        } finally {
+        	if(port == -1) {
+        		System.err.println("Invalid port");
+        		System.exit(-1);
+        	}
+        }
+        
         int readSleep = 3000;
         int maxCycles = 50;
         
         try {
-            telemetryReader = new TelemetryRead();
+            telemetryReader = new TelemetryRead(host, port);
             
             for(int i = 0; i< maxCycles; i++) {
                 System.out.println("========\n" + telemetryReader.readTelemetry() + "\n========");
@@ -51,6 +69,9 @@ public class TelemetryRead {
         }
         catch (IOException e) {
             e.printStackTrace();
+        }
+        finally {
+        	//underlying FlightGearTelemetryConnection doesn't require external close
         }
     }
 }

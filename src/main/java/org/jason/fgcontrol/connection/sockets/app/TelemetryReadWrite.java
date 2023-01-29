@@ -10,13 +10,30 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 
-public class TelemetryWrite {
-    
-    private final static String FG_SOCKETS_HOST = "localhost";
-    private final static int FG_SOCKETS_TELEM_PORT = 6501;
-    private final static int FG_SOCKETS_INPUT_PORT = 6601;
+public class TelemetryReadWrite {
 
     public static void main(String[] args) {
+        
+        if(args.length != 3) {
+        	System.err.println("Usage: TelemetryReadWrite [host] [outputPort] [inputPort]");
+        	System.exit(-1);
+        }
+        
+        int telemetryPort = -1;
+        int inputPort = -1;
+        String host = args[0];
+    	
+        try {
+        	telemetryPort = Integer.parseInt(args[1]);
+        	inputPort = Integer.parseInt(args[2]);
+        } catch (Exception e) {
+        	
+        } finally {
+        	if(inputPort == -1 || telemetryPort == -1) {
+        		System.err.println("Invalid port");
+        		System.exit(-1);
+        	}
+        }
         
         Socket fgConnection = null; 
         PrintWriter output = null;
@@ -42,7 +59,7 @@ public class TelemetryWrite {
                 //test output////////////
 
 //                //need to restablish datagram socket connection on every read, or else updates don't arrive
-                fgTelemetrySocket = new DatagramSocket(FG_SOCKETS_TELEM_PORT, InetAddress.getByName(FG_SOCKETS_HOST) );
+                fgTelemetrySocket = new DatagramSocket(telemetryPort, InetAddress.getByName(host) );
 
                 fgTelemetrySocket.receive(fgTelemetryPacket);
                 
@@ -74,8 +91,8 @@ public class TelemetryWrite {
                 fgInputPacket = new DatagramPacket(
                         fgInputPayload, 
                         fgInputPayload.length, 
-                        InetAddress.getByName(FG_SOCKETS_HOST), 
-                        FG_SOCKETS_INPUT_PORT
+                        InetAddress.getByName(host), 
+                        inputPort
                 );
                 
                 fgInputPacket.setData(fgInput.getBytes(Charset.forName("UTF-8")));
