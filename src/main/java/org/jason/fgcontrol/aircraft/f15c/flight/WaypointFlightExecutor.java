@@ -256,7 +256,11 @@ public abstract class WaypointFlightExecutor {
                     //reset bearing incase we've drifted, not not if we're too close
                     nextWaypointBearing = PositionUtilities.calcBearingToGPSCoordinatesNormalized(plane.getPosition(), nextWaypoint);
                     
-                    LOGGER.info("Recalculating bearing to waypoint {}: {}", nextWaypoint.getName() , nextWaypointBearing);   
+                    LOGGER.info("Recalculating bearing to waypoint {}: {}. Distance remaining: {}", 
+                    		nextWaypoint.getName(), 
+                    		nextWaypointBearing,
+                    		distanceToNextWaypoint
+                    );   
                 } else if ( !waypointApproach && distanceToNextWaypoint < waypointArrivalThreshold * 3 ) {
                 	
                     //throttle down for waypoint approach to accommodate any late corrections

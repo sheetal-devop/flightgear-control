@@ -223,8 +223,12 @@ public abstract class WaypointFlightExecutor {
                 {
                     //reset bearing incase we've drifted, not not if we're too close. normalize to 0-360
                     nextWaypointBearing = PositionUtilities.calcBearingToGPSCoordinatesNormalized(plane.getPosition(), nextWaypoint);
-                    
-                    LOGGER.info("Recalculating bearing to waypoint {}: {}", nextWaypoint.getName() , nextWaypointBearing);   
+                      
+                    LOGGER.info("Recalculating bearing to waypoint {}: {}. Distance remaining: {}", 
+                    		nextWaypoint.getName(), 
+                    		nextWaypointBearing,
+                    		distanceToNextWaypoint
+                    );   
                 }
                 
                 // check altitude first, if we're in a nose dive that needs to be corrected first
