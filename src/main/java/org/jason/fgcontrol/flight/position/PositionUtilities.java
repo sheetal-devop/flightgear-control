@@ -7,10 +7,12 @@ import org.jason.fgcontrol.flight.util.FlightUtilities;
 
 public abstract class PositionUtilities {
 
+	public final static double FEET_IN_MILE = 5280.0d;
+	
     private final static double METERS_TO_FEET_CONVERSION = 3.28084;
     
     //have we arrived at a waypoint? threshold in feet.
-    public final static double WAYPOINT_ARRIVAL_THRESHOLD = 5.0 * 5280.0;
+    public final static double WAYPOINT_ARRIVAL_THRESHOLD = 5.0 * FEET_IN_MILE;
             
     private PositionUtilities() {}
     
