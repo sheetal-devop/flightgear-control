@@ -10,26 +10,24 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 
-public class TelemetryReadWrite {
+public class ControlInputWrite {
 
     public static void main(String[] args) {
         
-        if(args.length != 3) {
-        	System.err.println("Usage: TelemetryReadWrite [host] [outputPort] [inputPort]");
+        if(args.length != 2) {
+        	System.err.println("Usage: TelemetryReadControlInputWrite [host] [inputPort]");
         	System.exit(-1);
         }
         
-        int telemetryPort = -1;
         int inputPort = -1;
         String host = args[0];
     	
         try {
-        	telemetryPort = Integer.parseInt(args[1]);
-        	inputPort = Integer.parseInt(args[2]);
+        	inputPort = Integer.parseInt(args[1]);
         } catch (Exception e) {
         	
         } finally {
-        	if(inputPort == -1 || telemetryPort == -1) {
+        	if(inputPort == -1 ) {
         		System.err.println("Invalid port");
         		System.exit(-1);
         	}
@@ -38,51 +36,39 @@ public class TelemetryReadWrite {
         Socket fgConnection = null; 
         PrintWriter output = null;
         BufferedReader input = null;
-                
-        byte[] receivingDataBuffer = null;
-        
-        try {
-            DatagramSocket fgTelemetrySocket = null;
-            DatagramPacket fgTelemetryPacket = null;
-            
+                       
+        try {            
             DatagramSocket fgInputSocket = null;
             DatagramPacket fgInputPacket = null;
-
-            receivingDataBuffer = new byte[1024];
             
-            fgTelemetryPacket = new DatagramPacket(
-                    receivingDataBuffer, 
-                    receivingDataBuffer.length
-                );
-
             for(int i = 0; i< 5; i++) {
-                //test output////////////
-
-//                //need to restablish datagram socket connection on every read, or else updates don't arrive
-                fgTelemetrySocket = new DatagramSocket(telemetryPort, InetAddress.getByName(host) );
-
-                fgTelemetrySocket.receive(fgTelemetryPacket);
-                
-                String receivedData = new String(fgTelemetryPacket.getData());
-                System.out.println("Received telemetry from flightgear: " + receivedData);
-                
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                                
-                fgTelemetrySocket.close();
                 
                 //test input//////////////
                 //read on next loop iteration
                 
                 //fgInputSocket = new DatagramSocket(FG_SOCKETS_INPUT_PORT, InetAddress.getByName(FG_SOCKETS_HOST) );
                 
-                /*
-                /controls/flight/elevator,/controls/flight/aileron
+                /*	f15c orientation typically on port 5227 for F15C Beta
+                 
+                     <!-- orientation -->
+			         <chunk>
+			            <node>/orientation/heading-deg</node>
+			            <name>heading-deg</name>
+			            <type>float</type>
+			         </chunk>
+			         <chunk>
+			            <node>/orientation/pitch-deg</node>
+			            <name>pitch-deg</name>
+			            <type>float</type>
+			         </chunk>
+			         <chunk>
+			            <node>/orientation/roll-deg</node>
+			            <name>roll-deg</name>
+			            <type>float</type>
+			         </chunk>
                  */
-                String fgInput = "\n" + ((double)i/10.0) + "," + ((2*(double)i)/10) +"\n";
+            	//rotate the plane in 15 degree chunks clockwise
+                String fgInput = "\n" + ((double)i * 15.0) % 360.0 + "," + 0.0 + "," + 0.0 +"\n";
                 
                 System.out.println("FG Control input: " + fgInput);
                 
@@ -99,14 +85,16 @@ public class TelemetryReadWrite {
                 
                 fgInputSocket = new DatagramSocket();
                 
+                fgInputSocket.setSoTimeout(5000);
+                
                 fgInputSocket.send(fgInputPacket);
 
-                fgInputSocket.setSoTimeout(5000);
+                
                 
                 fgInputSocket.close();
                 
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(3000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

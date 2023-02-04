@@ -35,9 +35,9 @@ The `*Flight` driver programs will terminate the simulator instance once its fli
 ###### Telemetry I/O #####
 
 Read the telemetry output and write control input:
+* org.jason.fgcontrol.connection.sockets.app.ControlInputWrite
 * org.jason.fgcontrol.connection.sockets.app.TelemetryRead
-* org.jason.fgcontrol.connection.sockets.app.TelemetryReadWrite
-* org.jason.fgcontrol.connection.sockets.app.TelemetryWrite
+* org.jason.fgcontrol.connection.sockets.app.TelemetryReadControlInputWrite
 * org.jason.fgcontrol.connection.telnet.app.TelnetTelmetryLoop
 * org.jason.fgcontrol.connection.telnet.app.TelnetTelmetryTest
 -----
