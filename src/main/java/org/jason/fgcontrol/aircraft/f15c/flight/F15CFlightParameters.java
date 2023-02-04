@@ -16,7 +16,7 @@ public class F15CFlightParameters {
     
     //adjust in smaller increments than MAX_HEADING_CHANGE, since course changes can be radical
     //private final static double COURSE_ADJUSTMENT_INCREMENT = 3.5;
-    private final static double COURSE_ADJUSTMENT_INCREMENT = 1.5;
+    private final static double COURSE_ADJUSTMENT_INCREMENT = 2.5;
 
     private final static double SIM_SPEEDUP = 1.0;
     
