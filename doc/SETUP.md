@@ -47,9 +47,9 @@ This guide covers usage of flightgear with an AppImage, which is the preferred m
 
 1. Locate the flightgear installation directory on your OS. 
 1. Copy the project protocol xml files under `flightgear-control/protocol` directory into the flightgear installation data `Protocol` directory without preserving the source directory structure. All xml files should end up in this directory without the source directory structure. For example:
-    * `find ~/flightgear-control/protocol -name *.xml`
-    * `cp -v ~/flightgear-control/protocol/input/c172p/c172p*.xml ~/flightgear-2020.3.17/fgdata/Protocol/`
-    * `cp -v ~/flightgear-control/protocol/input/f15c/f15c*.xml ~/flightgear-2020.3.17/fgdata/Protocol/`
+    * `find flightgear-control/protocol -name *.xml`
+    * `cp -v flightgear-control/protocol/input/c172p/c172p*.xml flightgear-2020.3.17/fgdata/Protocol/`
+    * `cp -v flightgear-control/protocol/input/f15c/f15c*.xml flightgear-2020.3.17/fgdata/Protocol/`
     * ...
 
 ----
@@ -57,7 +57,7 @@ This guide covers usage of flightgear with an AppImage, which is the preferred m
 ##### Launch a simulator instance #####
 
 1. Use the provided shell scripts in `flightgear-control/scripts` to launch a simulator configured for our purposes:
-        `~/flightgear-control/scripts/f15c_flight.sh 5220 103 49.19524 -123.18084 f15c_beta`
+        `flightgear-control/scripts/f15c_flight.sh 5220 103 49.19524 -123.18084 f15c_beta`
     * Parameters:
         * 5220 - lower bounds for the port range. The simulator reserves this port and the next 19 ports for various I/O.
         * 103 - initial heading in degrees
@@ -82,7 +82,7 @@ This guide covers usage of flightgear with an AppImage, which is the preferred m
 #### Display the simulator view ####
 
 1. Launch a simulator instance via:
-    `~/flightgear-control/scripts/f15c_flight.sh 5220 103 49.19524 -123.18084 f15c_beta`
+    `flightgear-control/scripts/f15c_flight.sh 5220 103 49.19524 -123.18084 f15c_beta`
 1. Open URL `http://localhost:5222/screenshot?type=jpg` in a web browser and confirm that the simulator view appears. Some of the packaged shell scripts (typically `*_flight.sh`) enable retrieval of the simulator view with line: `--httpd=$CAM_VIEW_PORT\`
     
 ----
