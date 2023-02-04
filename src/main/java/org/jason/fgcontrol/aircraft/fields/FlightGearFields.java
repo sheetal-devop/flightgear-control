@@ -239,6 +239,9 @@ public final class FlightGearFields {
     public final static String ROLL_FIELD = "/orientation/roll-deg";
     public final static String ROLL_FIELD_DESC = "The roll of the plane in degrees";
 
+    public final static String TRACK_FIELD = "/orientation/track-deg";
+    public final static String TRACK_FIELD_DESC = "The track of the plane in degrees";
+    
     public final static String TRACK_MAG_FIELD = "/orientation/track-magnetic-deg";
     public final static String TRACK_MAG_FIELD_DESC = "The magnetic track of the plane in degrees";
 
