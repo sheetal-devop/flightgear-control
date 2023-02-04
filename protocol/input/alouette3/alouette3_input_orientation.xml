@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+ <PropertyList>
+ <generic>
+    <input>
+        <line_separator>newline</line_separator>
+        <var_separator>,</var_separator>
+ 
+         <!-- orientation -->
+         <chunk>
+            <node>/orientation/heading-deg</node>
+            <name>heading-deg</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <node>/orientation/pitch-deg</node>
+            <name>pitch-deg</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <node>/orientation/roll-deg</node>
+            <name>roll-deg</name>
+            <type>float</type>
+         </chunk>
+  
+
+    </input>
+  </generic>
+ </PropertyList>

@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PropertyList>
+   <generic>
+      <output>
+         <!-- basic config -->
+         <binary_mode>false</binary_mode>
+         <line_separator>newline</line_separator>
+         <var_separator>\n</var_separator>
+         <preamble />
+         <postamble />
+         <!--  -->
+         <!-- fields -->
+         <!-- consumables -->
+         <chunk>
+            <node>/consumables/fuel/total-fuel-gal_us</node>
+            <name>total-fuel-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/total-fuel-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank/level-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank/capacity-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[1]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[1]/level-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[1]/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[1]/capacity-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[2]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[2]/level-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[2]/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[2]/capacity-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[3]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[3]/level-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[3]/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[3]/capacity-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[4]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[4]/level-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[4]/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[4]/capacity-gal_us": %f,</format>
+         </chunk>         
+         <chunk>
+            <node>/consumables/fuel/tank[5]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[5]/level-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[5]/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[5]/capacity-gal_us": %f,</format>
+         </chunk>     
+         <chunk>
+            <node>/consumables/fuel/tank[6]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[6]/level-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[6]/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[6]/capacity-gal_us": %f,</format>
+         </chunk>       
+         <chunk>
+            <node>/consumables/fuel/tank[7]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[7]/level-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[7]/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[7]/capacity-gal_us": %f,</format>
+         </chunk>      
+         <chunk>
+            <node>/consumables/fuel/tank[8]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[8]/level-gal_us": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/consumables/fuel/tank[8]/capacity-gal_us</node>
+            <name>capacity-gal_us</name>
+            <type>float</type>
+            <format>"/consumables/fuel/tank[8]/capacity-gal_us": %f,</format>
+         </chunk>   
+         <!-- control -->
+         <chunk>
+            <node>/controls/electric/battery-switch</node>
+            <name>battery-switch</name>
+            <type>bool</type>
+            <format>"/controls/electric/battery-switch": %d,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/engines/engine[0]/cutoff</node>
+            <name>cutoff</name>
+            <type>bool</type>
+            <format>"/controls/engines/engine[0]/cutoff": %d,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/engines/engine/mixture</node>
+            <name>mixture</name>
+            <type>float</type>
+            <format>"/controls/engines/engine/mixture": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/engines/engine/throttle</node>
+            <name>throttle</name>
+            <type>float</type>
+            <format>"/controls/engines/engine/throttle": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/aileron</node>
+            <name>aileron</name>
+            <type>float</type>
+            <format>"/controls/flight/aileron": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/aileron-trim</node>
+            <name>aileron-trim</name>
+            <type>float</type>
+            <format>"/controls/flight/aileron-trim": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/auto-coordination</node>
+            <name>auto-coordination</name>
+            <type>bool</type>
+            <format>"/controls/flight/auto-coordination": %d,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/auto-coordination-factor</node>
+            <name>auto-coordination-factor</name>
+            <type>float</type>
+            <format>"/controls/flight/auto-coordination-factor": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/elevator</node>
+            <name>elevator</name>
+            <type>float</type>
+            <format>"/controls/flight/elevator": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/elevator-trim</node>
+            <name>elevator-trim</name>
+            <type>float</type>
+            <format>"/controls/flight/elevator-trim": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/flaps</node>
+            <name>flaps</name>
+            <type>float</type>
+            <format>"/controls/flight/flaps": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/rudder</node>
+            <name>rudder</name>
+            <type>float</type>
+            <format>"/controls/flight/rudder": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/rudder-trim</node>
+            <name>rudder-trim</name>
+            <type>float</type>
+            <format>"/controls/flight/rudder-trim": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/flight/speedbrake</node>
+            <name>speedbrake</name>
+            <type>float</type>
+            <format>"/controls/flight/speedbrake": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/gear/brake-parking</node>
+            <name>brake-parking</name>
+            <type>float</type>
+            <format>"/controls/gear/brake-parking": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/controls/gear/gear-down</node>
+            <name>gear-down</name>
+            <type>bool</type>
+            <format>"/controls/gear/gear-down": %d,</format>
+         </chunk>
+         <!-- engines - one engine on the f35b2 -->
+         <chunk>
+            <node>/engines/engine[0]/egt-degf</node>
+            <name>egt-degf</name>
+            <type>float</type>
+            <format>"/engines/engine[0]/egt-degf": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/engines/engine[0]/egt-norm</node>
+            <name>egt-norm</name>
+            <type>float</type>
+            <format>"/engines/engine[0]/egt-norm": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/engines/engine[0]/fuel-flow-gph</node>
+            <name>fuel-flow-gph</name>
+            <type>float</type>
+            <format>"/engines/engine[0]/fuel-flow-gph": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/engines/engine[0]/oil-pressure-psi</node>
+            <name>oil-pressure-psi</name>
+            <type>float</type>
+            <format>"/engines/engine[0]/oil-pressure-psi": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/engines/engine[0]/running</node>
+            <name>running</name>
+            <type>bool</type>
+            <format>"/engines/engine[0]/running": %d,</format>
+         </chunk>
+         <chunk>
+            <node>/engines/engine[0]/thrust_lb</node>
+            <name>thrust_lb</name>
+            <type>float</type>
+            <format>"/engines/engine[0]/thrust_lb": %f,</format>
+         </chunk>
+         <!-- environment -->
+         <chunk>
+            <node>/environment/dewpoint-degc</node>
+            <name>dewpoint-degc</name>
+            <type>float</type>
+            <format>"/environment/dewpoint-degc": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/environment/effective-visibility-m</node>
+            <name>effective-visibility-m</name>
+            <type>float</type>
+            <format>"/environment/effective-visibility-m": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/environment/pressure-inhg</node>
+            <name>pressure-inhg</name>
+            <type>float</type>
+            <format>"/environment/pressure-inhg": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/environment/relative-humidity</node>
+            <name>relative-humidity</name>
+            <type>float</type>
+            <format>"/environment/relative-humidity": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/environment/temperature-degf</node>
+            <name>temperature-degf</name>
+            <type>float</type>
+            <format>"/environment/temperature-degf": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/environment/visibility-m</node>
+            <name>visibility-m</name>
+            <type>float</type>
+            <format>"/environment/visibility-m": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/environment/wind-from-down-fps</node>
+            <name>wind-from-down-fps</name>
+            <type>float</type>
+            <format>"/environment/wind-from-down-fps": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/environment/wind-from-east-fps</node>
+            <name>wind-from-east-fps</name>
+            <type>float</type>
+            <format>"/environment/wind-from-east-fps": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/environment/wind-from-north-fps</node>
+            <name>wind-from-north-fps</name>
+            <type>float</type>
+            <format>"/environment/wind-from-north-fps": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/environment/wind-speed-kt</node>
+            <name>wind-speed-kt</name>
+            <type>float</type>
+            <format>"/environment/wind-speed-kt": %f,</format>
+         </chunk>
+         <!-- fdm -->
+         <!-- orientation -->
+         <chunk>
+            <node>/orientation/alpha-deg</node>
+            <name>alpha-deg</name>
+            <type>float</type>
+            <format>"/orientation/alpha-deg": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/orientation/beta-deg</node>
+            <name>beta-deg</name>
+            <type>float</type>
+            <format>"/orientation/beta-deg": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/orientation/heading-deg</node>
+            <name>heading-deg</name>
+            <type>float</type>
+            <format>"/orientation/heading-deg": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/orientation/heading-magnetic-deg</node>
+            <name>heading-magnetic-deg</name>
+            <type>float</type>
+            <format>"/orientation/heading-magnetic-deg": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/orientation/pitch-deg</node>
+            <name>pitch-deg</name>
+            <type>float</type>
+            <format>"/orientation/pitch-deg": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/orientation/roll-deg</node>
+            <name>roll-deg</name>
+            <type>float</type>
+            <format>"/orientation/roll-deg": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/orientation/track-deg</node>
+            <name>track-deg</name>
+            <type>float</type>
+            <format>"/orientation/track-deg": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/orientation/track-magnetic-deg</node>
+            <name>track-magnetic-deg</name>
+            <type>float</type>
+            <format>"/orientation/track-magnetic-deg": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/orientation/yaw-deg</node>
+            <name>yaw-deg</name>
+            <type>float</type>
+            <format>"/orientation/yaw-deg": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/orientation/yaw-rate-degps</node>
+            <name>yaw-rate-degps</name>
+            <type>float</type>
+            <format>"/orientation/yaw-rate-degps": %f,</format>
+         </chunk>
+         <!-- position -->
+         <chunk>
+            <node>/position/altitude-ft</node>
+            <name>altitude-ft</name>
+            <type>float</type>
+            <format>"/position/altitude-ft": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/position/ground-elev-ft</node>
+            <name>ground-elev-ft</name>
+            <type>float</type>
+            <format>"/position/ground-elev-ft": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/position/latitude-deg</node>
+            <name>latitude-deg</name>
+            <type>float</type>
+            <format>"/position/latitude-deg": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/position/longitude-deg</node>
+            <name>longitude-deg</name>
+            <type>float</type>
+            <format>"/position/longitude-deg": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/position/latitude-string</node>
+            <name>latitude-string</name>
+            <type>float</type>
+            <format>"/position/latitude-string": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/position/longitude-string</node>
+            <name>longitude-string</name>
+            <type>float</type>
+            <format>"/position/longitude-string": %f,</format>
+         </chunk>
+         <!-- sim -->
+         <chunk>
+            <node>/sim/speed-up</node>
+            <name>speed-up</name>
+            <type>float</type>
+            <format>"/sim/speed-up": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/sim/current-view/view-number</node>
+            <name>view-number</name>
+            <type>float</type>
+            <format>"/sim/current-view/view-number": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/sim/freeze/clock</node>
+            <name>clock</name>
+            <type>bool</type>
+            <format>"/sim/freeze/clock": %d,</format>
+         </chunk>
+         <chunk>
+            <node>/sim/freeze/fuel</node>
+            <name>fuel</name>
+            <type>bool</type>
+            <format>"/sim/freeze/fuel": %d,</format>
+         </chunk>
+         <chunk>
+            <node>/sim/freeze/master</node>
+            <name>master</name>
+            <type>bool</type>
+            <format>"/sim/freeze/master": %d,</format>
+         </chunk>
+         <chunk>
+            <node>/sim/time/elapsed-sec</node>
+            <name>elapsed-sec</name>
+            <type>float</type>
+            <format>"/sim/time/elapsed-sec": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/sim/time/gmt</node>
+            <name>gmt</name>
+            <type>string</type>
+            <format>"/sim/time/gmt": "%s",</format>
+         </chunk>
+         <chunk>
+            <node>/sim/time/local-day-seconds</node>
+            <name>local-day-seconds</name>
+            <type>float</type>
+            <format>"/sim/time/local-day-seconds": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/sim/time/mp-clock-sec</node>
+            <name>mp-clock-sec</name>
+            <type>float</type>
+            <format>"/sim/time/mp-clock-sec": %f,</format>
+         </chunk>
+         <!-- sim model -->
+         <!-- velocities -->
+         <chunk>
+            <node>/velocities/airspeed-kt</node>
+            <name>airspeed-kt</name>
+            <type>float</type>
+            <format>"/velocities/airspeed-kt": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/velocities/groundspeed-kt</node>
+            <name>groundspeed-kt</name>
+            <type>float</type>
+            <format>"/velocities/groundspeed-kt": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/velocities/uBody-fps</node>
+            <name>uBody-fps</name>
+            <type>float</type>
+            <format>"/velocities/uBody-fps": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/velocities/vBody-fps</node>
+            <name>vBody-fps</name>
+            <type>float</type>
+            <format>"/velocities/vBody-fps": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/velocities/vertical-speed-fps</node>
+            <name>vertical-speed-fps</name>
+            <type>float</type>
+            <format>"/velocities/vertical-speed-fps": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/velocities/wBody-fps</node>
+            <name>wBody-fps</name>
+            <type>float</type>
+            <format>"/velocities/wBody-fps": %f</format>
+         </chunk>
+         <!-- ^^^^^ no trailing comma on the last field - this should output coherent json -->
+      </output>
+   </generic>
+</PropertyList>
+

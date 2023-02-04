@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+ <PropertyList>
+ <generic>
+    <input>
+        <line_separator>newline</line_separator>
+        <var_separator>,</var_separator>
+ 
+    </input>
+  </generic>
+ </PropertyList>
