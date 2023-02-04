@@ -15,7 +15,7 @@ Generically fly aircraft by executing the plane's engine startup script and dili
 
 #### Setup ####
 
-Documented [here](SETUP.md).
+Documented [here](doc/SETUP.md).
 
 #### Building ####
 
@@ -24,6 +24,6 @@ Use tasks `jar`, `appjar`, and `sourcesjar` to generate the jars for this projec
 * `appjar` - Driver applications for testing functionality locally.
 * `sourcesjar` - Sources jar to accompany the main jar for incorporating into other projects.
 
-#### Flights ####
+#### Running Flights ####
 
-1. Sample main programs reside in packages: org.jason.fgcontrol.aircraft.[aircraft name].app, and can be executed as Java applications. Sample applications will run with a default configuration, or supplied properties files in the `scripts/conf` directory to specify simulator port ranges. 
+Documented [here](doc/OPERATION.md).
