@@ -1112,6 +1112,10 @@ public abstract class FlightGearAircraft {
     }
     
     public double getTrack() {
+        return Double.parseDouble(getTelemetryField(FlightGearFields.TRACK_FIELD));
+    }
+    
+    public double getTrackMag() {
         return Double.parseDouble(getTelemetryField(FlightGearFields.TRACK_MAG_FIELD));
     }
     

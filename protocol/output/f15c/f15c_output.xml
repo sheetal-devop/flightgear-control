@@ -551,6 +551,12 @@
             <format>"/orientation/roll-deg": %f,</format>
          </chunk>
          <chunk>
+            <node>/orientation/track-deg</node>
+            <name>track-deg</name>
+            <type>float</type>
+            <format>"/orientation/track-deg": %f,</format>
+         </chunk>
+         <chunk>
             <node>/orientation/track-magnetic-deg</node>
             <name>track-magnetic-deg</name>
             <type>float</type>
