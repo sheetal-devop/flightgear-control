@@ -68,12 +68,14 @@ public class WaypointFlight {
 				plane = new C172P();
 			}
 	
+			// odd behavior of set view in fgfs 2020.3.17
+			// set in runFlight after a delay
+			//plane.setCurrentView(2);
+				
+					
 			// prep plane
 			plane.setWaypoints(route);
-	
-			// set chase view
-			plane.setCurrentView(2);
-	
+			
 			plane.setDamageEnabled(false);
 			plane.setComplexEngineProcedures(false);
 			plane.setWinterKitInstalled(true);
@@ -92,7 +94,7 @@ public class WaypointFlight {
             LOGGER.error("FlightGearSetupException occurred", e);
         } catch (IOException e) {
             LOGGER.error("IOException occurred", e);
-        }
+        } 
         finally {
             if(plane != null) {
                 

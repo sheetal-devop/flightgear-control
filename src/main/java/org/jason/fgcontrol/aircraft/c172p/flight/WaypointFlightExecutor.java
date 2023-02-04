@@ -36,6 +36,25 @@ public abstract class WaypointFlightExecutor {
 	
 	public static void runFlight(C172P plane, C172PFlightParameters parameters) throws IOException {
 		
+		/////////////////////
+		//seeing odd behavior for the c172p in fgfs 2020.03.17
+		//if camera view is switched during autostart, the camera actually ends up pointing
+		//at the pilot's chair for some reason.
+		//TODO: periodically test removing this
+		new Thread() {
+			public void run() {
+				try {
+					LOGGER.info("_______________Starting view change hack thread");
+					Thread.sleep(15L*1000L);
+					plane.setCurrentView(2);
+					LOGGER.info("_______________Ending view change hack thread");
+				} catch (IOException | InterruptedException e) {
+					LOGGER.warn("View change hack sleep exception", e);
+				}
+			}
+		}.start();
+		/////////////////////
+		
 		WaypointPosition startingWaypoint = plane.getNextWaypoint();
 		plane.setCurrentWaypointTarget(startingWaypoint);
 		
@@ -92,9 +111,7 @@ public abstract class WaypointFlightExecutor {
         
         plane.setBatterySwitch(false);
         plane.setAntiIce(true);
-        
-        //TODO: final and overrideable fields for the hardcoded values
-        
+                
         //i'm in a hurry and a c172p only goes so fast
         plane.setSimSpeedUp(parameters.getSimSpeedup());
         
@@ -125,6 +142,9 @@ public abstract class WaypointFlightExecutor {
             
             ///////////////////////////////
             //transition to a stable path to next waypoint.
+            
+            //seems to cause problems- the engine may still be spinning up on the first iteration
+            //plane.setCurrentView(2);
             
             double currentHeading;
             int headingComparisonResult;
@@ -246,16 +266,21 @@ public abstract class WaypointFlightExecutor {
 
                     //TODO: try to recover
 //                    LOGGER.error("Engine found not running. Attempting to restart.");
-//                    plane.startupPlane();
-//                    
-//                    plane.setMixture(FLIGHT_MIXTURE);
-//                    
-//                    //increase throttle
-//                    plane.setPause(true);
-//                    plane.setThrottle(FLIGHT_THROTTLE);
-//                    plane.setPause(false);
-//                    
-//                    plane.resetControlSurfaces();
+//                    try {
+//						plane.startupPlane();
+//						
+//	                    plane.setMixture(parameters.getFlightMixture());
+//	                    
+//	                    //increase throttle
+//	                    plane.setPause(true);
+//	                    plane.setThrottle(parameters.getFlightThrottle());
+//	                    plane.setPause(false);
+//	                    
+//	                    plane.resetControlSurfaces();
+//						
+//					} catch (AircraftStartupException e) {
+//						LOGGER.error("AircraftStartupException attempting to restart aircraft engine", e);
+//					}
                 }
                 
                 //refill both tanks for balance
