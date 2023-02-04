@@ -164,6 +164,7 @@ FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
  --enable-auto-coordination\
  --prop:/environment/weather-scenario=Fair\ weather\
  --prop:/nasal/local_weather/enabled=false\
+ --prop:/sim/current-view/view-number=2\
  --prop:/sim/menubar/autovisibility/enabled=true\
  --prop:/sim/menubar/visibility/enabled=false\
  --prop:/sim/rendering/fps-display=1\
@@ -177,6 +178,7 @@ FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
  --prop:/sim/rendering/shading=false\
  --prop:/sim/rendering/shadow-volume=false\
  --prop:/sim/rendering/shadows/enabled=false\
+ --prop:/sim/rendering/texture-cache/cache-enabled=true\
  --prop:/sim/startup/save-on-exit=false\
  --max-fps=30\
  --disable-clouds3d\

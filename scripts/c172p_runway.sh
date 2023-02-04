@@ -104,6 +104,8 @@ fi
 
 #switch "--enable-terrasync" with "--disable-terrasync" for offline use
 
+#particles=true or recent c172p models have errors
+
 #use --airport=CYVR for location
 
 FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
@@ -155,6 +157,7 @@ FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
  --prop:/sim/rendering/shading=false\
  --prop:/sim/rendering/shadow-volume=false\
  --prop:/sim/rendering/shadows/enabled=false\
+ --prop:/sim/rendering/texture-cache/cache-enabled=true\
  --prop:/sim/startup/save-on-exit=false\
  --max-fps=30\
  --disable-clouds3d\

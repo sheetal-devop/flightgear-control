@@ -127,15 +127,16 @@ fi
 
 #switch "--enable-terrasync" with "--disable-terrasync" for offline use
 
+#particles=true or recent c172p models have errors
+
 #extra rendering settings since we want to run a few instances of this
 FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
  --verbose\
  --ignore-autosave\
  --enable-terrasync\
- --metar=XXXX 012345Z 15003KT 12SM SCT041 FEW200 20/08 Q1015 NOSIG\
  --timeofday=noon\
  --disable-rembrandt\
- --aircraft=c172p\
+ --aircraft=$FG_AIRCRAFT\
  --state=auto\
  --fog-fastest\
  --fg-root=$FG_ROOT_DIR\
@@ -165,8 +166,6 @@ FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
  --enable-auto-coordination\
  --prop:/environment/weather-scenario=Fair weather\
  --prop:/nasal/local_weather/enabled=false\
- --prop:/environment/weather-scenario=Fair\ weather\
- --prop:/nasal/local_weather/enabled=false\
  --prop:/sim/menubar/autovisibility/enabled=true\
  --prop:/sim/menubar/visibility/enabled=false\
  --prop:/sim/rendering/fps-display=1\
@@ -180,6 +179,7 @@ FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
  --prop:/sim/rendering/shading=false\
  --prop:/sim/rendering/shadow-volume=false\
  --prop:/sim/rendering/shadows/enabled=false\
+ --prop:/sim/rendering/texture-cache/cache-enabled=true\
  --prop:/sim/startup/save-on-exit=false\
  --max-fps=30\
  --disable-clouds3d\
