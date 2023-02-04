@@ -16,18 +16,6 @@ import org.slf4j.LoggerFactory;
  * @author jason
  *
  */
-/**
- * @author jason
- *
- */
-/**
- * @author jason
- *
- */
-/**
- * @author jason
- *
- */
 public abstract class WaypointFlightExecutor {
 	
     private final static Logger LOGGER = LoggerFactory.getLogger(WaypointFlightExecutor.class);
