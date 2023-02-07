@@ -9,25 +9,26 @@ import java.util.LinkedHashMap;
 
 import javax.imageio.ImageIO;
 
+import org.jason.fgcontrol.connection.rest.CommonHeaders;
 import org.jason.fgcontrol.connection.rest.RESTClient;
 
 public class RESTClientPollingTest {
-
-	private final static String HTTP_ACCEPT_FIELD = "accept";
-	private final static String CAMERA_VIEW_CONTENT_TYPE = "image/jpg";
 	
 	public static void main(String[] args) {
 		
-		LinkedHashMap<String, String> headers = new LinkedHashMap<String, String>();
-		headers.put(HTTP_ACCEPT_FIELD, CAMERA_VIEW_CONTENT_TYPE);
+		LinkedHashMap<String, String> clientHeaders = new LinkedHashMap<String, String>();
+		clientHeaders.put(CommonHeaders.CONNECTION, CommonHeaders.CONNECTION_CLOSE);
+		clientHeaders.put(CommonHeaders.HTTP_ACCEPT, CommonHeaders.CONTENT_TYPE_JPG);
 		
+		LinkedHashMap<String, String> params = new LinkedHashMap<String, String>();
+		params.put("type", "jpg");
 		
-		RESTClient restClient = new RESTClient(headers);
+		RESTClient restClient = new RESTClient(clientHeaders);
 
 		String outputDir = "/home/jason/";
 		
 		//flightgear running on localhost with httpd enabled on port 5222
-		String simStreamURI = URI.create("http://localhost:5222/screenshot?type=jpg").toString();
+		String simStreamURI = URI.create("http://localhost:5222/screenshot").toString();
 		
 		//dump the image data from the response to disk
 		try {
@@ -36,7 +37,7 @@ public class RESTClientPollingTest {
 			
 				System.out.println("GET request for simulator view");
 				
-				byte[] result = restClient.makeGETRequestAndGetBody(simStreamURI);
+				byte[] result = restClient.makeGETRequestAndGetBody(simStreamURI, params);
 				
 				BufferedImage img = ImageIO.read(new ByteArrayInputStream(result));
 	

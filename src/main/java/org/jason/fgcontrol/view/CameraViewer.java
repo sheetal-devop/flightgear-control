@@ -1,6 +1,5 @@
 package org.jason.fgcontrol.view;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -8,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Queue;
 
+import org.jason.fgcontrol.connection.rest.CommonHeaders;
 import org.jason.fgcontrol.connection.rest.RESTClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +34,7 @@ public class CameraViewer {
     private final static String CAM_VIEW_DEFAULT_HOST = "localhost";
 	private final static String CAM_VIEW_RESOURCE = "screenshot?type=jpg";
 	
-	private final static String HTTP_ACCEPT_FIELD = "accept";
-	private final static String CAMERA_VIEW_CONTENT_TYPE = "image/jpg";
+	private LinkedHashMap<String, String> requestHeaders;
 	
 	//buffer size of screen captures
 	//at 30fps a buffer of 1024 is 34.13 seconds of mostly-continuous video, with the REST call round trip and overhead. 
@@ -78,10 +77,10 @@ public class CameraViewer {
 		//autodiscarding queue with a fixed size
 		cameraViewBuffer = EvictingQueue.create(MAX_BUFFER_SIZE);
 		
-		LinkedHashMap<String, String> headers = new LinkedHashMap<String, String>();
-		headers.put(HTTP_ACCEPT_FIELD, CAMERA_VIEW_CONTENT_TYPE);
+		requestHeaders = new LinkedHashMap<String, String>();
+		requestHeaders.put(CommonHeaders.HTTP_ACCEPT, CommonHeaders.CONTENT_TYPE_JPG);
 		
-		restClient = new RESTClient(headers, connectiontimeout, socketTimeout);
+		restClient = new RESTClient(connectiontimeout, socketTimeout);
 		
 		LOGGER.info("Initialized CameraViewer with url: {}", cameraViewUri);
 	}
@@ -127,21 +126,11 @@ public class CameraViewer {
 			//what if it's comically large? maybe this can be enforced when building the client?
 			
 			responseBody = null;
-			responseBody = restClient.makeGETRequestAndGetBody(cameraViewUri);
+			responseBody = restClient.makeGETRequestAndGetBody(cameraViewUri, requestHeaders);
 			
 			if(LOGGER.isTraceEnabled()) {
 				LOGGER.trace("Received {} bytes from camera view", responseBody.length);
 			}
-		}
-		catch (IOException e) {
-			LOGGER.error("IOException occurred updating Camera View. Continuing.", e);
-		}
-		catch (InterruptedException e) {
-			
-			//swallow exceptions to not impact more important simulator functionality
-			//technically okay if camera view fails sporadically
-		
-			LOGGER.error("InterruptedException occurred updating Camera View. Likely while sending REST request. Continuing.", e);
 		}
 		catch (Exception e) {
 			LOGGER.error("Exception occurred updating Camera View. Continuing.", e);
