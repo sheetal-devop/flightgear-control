@@ -3,7 +3,6 @@
 Ensure the simulator environment setup is completed. Process documented [here](SETUP.md).
 
 ----
-
 ### Run a test flight ###
 
 1. Run a simulator instance via the provided shell scripts:
@@ -31,8 +30,7 @@ Aircraft flight and runway operations:
 The `*Flight` driver programs will terminate the simulator instance once its flight plan finishes execution.
 
 -----
-
-###### Telemetry I/O #####
+##### Telemetry I/O #####
 
 Read the telemetry output and write control input:
 * org.jason.fgcontrol.connection.sockets.app.ControlInputWrite
@@ -40,8 +38,8 @@ Read the telemetry output and write control input:
 * org.jason.fgcontrol.connection.sockets.app.TelemetryReadControlInputWrite
 * org.jason.fgcontrol.connection.telnet.app.TelnetTelmetryLoop
 * org.jason.fgcontrol.connection.telnet.app.TelnetTelmetryTest
------
 
+-----
 ##### Camera Streaming #####
 
 Read from the camera stream:
@@ -50,7 +48,6 @@ Read from the camera stream:
 * org.jason.fgcontrol.view.mjpeg.app.MJPEGStreamerApp
 
 -----
-
 ##### SSHD #####
 
 Operate an embedded SSH Server:
