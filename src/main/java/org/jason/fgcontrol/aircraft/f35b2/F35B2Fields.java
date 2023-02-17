@@ -137,7 +137,7 @@ public abstract class F35B2Fields {
     
     //want a marginal amount of default lift on the elevator trim to offset gravity
     //negative elevator points the plane up, positive elevator points the plane down
-    public final static double ELEVATOR_DEFAULT = -0.01;
+    public final static double ELEVATOR_DEFAULT = -0.001;
     public final static double ELEVATOR_TRIM_DEFAULT = 0.0001;
     public final static double ELEVATOR_MAX = 1.0;
     public final static double ELEVATOR_MIN = -1.0;

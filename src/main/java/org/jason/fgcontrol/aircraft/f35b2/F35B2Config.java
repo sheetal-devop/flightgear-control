@@ -7,7 +7,7 @@ import org.jason.fgcontrol.aircraft.config.SimulatorConfig;
 
 public class F35B2Config extends SimulatorConfig {
    
-	private final static String DEFAULT_AIRCRAFT_NAME = "F15C_Default";
+	private final static String DEFAULT_AIRCRAFT_NAME = "F35B2_Default";
 	private String aircraftName;
 	
     public F35B2Config() {
