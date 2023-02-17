@@ -2,7 +2,7 @@
 
 #Usage: ./f35b2_flight.sh START_PORT_RANGE HEADING START_LAT START_LON NAME
 
-FG_AIRCRAFT=org.flightgear.fgaddon.stable_2020.F-35B-yasim
+FG_AIRCRAFT=org.flightgear.fgaddon.stable_2020.F-35B-jsbsim
 
 #############################
 #find the AppImage on the path
@@ -31,6 +31,12 @@ else
     fi
 fi
 
+#############################
+#explicitly set a display
+
+DISPLAY_STR=${DISPLAY:-":0.0"}
+
+echo "Using display $DISPLAY_STR"
 #############################
 
 #works for external and internal input
@@ -88,12 +94,6 @@ VELOCITIES_INPUT_PORT=$((START_PORT_RANGE+15))
 #use heading if supplied, otherwise just head north
 HEADING=${2:-0}
 
-#known headings in degrees
-#yvr -> abbotsford: 103.836
-#yvr -> victoria: 189.012
-#yvr -> ubc: 326.577
-#yvr -> west lion: 359.09
-
 ALT=9000
 
 ########
@@ -129,7 +129,7 @@ fi
 #expect the AppImage binary on PATH
 #extra rendering settings since we want to run a few instances of this
 
-FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
+DISPLAY=$DISPLAY_STR FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
  --verbose\
  --ignore-autosave\
  --enable-terrasync\

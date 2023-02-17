@@ -32,6 +32,12 @@ else
 fi
 
 #############################
+#explicitly set a display
+
+DISPLAY_STR=${DISPLAY:-":0.0"}
+
+echo "Using display $DISPLAY_STR"
+#############################
 
 #works for external and internal input
 INPUT_HOST="0.0.0.0"
@@ -106,7 +112,7 @@ fi
 
 #use --airport=CYVR for location
 
-FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
+DISPLAY=$DISPLAY_STR FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
  --verbose\
  --ignore-autosave\
  --enable-terrasync\

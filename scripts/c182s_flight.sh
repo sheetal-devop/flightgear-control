@@ -1,8 +1,8 @@
 #!/bin/bash
 
-#Usage: ./c172p_runway.sh START_PORT_RANGE NAME
+#./c182s_*.sh START_PORT_RANGE HEADING START_LAT START_LON NAME
 
-FG_AIRCRAFT=c172p
+FG_AIRCRAFT=org.flightgear.fgaddon.stable_2020.c182s
 
 #############################
 #find the AppImage on the path
@@ -45,14 +45,17 @@ INPUT_HOST="0.0.0.0"
 TELEM_HOST="localhost"
 
 #############################
-#this is the window geometry, not the sim video resolution
-#for visuals use larger geometry: --geometry=1024x768\
+#this is the window geometry, not the sim video resolution, which appears fixed in windowed mode
+#for most use cases use medium geometry: --geometry=640x480\ or --geometry=800x600\
+#for big visuals use larger geometry: --geometry=1024x768\
 #for apps user smaller geometry: --geometry=320x200\
 
-X_RES=1024
-Y_RES=768
+X_RES=800
+Y_RES=600
 
 RES_GEOMETRY_STR=""$X_RES"x"$Y_RES
+
+#pauses sim after launching
 
 ################
 #ports
@@ -65,12 +68,13 @@ START_PORT_RANGE=${1:-6500}
 #port population:
 #START_PORT_RANGE   => output
 #+1         => telnet
-#+2     => httpd => not used with runway operation
+#+2     => httpd 
 #+3     => input 1
 #+4     => input 2
 #...
 TELEM_OUTPUT_PORT=$START_PORT_RANGE
 TELNET_PORT=$((START_PORT_RANGE+1))
+CAM_VIEW_PORT=$((START_PORT_RANGE+2))
 CONSUMABLES_INPUT_PORT=$((START_PORT_RANGE+3))
 CONTROLS_INPUT_PORT=$((START_PORT_RANGE+4))
 ENGINES_INPUT_PORT=$((START_PORT_RANGE+5))
@@ -84,6 +88,25 @@ SIM_SPEEDUP_INPUT_PORT=$((START_PORT_RANGE+12))
 SIM_TIME_INPUT_PORT=$((START_PORT_RANGE+13))
 SYSTEMS_INPUT_PORT=$((START_PORT_RANGE+14))
 VELOCITIES_INPUT_PORT=$((START_PORT_RANGE+15))
+
+########
+#start heading
+#use heading if supplied, otherwise just head north
+HEADING=${2:-0}
+
+#known headings in degrees
+#yvr -> abbotsford: 103.836
+#yvr -> victoria: 189.012
+#yvr -> ubc: 326.577
+
+
+#max alt for 95% throttle: 5125ft
+ALT=5100
+
+########
+#start position, default to yvr 49.19524, -123.18084
+START_LAT=${3:-49.19524}
+START_LON=${4:--123.18084}
 
 ########
 #name of this aircraft
@@ -110,10 +133,7 @@ fi
 
 #switch "--enable-terrasync" with "--disable-terrasync" for offline use
 
-#particles=true or recent c172p models have errors
-
-#use --airport=CYVR for location
-
+#extra rendering settings since we want to run a few instances of this
 DISPLAY=$DISPLAY_STR FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
  --verbose\
  --ignore-autosave\
@@ -123,7 +143,6 @@ DISPLAY=$DISPLAY_STR FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
  --aircraft=$FG_AIRCRAFT\
  --state=auto\
  --fog-fastest\
- --airport=CYVR\
  --fg-root=$FG_ROOT_DIR\
  --generic=socket,out,45,$TELEM_HOST,$TELEM_OUTPUT_PORT,udp,c172p_output\
  --generic=socket,in,45,$INPUT_HOST,$CONSUMABLES_INPUT_PORT,udp,c172p_input_consumables\
@@ -140,6 +159,7 @@ DISPLAY=$DISPLAY_STR FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
  --generic=socket,in,45,$INPUT_HOST,$SYSTEMS_INPUT_PORT,udp,c172p_input_systems\
  --generic=socket,in,45,$INPUT_HOST,$VELOCITIES_INPUT_PORT,udp,c172p_input_velocities\
  --telnet=$TELNET_PORT\
+ --httpd=$CAM_VIEW_PORT\
  --log-dir=$LOG_DIR\
  --disable-ai-traffic\
  --disable-sound\
@@ -148,7 +168,7 @@ DISPLAY=$DISPLAY_STR FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
  --texture-filtering=4\
  --disable-anti-alias-hud\
  --enable-auto-coordination\
- --prop:/environment/weather-scenario=Fair\ weather\
+ --prop:/environment/weather-scenario=Fair weather\
  --prop:/nasal/local_weather/enabled=false\
  --prop:/sim/menubar/autovisibility/enabled=true\
  --prop:/sim/menubar/visibility/enabled=false\
@@ -168,6 +188,12 @@ DISPLAY=$DISPLAY_STR FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
  --max-fps=30\
  --disable-clouds3d\
  --disable-specular-highlight\
+ --vc=60\
+ --heading=$HEADING\
+ --altitude=$ALT\
+ --lat=$START_LAT\
+ --lon=$START_LON\
+ --enable-freeze\
  --allow-nasal-from-sockets\
  --turbulence=0.0\
  --wind=0\@0

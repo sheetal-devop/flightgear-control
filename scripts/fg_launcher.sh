@@ -7,6 +7,15 @@ APPIMAGE_FILE=FlightGear-2020.3.17-x86_64.AppImage
 #FlightGear-2020.3.17-x86_64: /home/user/flightgear-2020.3.17/FlightGear-2020.3.17-x86_64.AppImage
 FG_BIN_PATH=`whereis -b $APPIMAGE_FILE | awk '{print $2}'`
 
+#############################
+#explicitly set a display
+
+DISPLAY_STR=${DISPLAY:-":0.0"}
+
+echo "Using display $DISPLAY_STR"
+
+#############################
+
 if [ -z "$FG_BIN_PATH" ]; then
     echo "Could not find FlightGear AppImage on path. Ensure the FlightGear AppImage location is in \$PATH."
     exit 1
@@ -25,6 +34,6 @@ else
         FG_ROOT_DIR=$FG_BIN_DIR/fgdata 
         
         #run the simulator launcher 
-        FG_HOME=$FG_HOME_DIR $FG_BIN_PATH --fg-root=$FG_ROOT_DIR --launcher
+        DISPLAY=$DISPLAY_STR FG_HOME=$FG_HOME_DIR $FG_BIN_PATH --fg-root=$FG_ROOT_DIR --launcher
     fi
 fi
