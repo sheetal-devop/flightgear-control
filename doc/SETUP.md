@@ -23,7 +23,8 @@ This guide covers usage of flightgear with an AppImage, which is the preferred m
     1. Extract archive `FlightGear-2020.3.17-data.txz`
     1. Extract archive `FlightGear-2020.3.17-update-data.txz`
 1. Ensure the binary file FlightGear-2020.3.17-x86_64.AppImage is executable.
-1. Add the directory containing the FlightGear AppImage to the PATH. Set this in the shell config files too.
+1. Add the directory containing the FlightGear AppImage to the PATH. Set this in the shell config files (e.g. .bashrc) too.
+    The simulator scripts used by the `flightgear-control` establish and depend on an FG_HOME within the same directory as the AppImage. Simulator assets like aircraft will have to be redownloaded.
 1. Clone the `flightgear-control` project, and check out the latest tagged release.
 1. Run the simulator setup shell script with:
     `flightgear-control/scripts/fg_launcher.sh`
@@ -34,7 +35,7 @@ This guide covers usage of flightgear with an AppImage, which is the preferred m
 1. If inclined, navigate to "Settings" and disable crash and error reporting.
 1. Navigate to the "Aircraft" section. 
 1. Select the "Browse" tab near the top center of the UI. Add the default hanger if there is an option to do so.
-1. Search (top right of window) for the following models required by the flightgear-control project, and install them if necessary. If a model doesn't appear in the search results, it's possible a minimum ratings requirement is excluding it from results.
+1. Search (top right of window) for the following models required by the `flightgear-control` project, and install them if necessary. If a model doesn't appear in the search results, it's possible a minimum ratings requirement is excluding it from results.
     1. Cessna 172P Skyhawk (1982)
     1. F-15C
     1. Lockheed Martin F-35B Lightning II
@@ -49,7 +50,9 @@ This guide covers usage of flightgear with an AppImage, which is the preferred m
 1. Copy the project protocol xml files under `flightgear-control/protocol` directory into the flightgear installation data `Protocol` directory without preserving the source directory structure. All xml files should end up in this directory without the source directory structure. For example:
     * `find flightgear-control/protocol -name *.xml`
     * `cp -v flightgear-control/protocol/input/c172p/c172p*.xml flightgear-2020.3.17/fgdata/Protocol/`
+    * `cp -v flightgear-control/protocol/output/c172p/c172p*.xml flightgear-2020.3.17/fgdata/Protocol/`
     * `cp -v flightgear-control/protocol/input/f15c/f15c*.xml flightgear-2020.3.17/fgdata/Protocol/`
+    * `cp -v flightgear-control/protocol/output/f15c/f15c*.xml flightgear-2020.3.17/fgdata/Protocol/`
     * ...
 
 ----

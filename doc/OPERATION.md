@@ -12,6 +12,8 @@ Ensure the simulator environment setup is completed. Process documented [here](S
     `/path/to/jdk8/bin/java -cp build/libs/flightgear-control-[version]-app.jar org.jason.fgcontrol.aircraft.f15c.app.WaypointFlight scripts/conf/f15c/f15c_beta_flight.properties`
     * The properties file specifies which ports the flightgear-control application will use to communicate with the flightgear simulator instance. 
     * For flight applications, ensure that the simulator launches with an initial heading/bearing of the first waypoint in the flightplan from the starting position. Failure to ensure this can cause the aircraft to tumble in an unrecoverable manner.
+    * Additionally for flight applications, the launch script will pause the simulator state after its startup is completed. It is the responsibility of the `flightgear-control` application to manage the initial paused simulator state as part of its plan. For a simple test, it can be unpaused by pressing 'P'. Runway applications do not start with a paused simulator.
+    * The simulator launch scripts will check for the environment variable DISPLAY, and will invoke the simulator with this display if defined. 
 
 ### Operating Supported Aircrafts ###
 * [C172P](c172p.md)
@@ -24,9 +26,15 @@ Ensure the simulator environment setup is completed. Process documented [here](S
 ##### Aircraft #####
 Aircraft flight and runway operations:
 * org.jason.fgcontrol.aircraft.f15c.app.WaypointFlight
+    Fly an F-15C through a set of waypoints.
 * org.jason.fgcontrol.aircraft.f15c.app.RunwayBurnout
+    Fuel up an F-15C on a runway, start the engine, apply the parking brake, await exhaustion of fuel.
 * org.jason.fgcontrol.aircraft.c172p.app.WaypointFlight
+    Fly an Cessna 172P through a set of waypoints.
 * org.jason.fgcontrol.aircraft.c172p.app.RunwayBurnout
+    Fuel up an Cessna 172P on a runway, start the engine, apply the parking brake, await exhaustion of fuel.
+* org.jason.fgcontrol.aircraft.f35b2.app.SustainedFlight
+    Fly an F-35-B 2 on a specified bearing.
 The `*Flight` driver programs will terminate the simulator instance once its flight plan finishes execution.
 
 -----
