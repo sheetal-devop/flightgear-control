@@ -33,7 +33,6 @@ public abstract class WaypointFlightExecutor {
 	}
 	
 	public static void runFlight(F15C plane, F15CFlightParameters parameters) throws IOException {
-		//TODO: override any F15CFlightParameters
 		
 		WaypointPosition startingWaypoint = plane.getNextWaypoint();
 		plane.setCurrentWaypointTarget(startingWaypoint);
@@ -45,7 +44,6 @@ public abstract class WaypointFlightExecutor {
         //***we really have to trust the sim is launched with the correct initial heading
         
         LOGGER.info("First waypoint is {} and initial target bearing is {}", startingWaypoint.toString(), initialBearing);
-
         
         ////////////////////////////        
         //flight parameters
@@ -123,38 +121,33 @@ public abstract class WaypointFlightExecutor {
             plane.setEngineThrottles(throttleCourseChange);
             
             double currentHeading;
-            int headingComparisonResult;
+            //int headingComparisonResult;
             
             //waypoint approach flag since the f15c travels at high speeds
             boolean waypointApproach = false;
             
-            while(!FlightUtilities.withinHeadingThreshold(plane, maxHeadingChange, nextWaypointBearing)) {
+            //waypoint transition. steer the plane towards the next waypoint
+            //TODO: can we incorporate a minimum waypoint departure distance? would need to track a previousWaypoint, especially at start.
+            while(!FlightUtilities.withinHeadingThreshold(plane, maxHeadingChange, nextWaypointBearing) ) {
                 
                 currentHeading = plane.getHeading();
                 
                 plane.addTrackPositionToFlightLog(plane.getPosition());
                 
-                headingComparisonResult = FlightUtilities.headingCompareTo(plane, nextWaypointBearing);
+                //headingComparisonResult = FlightUtilities.headingCompareTo(currentHeading, nextWaypointBearing);
                 
                 LOGGER.debug("Easing hard turn from current heading {} to target heading {} for waypoint", 
                 		currentHeading, nextWaypointBearing, nextWaypoint.getName());
                 
-                //adjust clockwise or counter? 
-                //this may actually change in the middle of the transition itself
-                double intermediateHeading = currentHeading;
-                if(headingComparisonResult == FlightUtilities.HEADING_NO_ADJUST) {
-                    LOGGER.warn("Found no adjustment needed");
-                    //shouldn't happen since we'd be with the heading threshold
-                    break;
-                } else if(headingComparisonResult == FlightUtilities.HEADING_CW_ADJUST) {
-                    //1: adjust clockwise
-                    intermediateHeading = (intermediateHeading + courseAdjustmentIncrement ) % FlightUtilities.DEGREES_CIRCLE;
-                } else {
-                    //-1: adjust counterclockwise
-                    intermediateHeading -= courseAdjustmentIncrement;
-                    
-                    //normalize 0-360
-                    if(intermediateHeading < 0) intermediateHeading += FlightUtilities.DEGREES_CIRCLE;
+                double intermediateHeading = FlightUtilities.determineCourseChangeAdjustment(currentHeading, courseAdjustmentIncrement, nextWaypointBearing);
+                if( intermediateHeading == currentHeading) {
+                  LOGGER.warn("Found no adjustment needed");
+
+                  //shouldn't happen since we'd be with the heading threshold tested by the loop conditional. break
+                  //TODO: ^^^ really? what if we just held the course until we were far enough away
+                  
+                  //continue;
+                  break;
                 }
                 
                 LOGGER.info("++++Stabilizing to intermediate heading {} from current {} with target {}", intermediateHeading, currentHeading, nextWaypointBearing);
@@ -207,6 +200,7 @@ public abstract class WaypointFlightExecutor {
             //add our next waypoint to the log
             plane.addWaypointToFlightLog(nextWaypoint);
 
+            //now that we're generally pointed at the next waypoint, fly there at high throttle
             while( !PositionUtilities.hasArrivedAtWaypoint(plane.getPosition(), nextWaypoint, waypointArrivalThreshold) ) {
             
             	if(LOGGER.isTraceEnabled()) {
@@ -250,6 +244,7 @@ public abstract class WaypointFlightExecutor {
                     		distanceToNextWaypoint
                     );   
                 } else if ( !waypointApproach && distanceToNextWaypoint < waypointArrivalThreshold * 3 ) {
+                	//TODO: ^^^is the multiplication necessary?
                 	
                     //throttle down for waypoint approach to accommodate any late corrections
                     
@@ -287,6 +282,7 @@ public abstract class WaypointFlightExecutor {
 //                    
 //                    plane.setEngineThrottles(F15CFields.THROTTLE_MAX);
                     
+                    //pause the simulator and throw an exception
                     plane.setPause(true);
                     
                     throw new IOException("Engine not running");
@@ -379,7 +375,7 @@ public abstract class WaypointFlightExecutor {
     
     private static void stabilizeCheck(
     	F15C plane, 
-    	double bearing,
+    	double waypointBearing,
     	double maxRoll,
     	double targetRoll,
     	double maxPitch,
@@ -389,10 +385,24 @@ public abstract class WaypointFlightExecutor {
         if( 
             !FlightUtilities.withinRollThreshold(plane, maxRoll, targetRoll) ||
             !FlightUtilities.withinPitchThreshold(plane, maxPitch, targetPitch) ||
-            !FlightUtilities.withinHeadingThreshold(plane, courseAdjustmentIncrement, bearing)
+            !FlightUtilities.withinHeadingThreshold(plane, courseAdjustmentIncrement, waypointBearing)
         ) 
         {
-            plane.forceStabilize(bearing, targetPitch, targetRoll, false);
+        	//if the current heading is too far from the waypoint bearing, adjust by courseAdjustmentIncrement
+        	double currentHeading = plane.getHeading();
+        	double intermediateHeading = FlightUtilities.determineCourseChangeAdjustment(currentHeading, courseAdjustmentIncrement, waypointBearing);
+
+        	if( currentHeading != intermediateHeading) {
+        		LOGGER.info("Adjusting heading to intermediate heading: {}", intermediateHeading);
+        		waypointBearing = intermediateHeading;
+        	} else {
+        		if(LOGGER.isTraceEnabled()) {
+        			LOGGER.trace("Sticking to current heading: {}", currentHeading);
+        		}
+        		waypointBearing = currentHeading;
+        	}
+        	
+            plane.forceStabilize(waypointBearing, targetPitch, targetRoll, false);
         }
     }
 }

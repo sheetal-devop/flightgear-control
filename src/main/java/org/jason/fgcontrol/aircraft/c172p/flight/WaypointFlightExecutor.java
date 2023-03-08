@@ -147,31 +147,22 @@ public abstract class WaypointFlightExecutor {
             //plane.setCurrentView(2);
             
             double currentHeading;
-            int headingComparisonResult;
             while(!FlightUtilities.withinHeadingThreshold(plane, maxHeadingChange, nextWaypointBearing)) {
                 
                 currentHeading = plane.getHeading();
-                headingComparisonResult = FlightUtilities.headingCompareTo(plane, nextWaypointBearing);
                 
                 LOGGER.debug("Easing hard turn from current heading {} to target heading {} for waypoint", 
                 		currentHeading, nextWaypointBearing, nextWaypoint.getName());
                 
-                //adjust clockwise or counter? 
-                //this may actually change in the middle of the transition itself
-                double intermediateHeading = currentHeading;
-                if(headingComparisonResult == FlightUtilities.HEADING_NO_ADJUST) {
-                    LOGGER.warn("Found no adjustment needed");
-                    //shouldn't happen since we'd be with the heading threshold
-                    break;
-                } else if(headingComparisonResult == FlightUtilities.HEADING_CW_ADJUST) {
-                    //1: adjust clockwise
-                    intermediateHeading = (intermediateHeading + courseAdjustmentIncrement ) % FlightUtilities.DEGREES_CIRCLE;
-                } else {
-                    //-1: adjust counterclockwise
-                    intermediateHeading -= courseAdjustmentIncrement;
-                    
-                    //normalize 0-360
-                    if(intermediateHeading < 0) intermediateHeading += FlightUtilities.DEGREES_CIRCLE;
+                double intermediateHeading = FlightUtilities.determineCourseChangeAdjustment(currentHeading, courseAdjustmentIncrement, nextWaypointBearing);
+                if( intermediateHeading == currentHeading) {
+                  LOGGER.warn("Found no adjustment needed");
+
+                  //shouldn't happen since we'd be with the heading threshold tested by the loop conditional. break
+                  //TODO: ^^^ really? what if we just held the course until we were far enough away
+                  
+                  //continue;
+                  break;
                 }
                 
                 //TODO: add waypoint info to log message
@@ -397,7 +388,7 @@ public abstract class WaypointFlightExecutor {
     
     private static void stabilizeCheck(
     	C172P plane, 
-    	double bearing, 
+    	double waypointBearing, 
     	double maxRoll,
     	double targetRoll,
     	double maxPitch,
@@ -407,10 +398,24 @@ public abstract class WaypointFlightExecutor {
         if( 
             !FlightUtilities.withinRollThreshold(plane, maxRoll, targetRoll) ||
             !FlightUtilities.withinPitchThreshold(plane, maxPitch, targetPitch) ||
-            !FlightUtilities.withinHeadingThreshold(plane, courseAdjustmentIncrement, bearing)
+            !FlightUtilities.withinHeadingThreshold(plane, courseAdjustmentIncrement, waypointBearing)
         ) 
         {
-            plane.forceStabilize(bearing, targetRoll, targetPitch, false);
+        	//if the current heading is too far from the waypoint bearing, adjust by courseAdjustmentIncrement
+        	double currentHeading = plane.getHeading();
+        	double intermediateHeading = FlightUtilities.determineCourseChangeAdjustment(currentHeading, courseAdjustmentIncrement, waypointBearing);
+
+        	if( currentHeading != intermediateHeading) {
+        		LOGGER.info("Adjusting heading to intermediate heading: {}", intermediateHeading);
+        		waypointBearing = intermediateHeading;
+        	} else {
+        		if(LOGGER.isTraceEnabled()) {
+        			LOGGER.trace("Sticking to current heading: {}", currentHeading);
+        		}
+        		waypointBearing = currentHeading;
+        	}
+        	
+            plane.forceStabilize(waypointBearing, targetRoll, targetPitch, false);
                 
             //keep seeing flaps extending on their own, probably as part of the plane autostart.
             //everything else on the c172p model seems to react to the launch altitude, but not this.

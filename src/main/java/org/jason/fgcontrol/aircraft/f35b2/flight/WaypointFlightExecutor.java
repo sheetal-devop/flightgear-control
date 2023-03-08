@@ -33,7 +33,6 @@ public abstract class WaypointFlightExecutor {
 	}
 	
 	public static void runFlight(F35B2 plane, F35B2FlightParameters parameters) throws IOException {
-		//TODO: override any F15CFlightParameters
 		
 		WaypointPosition startingWaypoint = plane.getNextWaypoint();
 		plane.setCurrentWaypointTarget(startingWaypoint);
@@ -79,6 +78,9 @@ public abstract class WaypointFlightExecutor {
         
         //chase view
         plane.setCurrentView(2);
+        
+        //f35b2 doesnt retract gear automatically
+        plane.setGearDown(false);
 
         //full throttle or the engines will have divergent thrust outputs
         plane.setEngineThrottle(throttleFlight);            
@@ -123,7 +125,6 @@ public abstract class WaypointFlightExecutor {
             plane.setEngineThrottle(throttleCourseChange);
             
             double currentHeading;
-            int headingComparisonResult;
             
             //waypoint approach flag since the f15c travels at high speeds
             boolean waypointApproach = false;
@@ -133,28 +134,19 @@ public abstract class WaypointFlightExecutor {
                 currentHeading = plane.getHeading();
                 
                 plane.addTrackPositionToFlightLog(plane.getPosition());
-                
-                headingComparisonResult = FlightUtilities.headingCompareTo(plane, nextWaypointBearing);
-                
+                                
                 LOGGER.debug("Easing hard turn from current heading {} to target heading {} for waypoint", 
                 		currentHeading, nextWaypointBearing, nextWaypoint.getName());
                 
-                //adjust clockwise or counter? 
-                //this may actually change in the middle of the transition itself
-                double intermediateHeading = currentHeading;
-                if(headingComparisonResult == FlightUtilities.HEADING_NO_ADJUST) {
-                    LOGGER.warn("Found no adjustment needed");
-                    //shouldn't happen since we'd be with the heading threshold
-                    break;
-                } else if(headingComparisonResult == FlightUtilities.HEADING_CW_ADJUST) {
-                    //1: adjust clockwise
-                    intermediateHeading = (intermediateHeading + courseAdjustmentIncrement ) % FlightUtilities.DEGREES_CIRCLE;
-                } else {
-                    //-1: adjust counterclockwise
-                    intermediateHeading -= courseAdjustmentIncrement;
-                    
-                    //normalize 0-360
-                    if(intermediateHeading < 0) intermediateHeading += FlightUtilities.DEGREES_CIRCLE;
+                double intermediateHeading = FlightUtilities.determineCourseChangeAdjustment(currentHeading, courseAdjustmentIncrement, nextWaypointBearing);
+                if( intermediateHeading == currentHeading) {
+                  LOGGER.warn("Found no adjustment needed");
+
+                  //shouldn't happen since we'd be with the heading threshold tested by the loop conditional. break
+                  //TODO: ^^^ really? what if we just held the course until we were far enough away
+                  
+                  //continue;
+                  break;
                 }
                 
                 LOGGER.info("++++Stabilizing to intermediate heading {} from current {} with target {}", intermediateHeading, currentHeading, nextWaypointBearing);
@@ -377,7 +369,7 @@ public abstract class WaypointFlightExecutor {
     
     public static void stabilizeCheck(
     	F35B2 plane, 
-    	double bearing,
+    	double waypointBearing,
     	double maxRoll,
     	double targetRoll,
     	double maxPitch,
@@ -387,10 +379,24 @@ public abstract class WaypointFlightExecutor {
         if( 
             !FlightUtilities.withinRollThreshold(plane, maxRoll, targetRoll) ||
             !FlightUtilities.withinPitchThreshold(plane, maxPitch, targetPitch) ||
-            !FlightUtilities.withinHeadingThreshold(plane, courseAdjustmentIncrement, bearing)
+            !FlightUtilities.withinHeadingThreshold(plane, courseAdjustmentIncrement, waypointBearing)
         ) 
         {
-            plane.forceStabilize(bearing, targetPitch, targetRoll, false);
+        	//if the current heading is too far from the waypoint bearing, adjust by courseAdjustmentIncrement
+        	double currentHeading = plane.getHeading();
+        	double intermediateHeading = FlightUtilities.determineCourseChangeAdjustment(currentHeading, courseAdjustmentIncrement, waypointBearing);
+
+        	if( currentHeading != intermediateHeading) {
+        		LOGGER.info("Adjusting heading to intermediate heading: {}", intermediateHeading);
+        		waypointBearing = intermediateHeading;
+        	} else {
+        		if(LOGGER.isTraceEnabled()) {
+        			LOGGER.trace("Sticking to current heading: {}", currentHeading);
+        		}
+        		waypointBearing = currentHeading;
+        	}
+        	
+            plane.forceStabilize(waypointBearing, targetPitch, targetRoll, false);
         }
     }
 }

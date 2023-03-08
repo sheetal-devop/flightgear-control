@@ -11,7 +11,7 @@ public class C172PFlightParameters {
 
     private final static double WAYPOINT_ADJUST_MIN_DIST = 0.75 * 5280.0; 
     
-    private final static double SIM_SPEEDUP = 8.0;
+    private final static double SIM_SPEEDUP = 4.0;
     
     private final static double TARGET_ALTITUDE = 6000.0;
     private final static double MAX_ALTITUDE_DEVIATION = 500.0;
@@ -23,7 +23,7 @@ public class C172PFlightParameters {
     
     //adjust in smaller increments than MAX_HEADING_CHANGE, since course changes can be radical
     //TODO: lower this value after waypoint interpolation is implemented
-    private final static double COURSE_ADJUSTMENT_INCREMENT = 12.5;
+    private final static double COURSE_ADJUSTMENT_INCREMENT = 8.0;
     
     private final static double TARGET_ROLL = 0.0;
     private final static double FLIGHT_ROLL_MAX = 2.0;

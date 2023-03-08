@@ -109,6 +109,37 @@ public class FlightUtilities {
         return retval;
     }
     
+    public static double determineCourseChangeAdjustment(double currentHeading, double courseAdjustmentIncrement, double targetHeading) {
+    	
+    	double intermediateHeading = currentHeading;
+    	
+    	if(withinHeadingThreshold(currentHeading, courseAdjustmentIncrement, targetHeading)) {
+    		//within threshold -> stick with current heading
+    	} else {
+        	int headingComparisonResult = headingCompareTo(currentHeading, targetHeading);
+        	
+            //adjust clockwise or counter? 
+            //this may actually change in the middle of the transition itself
+            
+            if(headingComparisonResult == FlightUtilities.HEADING_NO_ADJUST) {
+                LOGGER.warn("Found no adjustment needed");
+                
+                //nothing, default intermediateHeading is currentHeading as assigned above
+            } else if(headingComparisonResult == FlightUtilities.HEADING_CW_ADJUST) {
+                //1: adjust clockwise
+                intermediateHeading = (intermediateHeading + courseAdjustmentIncrement ) % FlightUtilities.DEGREES_CIRCLE;
+            } else {
+                //-1: adjust counterclockwise
+                intermediateHeading -= courseAdjustmentIncrement;
+                
+                //normalize 0-360
+                if(intermediateHeading < 0) intermediateHeading += FlightUtilities.DEGREES_CIRCLE;
+            }
+    	}
+        
+        return intermediateHeading;
+    }
+    
     public static boolean withinHeadingThreshold(FlightGearAircraft plane, double maxDifference, double targetHeading) {
         return withinHeadingThreshold(plane.getHeading(), maxDifference, targetHeading);
     }    

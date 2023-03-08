@@ -112,4 +112,55 @@ public class FlightUtilitiesTest {
         Assert.assertEquals(FlightUtilities.headingCompareTo(280.0, 270.0), FlightUtilities.HEADING_CCW_ADJUST);
         Assert.assertEquals(FlightUtilities.headingCompareTo(270.0, 270.0), FlightUtilities.HEADING_NO_ADJUST);
     }
+    
+    @Test
+    public void testDetermineCourseChangeAdjustment() {
+
+    	double currentHeading;
+    	
+    	//no adjustment, expect the current heading
+    	currentHeading = 90.0;
+    	Assert.assertEquals(currentHeading, FlightUtilities.determineCourseChangeAdjustment(currentHeading, 3.0, 92.0));
+    	Assert.assertEquals(currentHeading, FlightUtilities.determineCourseChangeAdjustment(currentHeading, 3.0, 88.0));
+    	
+    	//adjust clockwise by adjustment amount
+    	currentHeading = 100.0;
+    	Assert.assertEquals(103.0, FlightUtilities.determineCourseChangeAdjustment(currentHeading, 3.0, 110.0));
+    	
+    	//adjust clockwise by adjustment amount over zero cw
+    	currentHeading = 359.0;
+    	Assert.assertEquals(1.0, FlightUtilities.determineCourseChangeAdjustment(currentHeading, 2.0, 1.5));
+    	
+    	//no adjustment, within threshold over zero cw
+    	currentHeading = 359.0;
+    	Assert.assertEquals(359.0, FlightUtilities.determineCourseChangeAdjustment(currentHeading, 20.0, 10.0));
+    	
+    	//adjust clockwise by adjustment amount over zero cw
+    	currentHeading = 359.0;
+    	Assert.assertEquals(1.0, FlightUtilities.determineCourseChangeAdjustment(currentHeading, 2.0, 1.5));
+    	
+    	//no adjustment, within threshold over zero ccw
+    	currentHeading = 2.0;
+    	Assert.assertEquals(2.0, FlightUtilities.determineCourseChangeAdjustment(currentHeading, 20.0, 350.0));
+    	
+    	//ccw adjustment, within threshold over zero ccw
+    	currentHeading = 2.0;
+    	Assert.assertEquals(357.0, FlightUtilities.determineCourseChangeAdjustment(currentHeading, 5.0, 350.0));
+    	
+    	//90 degs
+    	currentHeading = 60.0;
+    	Assert.assertEquals(150.0, FlightUtilities.determineCourseChangeAdjustment(currentHeading, 90.0, 240.0));
+    	
+    	currentHeading = 340.0;
+    	Assert.assertEquals(70.0, FlightUtilities.determineCourseChangeAdjustment(currentHeading, 90.0, 100.0));
+    	
+    	//randoms
+    	currentHeading = 20.0;
+    	Assert.assertEquals(25.0, FlightUtilities.determineCourseChangeAdjustment(currentHeading, 5.0, 150.0));
+    	
+    	currentHeading = 120.0;
+    	Assert.assertEquals(115.0, FlightUtilities.determineCourseChangeAdjustment(currentHeading, 5.0, 20.0));
+    	
+
+    }
 }

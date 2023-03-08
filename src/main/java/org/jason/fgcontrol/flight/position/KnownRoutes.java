@@ -28,7 +28,24 @@ public abstract class KnownRoutes {
             add( KnownPositions.HORSESHOE_BAY );
             add( KnownPositions.MARPOLE_CC );
             add( KnownPositions.BURNABY_8RINKS );
-            add( KnownPositions.NEW_WESTMINSTER_QUAY );
+            add( KnownPositions.PLANET_ICE_DELTA );
+            add( KnownPositions.VAN_INTER_AIRPORT_YVR );
+        }
+    };
+    
+    public final static ArrayList<WaypointPosition> VANCOUVER_LOW_ALT_TOUR = new ArrayList<WaypointPosition>() {
+
+        private static final long serialVersionUID = -1630760784238590060L;
+
+		{
+            add( KnownPositions.UBC );
+            add( KnownPositions.STANLEY_PARK );
+            add( KnownPositions.LONSDALE_QUAY );
+            add( KnownPositions.DEEP_COVE);
+            add( KnownPositions.SPANISH_BANKS);
+            add( KnownPositions.HORSESHOE_BAY );
+            add( KnownPositions.MARPOLE_CC );
+            add( KnownPositions.BURNABY_8RINKS );
             add( KnownPositions.PLANET_ICE_DELTA );
             add( KnownPositions.VAN_INTER_AIRPORT_YVR );
         }

@@ -23,6 +23,7 @@ public class F15CFlightParameters {
     //if the sim is steering the plane by forcing positional constraints,
     //then the plane is essentially a missile at typical f15c speeds so we need a wide margin of error
     private final static double WAYPOINT_ARRIVAL_THRESHOLD = 6.0 * 5280.0;
+    private final static double WAYPOINT_DEPARTURE_THRESHOLD = 6.0 * 5280.0;
     
     //beyond this distance, increase throttle to crusing level (MAX)
     private final static double WAYPOINT_ADJUST_MIN_DIST = 8.0 * 5280.0; 
@@ -68,6 +69,7 @@ public class F15CFlightParameters {
     private double targetPitch;
     private double flightPitchMax;
     private double waypointArrivalThreshold;
+    private double waypointDepartureThreshold;
     private int bearingRecalculationCycleInterval;
     private long bearingRecalculationCycleSleep;
     private int stabilizationCycleCount;
@@ -89,6 +91,7 @@ public class F15CFlightParameters {
     	targetPitch = TARGET_PITCH;
     	flightPitchMax = FLIGHT_PITCH_MAX;
     	waypointArrivalThreshold = WAYPOINT_ARRIVAL_THRESHOLD;
+    	waypointDepartureThreshold = WAYPOINT_DEPARTURE_THRESHOLD;
     	bearingRecalculationCycleInterval = BEARING_RECALC_CYCLE_INTERVAL;
     	bearingRecalculationCycleSleep = BEARING_RECALC_CYCLE_SLEEP;
     	stabilizationCycleCount = STABILIZATION_CYCLE_COUNT;
@@ -205,6 +208,14 @@ public class F15CFlightParameters {
 
 	public void setWaypointArrivalThreshold(double waypointArrivalThreshold) {
 		this.waypointArrivalThreshold = waypointArrivalThreshold;
+	}
+	
+	public double getWaypointDepartureThreshold() {
+		return waypointDepartureThreshold;
+	}
+
+	public void setWaypointDepartureThreshold(double waypointDepartureThreshold) {
+		this.waypointDepartureThreshold = waypointDepartureThreshold;
 	}
 
 	public int getBearingRecalculationCycleInterval() {
