@@ -171,7 +171,6 @@ DISPLAY=$DISPLAY_STR FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
  --enable-auto-coordination\
  --prop:/environment/weather-scenario=Fair\ weather\
  --prop:/nasal/local_weather/enabled=false\
- --prop:/sim/current-view/view-number=2\
  --prop:/sim/menubar/autovisibility/enabled=true\
  --prop:/sim/menubar/visibility/enabled=false\
  --prop:/sim/rendering/fps-display=1\
