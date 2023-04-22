@@ -33,6 +33,18 @@ public abstract class KnownRoutes {
         }
     };
     
+    //flight plan with minimal course corrections starting from hs bay
+    public final static ArrayList<WaypointPosition> VANCOUVER_NORTH_SHORE_DEMO_TOUR = new ArrayList<WaypointPosition>() {
+    	
+    	private static final long serialVersionUID = -1630760784238590060L;
+
+		{
+    		add( KnownPositions.HORSESHOE_BAY );
+    		add( KnownPositions.GROUSE_MOUNTAIN );
+    		add( KnownPositions.DEEP_COVE );
+    	}
+    };
+    
     public final static ArrayList<WaypointPosition> VANCOUVER_LOW_ALT_TOUR = new ArrayList<WaypointPosition>() {
 
         private static final long serialVersionUID = -1630760784238590060L;
@@ -100,6 +112,18 @@ public abstract class KnownRoutes {
         }
     };
     
+    //flight plan with minimal course corrections starting from YVR
+    public final static ArrayList<WaypointPosition> BC_SOUTH_DEMO_TOUR = new ArrayList<WaypointPosition>() {
+
+		private static final long serialVersionUID = 8640158844447580989L;
+
+		{
+            {
+                add(KnownPositions.TRAIL);
+            }
+        }
+    };
+    
     public final static ArrayList<WaypointPosition> BC_SOUTH_TOUR = new ArrayList<WaypointPosition>() {
 
 		private static final long serialVersionUID = 9044191298704604870L;
@@ -134,20 +158,50 @@ public abstract class KnownRoutes {
         }
     };
     
+    //initial heading yvr to chilliwack: 92
     public final static ArrayList<WaypointPosition> VAN_ISLAND_TOUR_SOUTH = new ArrayList<WaypointPosition>() {
 
 		private static final long serialVersionUID = 1668204581296033784L;
 
 		{
             {
-            	add(KnownPositions.LANGLEY);
+            	add(KnownPositions.CHILLIWACK);
             	add(KnownPositions.VICTORIA);
                 add(KnownPositions.TOFINO);
-                //add(KnownPositions.PORT_HARDY);
-                //add(KnownPositions.COMOX);
                 add(KnownPositions.VAN_INTER_AIRPORT_YVR);
             }
         }
+    };
+    
+    //initial heading yvr to tofino: 269
+    public final static ArrayList<WaypointPosition> VAN_ISLAND_TOUR_SOUTH2 = new ArrayList<WaypointPosition>() {
+
+		private static final long serialVersionUID = 4905334459954990812L;
+
+		{
+            {
+            	add(KnownPositions.TOFINO);
+            	add(KnownPositions.VICTORIA);
+                add(KnownPositions.VAN_INTER_AIRPORT_YVR);
+            }
+        }
+    };
+    
+    //initial heading yvr to powell river: 306
+    public final static ArrayList<WaypointPosition> BC_WEST_COAST_OUT_AND_BACK = new ArrayList<WaypointPosition>() {
+    	
+    	private static final long serialVersionUID = 5196584768547503992L;
+
+		{
+			add(KnownPositions.POWELL_RIVER);
+			add(KnownPositions.PORT_HARDY);
+			add(KnownPositions.PRINCE_RUPERT);
+			add(KnownPositions.JUNEAU);
+			add(KnownPositions.PRINCE_RUPERT);
+			add(KnownPositions.PORT_HARDY);
+			add(KnownPositions.POWELL_RIVER);
+			add(KnownPositions.VAN_INTER_AIRPORT_YVR);
+    	}
     };
     
     public final static ArrayList<WaypointPosition> PTC_NA_OFFICE_TOUR = new ArrayList<WaypointPosition>() {
