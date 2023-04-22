@@ -35,6 +35,8 @@ public abstract class KnownPositions {
     public final static WaypointPosition ABBOTSFORD = new WaypointPosition(49.05061, -122.30401, "Abbotsford");
     public final static WaypointPosition LANGLEY = new WaypointPosition(49.10440, -122.66024, "Langley");
     public final static WaypointPosition CHILLIWACK = new WaypointPosition(49.15785, -121.95149, "Chilliwack");
+    public final static WaypointPosition TRAIL = new WaypointPosition(49.09812, -117.70960, "Trail");
+    public final static WaypointPosition GRASMERE = new WaypointPosition(49.10271, -115.08616, "Grasmere");
     public final static WaypointPosition PRINCETON = new WaypointPosition(49.45982, -120.50115, "Princeton");
     public final static WaypointPosition PENTICTON = new WaypointPosition(49.49368, -119.59009, "Penticton");
     public final static WaypointPosition KELOWNA = new WaypointPosition(49.88670, -119.48883, "Kelowna");
@@ -59,6 +61,11 @@ public abstract class KnownPositions {
     public final static WaypointPosition PORT_RENFREW = new WaypointPosition(48.55292, -124.42235, "Port Renfrew");
     public final static WaypointPosition SOOKE = new WaypointPosition(48.37408, -123.73550, "Sooke");
     public final static WaypointPosition VICTORIA = new WaypointPosition(48.42855, -123.36341, "Victoria");
+    public final static WaypointPosition POWELL_RIVER = new WaypointPosition(49.83722, -124.52685, "Powell River");
+    
+    //AK cities/towns
+    public final static WaypointPosition JUNEAU = new WaypointPosition(58.30099, -134.40540, "Juneau");
+    
 
     //Cool places to snowboard
     public final static WaypointPosition BLACKCOMB = new WaypointPosition(50.09394, -122.89377, "Blackcomb");
