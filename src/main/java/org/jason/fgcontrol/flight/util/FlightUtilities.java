@@ -64,10 +64,10 @@ public class FlightUtilities {
      * 
      * 
      * 
-     * @param plane
-     * @param targetHeading    0-360 degrees
+     * @param plane				0-360 degrees
+     * @param targetHeading    	0-360 degrees
      * 
-     * @return    -1 for clockwise, 0 if none, 1 for counterclockwise
+     * @return    1 for clockwise, 0 if none, -1 for counterclockwise
      */
     public static int headingCompareTo(FlightGearAircraft plane, double targetHeading) {        
         return headingCompareTo( plane.getHeading(), targetHeading);
@@ -78,15 +78,16 @@ public class FlightUtilities {
      * 
      * 
      * 
-     * @param currentHeading
-     * @param targetHeading    0-360 degrees
+     * @param currentHeading	0-360 degrees
+     * @param targetHeading    	0-360 degrees
      * 
-     * @return    -1 for clockwise, 0 if none, 1 for counterclockwise
+     * @return    1 for clockwise, 0 if none, -1 for counterclockwise
      */
     public static int headingCompareTo(double currentHeading, double targetHeading) {
         
         int retval = HEADING_NO_ADJUST;
         
+        //normalize
         if(currentHeading < DEGREES_ZERO) currentHeading += DEGREES_CIRCLE;    
         if(currentHeading >= DEGREES_CIRCLE) currentHeading %= DEGREES_CIRCLE;
         if(targetHeading < DEGREES_ZERO) targetHeading += DEGREES_CIRCLE;    
