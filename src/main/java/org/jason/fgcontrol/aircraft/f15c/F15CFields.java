@@ -147,7 +147,7 @@ public abstract class F15CFields {
     
     //want a marginal amount of default lift on the elevator trim to offset gravity
     //negative elevator points the plane up, positive elevator points the plane down
-    public final static double ELEVATOR_DEFAULT = -0.01;
+    public final static double ELEVATOR_DEFAULT = 0.155;
     public final static double ELEVATOR_TRIM_DEFAULT = 0.0001;
     public final static double ELEVATOR_MAX = 1.0;
     public final static double ELEVATOR_MIN = -1.0;
@@ -164,9 +164,10 @@ public abstract class F15CFields {
     public final static String RUDDER_TRIM_FIELD = "/controls/flight/rudder-trim";
     public final static String RUDDER_TRIM_FIELD_DESC = "The rudder trim orientation";
     
+    public final static double RUDDER_DEFAULT = 0.0;
+    public final static double RUDDER_TRIM_DEFAULT = 0.0;
     public final static double RUDDER_MAX = 1.0;
     public final static double RUDDER_MIN = -1.0;
-    public final static double RUDDER_DEFAULT = 0.0;
     
     public final static String SPEED_BRAKE_FIELD = "/controls/flight/speedbrake";
     public final static String SPEED_BRAKE_FIELD_DESC = "The speedbrake orientation";
