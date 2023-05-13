@@ -36,17 +36,23 @@
     <!-- loggers -->
     <logger name="org.jason.fgcontrol" level="INFO" />
     <logger name="org.jason.fgcontrol.aircraft" level="INFO" />
-    <logger name="org.jason.fgcontrol.connection.sockets" level="INFO" />
+    <logger name="org.jason.fgcontrol.aircraft.c172p.flight" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.aircraft.f15c.flight" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.connection" level="DEBUG" />
+    <!--<logger name="org.jason.fgcontrol.connection.sockets" level="TRACE" />-->
     
     <!-- apps -->
     <logger name="org.jason.fgcontrol.aircraft.c172p.app" level="DEBUG" />
     <logger name="org.jason.fgcontrol.aircraft.c172p.app.poc" level="DEBUG" />
     <logger name="org.jason.fgcontrol.aircraft.f15c.app" level="DEBUG" />
     <logger name="org.jason.fgcontrol.aircraft.f15c.app.poc" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.aircraft.f35b2.app" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.aircraft.f35b2.app.poc" level="DEBUG" />
     <logger name="org.jason.fgcontrol.connection.rest.app" level="DEBUG" />
     <logger name="org.jason.fgcontrol.connection.sockets.app" level="DEBUG" />
     <logger name="org.jason.fgcontrol.connection.telnet.app" level="DEBUG" />
     <logger name="org.jason.fgcontrol.flight.position.app" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.flight.util" level="DEBUG" />
     <logger name="org.jason.fgcontrol.sshd.app" level="DEBUG" />
     <logger name="org.jason.fgcontrol.view.app" level="DEBUG" />
     <logger name="org.jason.fgcontrol.view.mjpeg.app" level="DEBUG" />
