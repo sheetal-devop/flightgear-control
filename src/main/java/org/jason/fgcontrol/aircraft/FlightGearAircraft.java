@@ -18,6 +18,7 @@ import org.jason.fgcontrol.aircraft.fields.FlightGearFields;
 import org.jason.fgcontrol.connection.sockets.FlightGearInputConnection;
 import org.jason.fgcontrol.connection.telnet.FlightGearTelnetConnection;
 import org.jason.fgcontrol.exceptions.FlightGearSetupException;
+import org.jason.fgcontrol.flight.position.KnownRoutes;
 import org.jason.fgcontrol.flight.position.TrackPosition;
 import org.jason.fgcontrol.flight.position.WaypointManager;
 import org.jason.fgcontrol.flight.position.WaypointPosition;
@@ -169,8 +170,37 @@ public abstract class FlightGearAircraft {
     ////////////
     //waypoint management
     
+    /**
+     * Basic config for waypoint management.
+     * 
+     * Minimally initialize an empty waypoint manager. See if the simulator config has a defined flightplan, and 
+     * attempt to resolve a route from the map of known routes. If there's no defined flightplan, or a route cannot
+     * be resolved by the provided name, then waypoints can be added manually.
+     */
     protected void initWaypointManager() {
     	waypointManager = new WaypointManager();
+    	
+    	//check config for a named flightplan
+    	
+    	if(simulatorConfig.hasDefinedFlightPlan()) {
+    		
+    		String flightPlanName = simulatorConfig.getFlightPlanName();
+    		
+    		ArrayList<WaypointPosition> resolvedRoute = KnownRoutes.lookupKnownRoute(flightPlanName);
+    		
+    		if(resolvedRoute != null) {
+    			LOGGER.info("Resolved a flight plan for name: {}", flightPlanName);
+    			waypointManager.setWaypoints(resolvedRoute);
+    		}
+    		else {
+    			LOGGER.error("Failed to resolve a flight plan for name: {}", flightPlanName);
+
+    			//just report the error 
+    		}
+    		
+    	} else {
+    		LOGGER.warn("Config did not define a flightplan. Be sure to set one manually");
+    	}
     }
     
     //add new waypoint to the end of the flightplan
@@ -782,10 +812,44 @@ public abstract class FlightGearAircraft {
         writeOrientationInput(inputHash);
     }
     
+    public synchronized void forceStabilize(double targetHeading, double targetRoll, double targetPitch) throws IOException {
+    	forceStabilize(targetHeading, targetRoll, targetPitch, true);
+    }
+	
+    public synchronized void forceStabilize(double targetHeading, double targetRoll, double targetPitch, boolean pauseSim) throws IOException {
+        
+    	if(LOGGER.isTraceEnabled()) {
+    		LOGGER.trace("forceStabilize called");
+    	}
+                
+        //pause before copyStateFields so we're not changing an orientation in the past
+        //
+        //for most fields we need to be careful about overwriting fields, but for forcibly 
+        //re-orienting the plane we care less about orientation/roll/pitch
+        if(pauseSim) {
+        	try {
+        		setPause(true);
+        	
+        		forceStabilizationWrite(targetHeading, targetRoll, targetPitch);
+        	} finally {
+        		setPause(false);
+        	}
+        } else {
+        	forceStabilizationWrite(targetHeading, targetRoll, targetPitch);
+        }
+               
+        if(LOGGER.isTraceEnabled()) {
+        	LOGGER.trace("forceStabilize returning");
+        }
+    }
+    
+    //the subclass performs the write given its orientation field context
+    protected abstract void forceStabilizationWrite(double targetHeading, double targetRoll, double targetPitch) throws IOException;
+    
     //////////////////
     //generic velocity
     
-    public abstract void setAirSpeed(double targetSpeed) throws IOException;
+	public abstract void setAirSpeed(double targetSpeed) throws IOException;
     
     public abstract void setVerticalSpeed(double targetSpeed) throws IOException;
     

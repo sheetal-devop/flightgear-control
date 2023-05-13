@@ -280,4 +280,11 @@ public class Alouette3 extends FlightGearAircraft {
 		
 	}
 
+	@Override
+	protected void forceStabilizationWrite(double targetHeading, double targetRoll, double targetPitch)
+			throws IOException {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

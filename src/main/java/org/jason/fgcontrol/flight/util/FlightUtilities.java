@@ -3,6 +3,7 @@ package org.jason.fgcontrol.flight.util;
 import java.io.IOException;
 
 import org.jason.fgcontrol.aircraft.FlightGearAircraft;
+import org.jason.fgcontrol.flight.position.WaypointPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -255,4 +256,54 @@ public class FlightUtilities {
             plane.setPause(false);
         }
     }
+    
+	/**
+	 * Check if aircraft orientation is in need of correction based on heading, roll, pitch, and their
+	 * respective thresholds.
+	 * 
+	 * @param plane
+	 * @param waypointBearing
+	 * @param courseAdjustmentIncrement
+	 * @param maxHeadingDeviation
+	 * @param maxRoll
+	 * @param targetRoll
+	 * @param maxPitch
+	 * @param targetPitch
+	 * @throws IOException
+	 */
+	public static void stabilizeCheck(FlightGearAircraft plane, double waypointBearing,
+			double courseAdjustmentIncrement, double maxHeadingDeviation, double maxRoll, double targetRoll,
+			double maxPitch, double targetPitch) throws IOException {
+
+		// if any one of these thresholds are not met, forcibly correct to supplied
+		// values
+		if (
+			!FlightUtilities.withinRollThreshold(plane, maxRoll, targetRoll) ||
+			!FlightUtilities.withinPitchThreshold(plane, maxPitch, targetPitch) ||
+			!FlightUtilities.withinHeadingThreshold(plane, maxHeadingDeviation, waypointBearing)
+		) {
+			if(LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Correcting aircraft orientation");
+			}
+			
+			// if the current heading is too far from the waypoint bearing, adjust by
+			// courseAdjustmentIncrement
+			double currentHeading = plane.getHeading();
+			double intermediateHeading = FlightUtilities.determineCourseChangeAdjustment(currentHeading,
+					courseAdjustmentIncrement, waypointBearing);
+
+			// TODO: if we can update roll/pitch without updating heading, without creating
+			// a custom protocol for
+			// each of the single fields have forceStablilize selectively updating heading
+
+			// stabilize plane
+			plane.forceStabilize(intermediateHeading, targetRoll, targetPitch, false);
+		}
+		else {
+			if(LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Aircraft orientation within thresholds");
+			}
+		}
+
+	}
 }

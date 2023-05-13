@@ -2,17 +2,14 @@ package org.jason.fgcontrol.aircraft.f35b2.app;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Properties;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
-import org.jason.fgcontrol.aircraft.f35b2.flight.F35B2FlightParameters;
-import org.jason.fgcontrol.aircraft.f35b2.flight.WaypointFlightExecutor;
 import org.jason.fgcontrol.aircraft.f35b2.F35B2;
 import org.jason.fgcontrol.aircraft.f35b2.F35B2Config;
+import org.jason.fgcontrol.aircraft.f35b2.flight.F35B2FlightParameters;
+import org.jason.fgcontrol.aircraft.f35b2.flight.F35B2WaypointFlightExecutor;
 import org.jason.fgcontrol.exceptions.FlightGearSetupException;
-import org.jason.fgcontrol.flight.position.KnownRoutes;
-import org.jason.fgcontrol.flight.position.WaypointPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +29,7 @@ public class WaypointFlight {
         //f15c script launches from YVR
         
         //too fast for the local tour
-        ArrayList<WaypointPosition> route = KnownRoutes.VAN_ISLAND_TOUR_SOUTH;
+        //ArrayList<WaypointPosition> route = KnownRoutes.VAN_ISLAND_TOUR_SOUTH;
         
         //for fun, mix it up
         //java.util.Collections.reverse(route);
@@ -47,23 +44,24 @@ public class WaypointFlight {
         	Properties simProperties = new Properties();
         	simProperties.load(new FileInputStream(confFile) );
         	
-        	F35B2Config f15cConfig = new F35B2Config(simProperties); 
+        	F35B2Config f35b2Config = new F35B2Config(simProperties); 
         	
-        	LOGGER.info("Using config:\n{}", f15cConfig.toString() );
+        	LOGGER.info("Using config:\n{}", f35b2Config.toString() );
         	
-            plane = new F35B2(f15cConfig);
+            plane = new F35B2(f35b2Config);
         
     		plane.refillFuel();
             
-            plane.setWaypoints(route);
+    		//route set in config
+            //plane.setWaypoints(route);
             
             plane.setDamageEnabled(false);
             plane.setGMT(LAUNCH_TIME_GMT);
             
             F35B2FlightParameters parameters = new F35B2FlightParameters();
-            parameters.setBearingRecalculationCycleSleep(500L);
+            parameters.setBearingRecalculationCycleSleep(1000L);
             
-            WaypointFlightExecutor.runFlight(plane);
+            F35B2WaypointFlightExecutor.runFlight(plane, parameters);
             
             //since we're done and no longer stabilizing the plane, pause the sim so the plane doesn't fall
             plane.setPause(true);

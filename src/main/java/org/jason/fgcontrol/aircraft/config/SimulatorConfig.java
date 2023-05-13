@@ -69,6 +69,8 @@ public class SimulatorConfig {
     protected String sshdUser;
     protected String sshdPass;
     
+    protected String flightPlanName;
+    
 	//simple option for simple sim setups and testing
     //default control input ports are still set but the sim probably doesn't have them open
 	public SimulatorConfig() {
@@ -108,12 +110,15 @@ public class SimulatorConfig {
         sshdHomeDir = DEFAULT_SSHD_HOME_DIR;
         sshdUser = DEFAULT_SSHD_USER;
         sshdPass = DEFAULT_SSHD_PASS;
+        
+        flightPlanName = null;
     }
 
 	//simple option for simple sim setups and testing
 	//default control input ports are still set but the sim probably doesn't have them open
     public SimulatorConfig(String telnetHost, int telnetPort, String socketsTelemHost, int socketsTelemPort) 
     {
+    	//set defaults and let propertiesFile overwrite
     	this();
     	
         this.telemetryOutputHost = socketsTelemHost;
@@ -255,6 +260,12 @@ public class SimulatorConfig {
     	if(configProperties.containsKey(ConfigDirectives.SSHD_PASS_DIRECTIVE)) {
     		sshdPass = configProperties.getProperty(ConfigDirectives.SSHD_PASS_DIRECTIVE);
     	}
+    	
+    	////////////////
+    	//flight plan
+    	if(configProperties.containsKey(ConfigDirectives.FLIGHT_PLAN_DIRECTIVE)) {
+    		flightPlanName = configProperties.getProperty(ConfigDirectives.FLIGHT_PLAN_DIRECTIVE);
+    	}
     }
     
     /////////////
@@ -271,6 +282,10 @@ public class SimulatorConfig {
     		cameraStreamHost != null &&
     		cameraStreamPort != UNCONFIG_PORT
     	);
+    }
+    
+    public boolean hasDefinedFlightPlan() { 
+    	return flightPlanName != null;
     }
     
     /////////////
@@ -476,6 +491,14 @@ public class SimulatorConfig {
 		this.cameraStreamPort = cameraStreamPort;
 	}
 
+	public String getFlightPlanName() {
+		return flightPlanName;
+	}
+
+	public void setFlightPlanName(String flightPlanName) {
+		this.flightPlanName = flightPlanName;
+	}
+	
 	@Override
 	public String toString() {
 		return "SimulatorConfig [telemetryOutputHost=" + telemetryOutputHost + ", telemetryOutputPort="
@@ -489,6 +512,7 @@ public class SimulatorConfig {
 				+ ", systemsInputPort=" + systemsInputPort + ", velocitiesInputPort=" + velocitiesInputPort
 				+ ", cameraViewHost=" + cameraViewHost + ", cameraViewPort=" + cameraViewPort + ", cameraStreamHost="
 				+ cameraStreamHost + ", cameraStreamPort=" + cameraStreamPort + ", sshdPort=" + sshdPort
-				+ ", sshdHomeDir=" + sshdHomeDir + ", sshdUser=" + sshdUser + ", sshdPass=" + sshdPass + "]";
+				+ ", sshdHomeDir=" + sshdHomeDir + ", sshdUser=" + sshdUser + ", sshdPass=" + sshdPass
+				+ ", flightPlanName=" + flightPlanName + "]";
 	}
 }

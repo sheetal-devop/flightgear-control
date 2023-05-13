@@ -17,11 +17,9 @@ import org.slf4j.LoggerFactory;
  * @author jason
  *
  */
-public abstract class WaypointFlightExecutor {
-
-	//TODO: put some of these fields into a F15CFlightParameters and allow override
+public abstract class C172PWaypointFlightExecutor {
 	
-    private final static Logger LOGGER = LoggerFactory.getLogger(WaypointFlightExecutor.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(C172PWaypointFlightExecutor.class);
 	
 	/**
 	 * Fly the plane. Assume simulator is launched with the plane in the air and the engine started. Plane object should 
@@ -35,6 +33,11 @@ public abstract class WaypointFlightExecutor {
 	}
 	
 	public static void runFlight(C172P plane, C172PFlightParameters parameters) throws IOException {
+		
+		if(plane.getWaypointCount() <= 0) {
+			LOGGER.error("runFlight invoked with empty WaypointManager. Aborting");
+			return;
+		}
 		
 		/////////////////////
 		//seeing odd behavior for the c172p in fgfs 2020.03.17
@@ -77,47 +80,63 @@ public abstract class WaypointFlightExecutor {
         
         ////////////////////////////        
         //flight parameters
+        
+        LOGGER.debug("Using flight parameters: {}", parameters.toString());
+        
         //not much of a min, but both tanks largely filled means even weight and more stable flight
-        double minFuelGal = parameters.getLowFuelAmountThreshold();
+        double minFuelGal = parameters.getFuelLevelRefillThresholdPercent() * plane.getFuelTank0Capacity();
         double minBatteryCharge = parameters.getLowBatteryAmountThreshold();
-        
-        double maxHeadingChange = parameters.getMaxHeadingChange();
+        double maxHeadingDeviation = parameters.getMaxHeadingDeviation();
         double courseAdjustmentIncrement = parameters.getCourseAdjustmentIncrement();
-        
         double targetAltitude = parameters.getTargetAltitude();
         double maxAltitudeDeviation = parameters.getMaxAltitudeDeviation();
-        
         double targetRoll = parameters.getTargetRoll();
         double maxRoll = parameters.getFlightRollMax();
         double targetPitch = parameters.getTargetPitch();
         double maxPitch = parameters.getFlightPitchMax();
-        
         int bearingRecalcCycleInterval = parameters.getBearingRecalculationCycleInterval();   
-        
         double waypointArrivalThreshold = parameters.getWaypointArrivalThreshold();
         double waypointAdjustMinimum = parameters.getWaypointAdjustMinimumDistance();
-        
-        long cycleSleep = parameters.getBearingRecalculationCycleSleep();
-        
+        long bearingRecalculationCycleSleep = parameters.getBearingRecalculationCycleSleep();
         int stabilizationCycleCount = parameters.getStabilizationCycleCount();
         long stabilizationCycleSleep = parameters.getStabilizationCycleSleep();
         
         //catch the plane launched externally and steer it towards the inital bearing
         //TODO: move the mixture set outside of this function?
-        stabilizeLaunch(plane, initialBearing, 
-        	parameters.getFlightMixture(),
-        	maxRoll, targetRoll, maxPitch, targetPitch, courseAdjustmentIncrement
-        );
+        //stabilizeLaunch(plane, initialBearing, 
+        //	parameters.getMixtureFlight(),
+        //	maxRoll, targetRoll, maxPitch, targetPitch, courseAdjustmentIncrement, maxHeadingDeviation
+        //);
+        
+        //wait for startup to complete
+        try {
+			Thread.sleep(10L * 1000L);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+        //set to expected mixture if it's not there
+        if(plane.getMixture() != parameters.getMixtureFlight()) {
+        	plane.setMixture(parameters.getMixtureFlight());
+        }
         
         plane.setBatterySwitch(false);
         plane.setAntiIce(true);
                 
-        //i'm in a hurry and a c172p only goes so fast
         plane.setSimSpeedUp(parameters.getSimSpeedup());
         
         //set the throttle here otherwise the mixture may cap it
-        plane.setThrottle(parameters.getFlightThrottle());
+        plane.setThrottle(parameters.getThrottleFlight());
         
+        
+        //keep seeing flaps extending on their own, probably as part of the plane autostart.
+        //everything else on the c172p model seems to react to the launch altitude, but not this.
+        //retracting flaps doesn't work immediately after starting the plane.
+        //dumb.
+        if(plane.getFlaps() != C172PFields.FLAPS_DEFAULT) {
+            plane.resetControlSurfaces();
+        }
         
         ////////////////////////////
         //intermediate values
@@ -147,7 +166,7 @@ public abstract class WaypointFlightExecutor {
             //plane.setCurrentView(2);
             
             double currentHeading;
-            while(!FlightUtilities.withinHeadingThreshold(plane, maxHeadingChange, nextWaypointBearing)) {
+            while(!FlightUtilities.withinHeadingThreshold(plane, maxHeadingDeviation, nextWaypointBearing)) {
                 
                 currentHeading = plane.getHeading();
                 
@@ -176,9 +195,11 @@ public abstract class WaypointFlightExecutor {
                     
                     FlightUtilities.altitudeCheck(plane, maxAltitudeDeviation, targetAltitude);
                     
-                    stabilizeCheck(plane, intermediateHeading,
-                        maxRoll, targetRoll, maxPitch, targetPitch, courseAdjustmentIncrement
-                    );
+                    FlightUtilities.stabilizeCheck(plane, 
+                    	intermediateHeading, courseAdjustmentIncrement, maxHeadingDeviation,
+                        maxRoll, targetRoll, 
+                        maxPitch, targetPitch 
+                    );       
                     
                     try {
                         Thread.sleep(stabilizationCycleSleep);
@@ -248,9 +269,11 @@ public abstract class WaypointFlightExecutor {
                 // TODO: ground elevation check. it's a problem if your target alt is 5000ft and
                 // you're facing a 5000ft mountain
 
-                stabilizeCheck(plane, nextWaypointBearing,
-                	maxRoll, targetRoll, maxPitch, targetPitch, courseAdjustmentIncrement
-                );                    
+                FlightUtilities.stabilizeCheck(plane, 
+                	nextWaypointBearing, courseAdjustmentIncrement, maxHeadingDeviation,
+                    maxRoll, targetRoll, 
+                    maxPitch, targetPitch 
+                );                 
                 
                 if(!plane.isEngineRunning()) {
                     LOGGER.error("Engine found not running.");
@@ -290,7 +313,7 @@ public abstract class WaypointFlightExecutor {
                 }
                 
                 try {
-                    Thread.sleep(cycleSleep);
+                    Thread.sleep(bearingRecalculationCycleSleep);
                 } catch (InterruptedException e) {
                     LOGGER.warn("Runtime sleep interrupted", e);
                 }
@@ -338,92 +361,5 @@ public abstract class WaypointFlightExecutor {
             String.format("\nAltitude: %f", plane.getAltitude()) +
             String.format("\nLatitude: %f", plane.getLatitude()) + 
             String.format("\nLongitude: %f", plane.getLongitude());
-    }
-    
-    private static void stabilizeLaunch(C172P plane, 
-    		double bearing, 
-    		double mixture,
-        	double maxRoll,
-        	double targetRoll,
-        	double maxPitch,
-        	double targetPitch,
-        	double courseAdjustmentIncrement
-    ) throws IOException {
-    	LOGGER.info("============== Stabilizing plane on launch");
-    	
-    	//TODO: unhardcode these values probably arrived at via trial and error
-        int i = 0;
-        while(i < 100) {
-            
-            stabilizeCheck(plane, bearing, maxRoll, targetRoll, maxPitch, targetPitch, courseAdjustmentIncrement);
-            
-            try {
-                Thread.sleep(15);
-            } catch (InterruptedException e) {
-            	LOGGER.warn("Launch stabilization phase 1 sleep interrupted", e);
-            }
-            
-            i++;
-        }
-        
-        plane.setMixture(mixture);
-        
-        //wait for mixture to take effect
-        i = 0;
-        while(i < 20) {
-            
-        	stabilizeCheck(plane, bearing, maxRoll, targetRoll, maxPitch, targetPitch, courseAdjustmentIncrement);
-            
-            try {
-                Thread.sleep(15);
-            } catch (InterruptedException e) {
-            	LOGGER.warn("Launch stabilization phase 2 sleep interrupted", e);
-            }
-            
-            i++;
-        }
-        
-    	LOGGER.info("============== Completed launch stabilization");
-    }
-    
-    private static void stabilizeCheck(
-    	C172P plane, 
-    	double waypointBearing, 
-    	double maxRoll,
-    	double targetRoll,
-    	double maxPitch,
-    	double targetPitch,
-    	double courseAdjustmentIncrement
-    ) throws IOException {
-        if( 
-            !FlightUtilities.withinRollThreshold(plane, maxRoll, targetRoll) ||
-            !FlightUtilities.withinPitchThreshold(plane, maxPitch, targetPitch) ||
-            !FlightUtilities.withinHeadingThreshold(plane, courseAdjustmentIncrement, waypointBearing)
-        ) 
-        {
-        	//if the current heading is too far from the waypoint bearing, adjust by courseAdjustmentIncrement
-        	double currentHeading = plane.getHeading();
-        	double intermediateHeading = FlightUtilities.determineCourseChangeAdjustment(currentHeading, courseAdjustmentIncrement, waypointBearing);
-
-        	if( currentHeading != intermediateHeading) {
-        		LOGGER.info("Adjusting heading to intermediate heading: {}", intermediateHeading);
-        		waypointBearing = intermediateHeading;
-        	} else {
-        		if(LOGGER.isTraceEnabled()) {
-        			LOGGER.trace("Sticking to current heading: {}", currentHeading);
-        		}
-        		waypointBearing = currentHeading;
-        	}
-        	
-            plane.forceStabilize(waypointBearing, targetRoll, targetPitch, false);
-                
-            //keep seeing flaps extending on their own, probably as part of the plane autostart.
-            //everything else on the c172p model seems to react to the launch altitude, but not this.
-            //retracting flaps doesn't work immediately after starting the plane.
-            //dumb.
-            if(plane.getFlaps() != C172PFields.FLAPS_DEFAULT) {
-                plane.resetControlSurfaces();
-            }
-        }
     }
 }

@@ -1,9 +1,14 @@
 package org.jason.fgcontrol.flight.position;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Trips using known positions. Expected departure from YVR airport.
+ * Trips using known positions.
  * 
  * @author jason
  *
@@ -11,6 +16,8 @@ import java.util.ArrayList;
 public abstract class KnownRoutes {
 
     private KnownRoutes() {}
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(KnownRoutes.class);
 
     public final static ArrayList<WaypointPosition> VANCOUVER_TOUR = new ArrayList<WaypointPosition>() {
 
@@ -34,7 +41,7 @@ public abstract class KnownRoutes {
     };
     
     //flight plan with minimal course corrections starting from hs bay
-    public final static ArrayList<WaypointPosition> VANCOUVER_NORTH_SHORE_DEMO_TOUR = new ArrayList<WaypointPosition>() {
+    public final static ArrayList<WaypointPosition> VANCOUVER_NORTH_SHORE_DEMO = new ArrayList<WaypointPosition>() {
     	
     	private static final long serialVersionUID = -1630760784238590060L;
 
@@ -113,7 +120,7 @@ public abstract class KnownRoutes {
     };
     
     //flight plan with minimal course corrections starting from YVR
-    public final static ArrayList<WaypointPosition> BC_SOUTH_DEMO_TOUR = new ArrayList<WaypointPosition>() {
+    public final static ArrayList<WaypointPosition> BC_SOUTH_DEMO = new ArrayList<WaypointPosition>() {
 
 		private static final long serialVersionUID = 8640158844447580989L;
 
@@ -188,7 +195,7 @@ public abstract class KnownRoutes {
     };
     
     //initial heading yvr to powell river: 306
-    public final static ArrayList<WaypointPosition> BC_WEST_COAST_OUT_AND_BACK = new ArrayList<WaypointPosition>() {
+    public final static ArrayList<WaypointPosition> BC_WEST_COAST = new ArrayList<WaypointPosition>() {
     	
     	private static final long serialVersionUID = 5196584768547503992L;
 
@@ -222,5 +229,120 @@ public abstract class KnownRoutes {
             add(KnownPositions.BOSTON_PTC_OFFICE);
             
         }
+    };
+    
+    ///////////
+    
+    //KNOWN_ROUTES needs to execute its initializer after its prospective hashmap entry value initializers have 
+    //executed, or else all keys will map to null
+    
+    private final static HashMap<String, ArrayList<WaypointPosition>> KNOWN_ROUTES = 
+    		new HashMap<String, ArrayList<WaypointPosition>>() {
+    	
+    	private static final long serialVersionUID = -8393587070456328149L;
+
+		{
+    		put("Vancouver Tour", VANCOUVER_TOUR);
+    		put("Vancouver North Shore Demo", VANCOUVER_NORTH_SHORE_DEMO);
+    		put("Vancouver Low Altitude Tour", VANCOUVER_LOW_ALT_TOUR);
+    		put("Vancouver Short Tour", VANCOUVER_SHORT_TOUR);
+    		put("BC Tour", BC_TOUR);
+    		put("BC South Demo", BC_SOUTH_DEMO);
+    		put("BC South Tour", BC_SOUTH_TOUR);
+    		put("Vancouver Island Tour", VAN_ISLAND_TOUR);
+    		put("Vancouver Island South Tour", VAN_ISLAND_TOUR_SOUTH);
+    		put("Vancouver Island South 2 Tour", VAN_ISLAND_TOUR_SOUTH2);
+    		put("BC West Coast Demo", BC_WEST_COAST);
+    		put("PTC NA Office Tour", PTC_NA_OFFICE_TOUR);
+    	}
+    };
+    
+    //////////////////////////
+    //utility methods
+    
+	/**
+	 * Resolve a list of waypoints by name. Trims trailing/leading whitespace from query strings. Attempts direct 
+	 * string match of query string. Failing that, compares waypoint data
+	 * 
+	 * @param query		The route name to look up
+	 * 
+	 * @return	The resolved collection of waypoints, or null if no resolution could be made.
+	 */
+	public static ArrayList<WaypointPosition> lookupKnownRoute(String query) {
+		
+		query = query.trim();
+		
+		ArrayList<WaypointPosition> retval = null;
+
+		//direct lookup
+		if (KNOWN_ROUTES.containsKey(query)) {
+			LOGGER.info("Direct route lookup match for query '{}'", query);
+			retval = new ArrayList<WaypointPosition>();
+			retval.addAll( KNOWN_ROUTES.get(query) );
+		} else {			
+			//indirect lookup
+			//loose check of known routes ignoring whitespace and case
+			for( Entry<String, ArrayList<WaypointPosition>> entry : KNOWN_ROUTES.entrySet()) {
+				if(entry.getKey().equalsIgnoreCase(query) || 
+					entry.getKey().replaceAll("\\s", "").equalsIgnoreCase(query.replaceAll("\\s", ""))
+				) {
+					
+					LOGGER.info("Indirect route lookup match for query '{}'", query);
+					
+					retval = entry.getValue();
+					
+					break;
+				} else {
+					LOGGER.debug("{} vs {}", entry, query );
+				}
+			}
+		}
+		
+		if(retval == null) {
+			LOGGER.warn("Route lookup failed for '{}'", query);
+		}
+
+		return retval;
+	}
+	
+	/**
+	 * Compare two routes by their waypoints and ordering
+	 * 
+	 * @param route1	
+	 * @param route2
+	 * 
+	 * @return	True if both routes contain the same waypoint data, false otherwise
+	 */
+	public static boolean isEqual( ArrayList<WaypointPosition> route1, ArrayList<WaypointPosition> route2) {
+		
+		boolean retval = true;
+		if(route1 == null || route2 == null) {
+			retval = false;
+		} else if(route1.size() != route2.size()) {
+			retval = false;
+		} else {
+			
+			//compare contents. order matters
+			for(int i = 0; i< route1.size(); i++) {
+							
+				LOGGER.debug("Comparing waypoint {}\n{}\nvs\n{}", i, route1.get(i), route2.get(i));
+				
+				if( !route1.get(i).equals(route2.get(i)) ) {
+					retval = false;
+					break;
+				}
+			}
+		}
+		
+		return retval;
+	}
+    
+    public final static ArrayList<WaypointPosition> DEFAULT_ROUTE = 
+    		new ArrayList<WaypointPosition>() {
+    	private static final long serialVersionUID = -8393587070456328149L;
+
+		{
+    		addAll(VANCOUVER_TOUR);
+    	}
     };
 }

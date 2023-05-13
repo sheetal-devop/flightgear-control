@@ -1,8 +1,8 @@
-package org.jason.fgcontrol.aircraft.f35b2.flight;
+package org.jason.fgcontrol.aircraft.f15c.flight;
 
 import java.io.IOException;
 
-import org.jason.fgcontrol.aircraft.f35b2.F35B2;
+import org.jason.fgcontrol.aircraft.f15c.F15C;
 import org.jason.fgcontrol.flight.position.PositionUtilities;
 import org.jason.fgcontrol.flight.position.TrackPosition;
 import org.jason.fgcontrol.flight.position.WaypointPosition;
@@ -11,28 +11,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Fly a set of waypoints with a F35B2.
+ * Fly a set of waypoints with a F15C.
  * 
  * @author jason
  *
  */
-public abstract class WaypointFlightExecutor {
+public abstract class F15CWaypointFlightExecutor {
 	
-    private final static Logger LOGGER = LoggerFactory.getLogger(WaypointFlightExecutor.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(F15CWaypointFlightExecutor.class);
 
 	/**
 	 * Fly the plane. Assume simulator is launched with the plane in the air and the engine started. Plane object should 
 	 * be configured by the invoker, and have a set of waypoints loaded. Blocks until flightplan is completed. 
 	 * 
-	 * @param plane		Planey McF35B2Face
+	 * @param plane		Planey McF15CFace
 	 * 
-	 * @throws IOException 
+	 * @throws IOException 	Upon failure of any writes to the simulator. Generally considered unrecoverable.
 	 */
-	public static void runFlight(F35B2 plane) throws IOException {
-		runFlight(plane, new F35B2FlightParameters());
+	public static void runFlight(F15C plane) throws IOException {
+		runFlight(plane, new F15CFlightParameters());
 	}
 	
-	public static void runFlight(F35B2 plane, F35B2FlightParameters parameters) throws IOException {
+	public static void runFlight(F15C plane, F15CFlightParameters parameters) throws IOException {
+		
+		if(plane.getWaypointCount() <= 0) {
+			LOGGER.error("runFlight invoked with empty WaypointManager. Aborting");
+			return;
+		}
 		
 		WaypointPosition startingWaypoint = plane.getNextWaypoint();
 		plane.setCurrentWaypointTarget(startingWaypoint);
@@ -44,13 +49,15 @@ public abstract class WaypointFlightExecutor {
         //***we really have to trust the sim is launched with the correct initial heading
         
         LOGGER.info("First waypoint is {} and initial target bearing is {}", startingWaypoint.toString(), initialBearing);
-
         
         ////////////////////////////        
         //flight parameters
+        
+        LOGGER.debug("Using flight parameters: {}", parameters.toString());
+        
         double fuelLevelRefillThresholdPercent = parameters.getFuelLevelRefillThresholdPercent();
         double throttleCourseChange = parameters.getThrottleCourseChange();
-        double maxHeadingChange = parameters.getMaxHeadingChange();
+        double maxHeadingDeviation = parameters.getMaxHeadingDeviation();
         double courseAdjustmentIncrement = parameters.getCourseAdjustmentIncrement();
         double targetAltitude = parameters.getTargetAltitude();
         double maxAltitudeDeviation = parameters.getMaxAltitudeDeviation();
@@ -62,7 +69,7 @@ public abstract class WaypointFlightExecutor {
         double targetRoll = parameters.getTargetRoll();
         double maxPitch = parameters.getFlightPitchMax();
         double targetPitch = parameters.getTargetPitch();
-        long cycleSleep = parameters.getBearingRecalculationCycleSleep();
+        long bearingRecalculationCycleSleep = parameters.getBearingRecalculationCycleSleep();
         int stabilizationCycleCount = parameters.getStabilizationCycleCount();
         long stabilizationCycleSleep = parameters.getStabilizationCycleSleep();
         
@@ -78,12 +85,9 @@ public abstract class WaypointFlightExecutor {
         
         //chase view
         plane.setCurrentView(2);
-        
-        //f35b2 doesnt retract gear automatically
-        plane.setGearDown(false);
 
         //full throttle or the engines will have divergent thrust outputs
-        plane.setEngineThrottle(throttleFlight);            
+        plane.setEngineThrottles(throttleFlight);            
         
         //trouble doing waypoint flight at faster speeds with high speedup under the current threading model
         //TODO: separate threads for telemetry readouts and flight control
@@ -122,28 +126,35 @@ public abstract class WaypointFlightExecutor {
             //transition to a stable path to next waypoint.
             
             //turning to face next waypoint. throttle down
-            plane.setEngineThrottle(throttleCourseChange);
+            plane.setEngineThrottles(throttleCourseChange);
             
             double currentHeading;
             
             //waypoint approach flag since the f15c travels at high speeds
             boolean waypointApproach = false;
             
-            while(!FlightUtilities.withinHeadingThreshold(plane, maxHeadingChange, nextWaypointBearing)) {
+            //waypoint transition. steer the plane towards the next waypoint
+            //TODO: can we incorporate a minimum waypoint departure distance? would need to track a previousWaypoint, especially at start.
+            while(!FlightUtilities.withinHeadingThreshold(plane, maxHeadingDeviation, nextWaypointBearing) ) {
                 
                 currentHeading = plane.getHeading();
                 
                 plane.addTrackPositionToFlightLog(plane.getPosition());
                                 
-                LOGGER.debug("Easing hard turn from current heading {} to target heading {} for waypoint", 
+                LOGGER.debug("Easing hard turn from current heading {} to target heading {} for waypoint [{}]", 
                 		currentHeading, nextWaypointBearing, nextWaypoint.getName());
                 
-                double intermediateHeading = FlightUtilities.determineCourseChangeAdjustment(currentHeading, courseAdjustmentIncrement, nextWaypointBearing);
+                double intermediateHeading = FlightUtilities.determineCourseChangeAdjustment(
+                		currentHeading, 
+                		courseAdjustmentIncrement, 
+                		nextWaypointBearing
+                );
+                
                 if( intermediateHeading == currentHeading) {
                   LOGGER.warn("Found no adjustment needed");
 
                   //shouldn't happen since we'd be with the heading threshold tested by the loop conditional. break
-                  //TODO: ^^^ really? what if we just held the course until we were far enough away
+                  //TODO: ^^^ really? what if we just held the course until we were far enough away <= add conditional for this?
                   
                   //continue;
                   break;
@@ -157,8 +168,11 @@ public abstract class WaypointFlightExecutor {
                 while(stablizeCount < stabilizationCycleCount) {
                     
                     FlightUtilities.altitudeCheck(plane, maxAltitudeDeviation, targetAltitude);
-                    stabilizeCheck(plane, intermediateHeading,
-                    	maxRoll, targetRoll, maxPitch, targetPitch, courseAdjustmentIncrement
+                    
+                    FlightUtilities.stabilizeCheck(plane, 
+                    	intermediateHeading, courseAdjustmentIncrement, maxHeadingDeviation,
+                    	maxRoll, targetRoll, 
+                    	maxPitch, targetPitch 
                     );
                     
                     try {
@@ -189,7 +203,7 @@ public abstract class WaypointFlightExecutor {
             LOGGER.info("Heading change within tolerance");
             
             //on our way. throttle up
-            plane.setEngineThrottle(throttleFlight);
+            plane.setEngineThrottles(throttleFlight);
             waypointApproach = false;
             
             ///////////////////////////////
@@ -199,6 +213,7 @@ public abstract class WaypointFlightExecutor {
             //add our next waypoint to the log
             plane.addWaypointToFlightLog(nextWaypoint);
 
+            //now that we're generally pointed at the next waypoint, fly there at high throttle
             while( !PositionUtilities.hasArrivedAtWaypoint(plane.getPosition(), nextWaypoint, waypointArrivalThreshold) ) {
             
             	if(LOGGER.isTraceEnabled()) {
@@ -208,7 +223,7 @@ public abstract class WaypointFlightExecutor {
                 //allow external interruption of flightplan
                 if(plane.shouldAbandonCurrentWaypoint()) {
                 	
-                	LOGGER.info("Abandoning current waypoint {}", nextWaypoint.toString());
+                	LOGGER.info("Abandoning current waypoint [{}]", nextWaypoint.toString());
                 	
                 	//reset abandon flag
                 	plane.resetAbandonCurrentWaypoint();
@@ -241,21 +256,23 @@ public abstract class WaypointFlightExecutor {
                     		nextWaypointBearing,
                     		distanceToNextWaypoint
                     );   
-                } else if ( !waypointApproach && distanceToNextWaypoint < waypointArrivalThreshold * 3 ) {
-                	
-                    //throttle down for waypoint approach to accommodate any late corrections
+                } else if ( !waypointApproach ) {
+                	if(distanceToNextWaypoint < waypointArrivalThreshold ) {
+                
+	                    //throttle down for waypoint approach to accommodate any late corrections
+	                    
+	                	LOGGER.info("Setting throttle for waypoint approach: {}", throttleWaypointApproach);
+	                	
+	                    plane.setEngineThrottles(throttleWaypointApproach);
+	                    
+	                    waypointApproach = true;
                     
-                	LOGGER.info("Setting throttle for waypoint approach: {}", throttleWaypointApproach);
-                	
-                    plane.setEngineThrottle(throttleWaypointApproach);
+                	} else if ( plane.getEngine0Throttle() != throttleFlight ) {
                     
-                    waypointApproach = true;
-                    
-                } else if ( !waypointApproach && plane.getEngine0Throttle() != throttleFlight ) {
-                    
-                    //far enough away from the previous waypoint and not close enough to the next
-                    //throttle up to max if we haven't already
-                    plane.setEngineThrottle(throttleFlight);
+	                    //far enough away from the previous waypoint and not close enough to the next
+	                    //throttle up to max if we haven't already
+	                    plane.setEngineThrottles(throttleFlight);
+                	}
                 }
                 
                 // check altitude first, if we're in a nose dive that needs to be corrected first
@@ -264,12 +281,18 @@ public abstract class WaypointFlightExecutor {
                 // TODO: ground elevation check. it's a problem if your target alt is 5000ft and
                 // you're facing a 5000ft mountain
 
-                stabilizeCheck(plane, nextWaypointBearing,
-                   	maxRoll, targetRoll, maxPitch, targetPitch, courseAdjustmentIncrement
-                );                      
+                FlightUtilities.stabilizeCheck(plane, 
+                   	nextWaypointBearing, courseAdjustmentIncrement, maxHeadingDeviation,
+                   	maxRoll, targetRoll, 
+                  	maxPitch, targetPitch 
+                );         
                 
                 if(!plane.isEngineRunning()) {
                     LOGGER.error("Engine found not running. Attempting to restart.");
+                    
+                    //TODO: reliable engine restart.
+                    //don't often get here
+                    
 //                    plane.startupPlane();
 //                    
 //                    //increase throttle
@@ -279,6 +302,7 @@ public abstract class WaypointFlightExecutor {
 //                    
 //                    plane.setEngineThrottles(F15CFields.THROTTLE_MAX);
                     
+                    //pause the simulator and throw an exception
                     plane.setPause(true);
                     
                     throw new IOException("Engine not running");
@@ -302,7 +326,7 @@ public abstract class WaypointFlightExecutor {
                 }
                 
                 try {
-                    Thread.sleep(cycleSleep);
+                    Thread.sleep(bearingRecalculationCycleSleep);
                 } catch (InterruptedException e) {
                     LOGGER.warn("Runtime sleep interrupted", e);
                 }
@@ -316,7 +340,7 @@ public abstract class WaypointFlightExecutor {
         LOGGER.info("No more waypoints. Trip is finished!");                  
 	}
 	
-	private static void transitionToWaypoint(F35B2 plane, WaypointPosition targetWaypointPosition) {
+	private static void transitionToWaypoint(F15C plane, WaypointPosition targetWaypointPosition) {
 		//TODO: move functionality from runFlight to here
 	}
 
@@ -328,7 +352,7 @@ public abstract class WaypointFlightExecutor {
      * @param targetBearing
      * @return
      */
-    public static String telemetryReadOut(F35B2 plane, WaypointPosition position, double targetBearing) {
+    private static String telemetryReadOut(F15C plane, WaypointPosition position, double targetBearing) {
         
         double distanceRemaining = PositionUtilities.distanceBetweenPositions(plane.getPosition(), position);
         
@@ -350,8 +374,10 @@ public abstract class WaypointFlightExecutor {
 //            String.format("\nFuel tank 6 level: %f", plane.getFuelTank6Level()) +
             String.format("\nEngine running: %d", plane.getEngineRunning()) + 
             String.format("\nEngine 1 thrust: %f", plane.getEngine0Thrust()) + 
+            String.format("\nEngine 2 thrust: %f", plane.getEngine1Thrust()) + 
             String.format("\nEnv Temp: %f", plane.getTemperature()) + 
             String.format("\nEngine 1 Throttle: %f", plane.getEngine0Throttle()) +
+            String.format("\nEngine 2 Throttle: %f", plane.getEngine1Throttle()) +
             String.format("\nAltitude: %f", plane.getAltitude()) +
             String.format("\nLatitude: %f", plane.getLatitude()) + 
             String.format("\nLongitude: %f", plane.getLongitude()) +
@@ -365,38 +391,5 @@ public abstract class WaypointFlightExecutor {
             String.format("\nGear Down: %d", plane.getGearDown()) +
             String.format("\nParking Brake: %d", plane.getParkingBrake()) +
             "\nGMT: " + plane.getGMT();
-    }
-    
-    public static void stabilizeCheck(
-    	F35B2 plane, 
-    	double waypointBearing,
-    	double maxRoll,
-    	double targetRoll,
-    	double maxPitch,
-    	double targetPitch,
-    	double courseAdjustmentIncrement
-    ) throws IOException {
-        if( 
-            !FlightUtilities.withinRollThreshold(plane, maxRoll, targetRoll) ||
-            !FlightUtilities.withinPitchThreshold(plane, maxPitch, targetPitch) ||
-            !FlightUtilities.withinHeadingThreshold(plane, courseAdjustmentIncrement, waypointBearing)
-        ) 
-        {
-        	//if the current heading is too far from the waypoint bearing, adjust by courseAdjustmentIncrement
-        	double currentHeading = plane.getHeading();
-        	double intermediateHeading = FlightUtilities.determineCourseChangeAdjustment(currentHeading, courseAdjustmentIncrement, waypointBearing);
-
-        	if( currentHeading != intermediateHeading) {
-        		LOGGER.info("Adjusting heading to intermediate heading: {}", intermediateHeading);
-        		waypointBearing = intermediateHeading;
-        	} else {
-        		if(LOGGER.isTraceEnabled()) {
-        			LOGGER.trace("Sticking to current heading: {}", currentHeading);
-        		}
-        		waypointBearing = currentHeading;
-        	}
-        	
-            plane.forceStabilize(waypointBearing, targetPitch, targetRoll, false);
-        }
     }
 }

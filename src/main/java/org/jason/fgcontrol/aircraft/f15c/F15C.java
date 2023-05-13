@@ -471,7 +471,8 @@ public class F15C extends FlightGearAircraft {
     //////////////
     //telemetry modifiers
     
-    private void forceStabilizationWrite(double targetHeading, double targetRoll, double targetPitch) throws IOException {
+    @Override
+    protected void forceStabilizationWrite(double targetHeading, double targetRoll, double targetPitch) throws IOException {
     	LinkedHashMap<String, String> orientationFields = copyStateFields(FlightGearFields.ORIENTATION_INPUT_FIELDS);
     	
         orientationFields.put(FlightGearFields.HEADING_FIELD, String.valueOf(targetHeading) ) ;
@@ -484,37 +485,7 @@ public class F15C extends FlightGearAircraft {
         	LOGGER.debug("Force stabilizing to {}", orientationFields.entrySet().toString());
         }
     }
-    
-    public void forceStabilize(double targetHeading, double targetRoll, double targetPitch) throws IOException {
-    	forceStabilize(targetHeading, targetRoll, targetPitch, true);
-    }
-    
-    public void forceStabilize(double targetHeading, double targetRoll, double targetPitch, boolean pauseSim) throws IOException {
-        
-    	if(LOGGER.isTraceEnabled()) {
-    		LOGGER.trace("forceStabilize called");
-    	}
-                
-        //pause before copyStateFields so we're not changing an orientation in the past
-        //
-        //for most fields we need to be careful about overwriting fields, but for forcibly 
-        //re-orienting the plane we care less about orientation/roll/pitch
-        if(pauseSim) {
-        	try {
-        		setPause(true);
-        	
-        		forceStabilizationWrite(targetHeading, targetRoll, targetPitch);
-        	} finally {
-        		setPause(false);
-        	}
-        } else {
-        	forceStabilizationWrite(targetHeading, targetRoll, targetPitch);
-        }
-               
-        if(LOGGER.isTraceEnabled()) {
-        	LOGGER.trace("forceStabilize returning");
-        }
-    }
+
     
     @Override
     public synchronized void refillFuel() throws IOException {

@@ -62,4 +62,7 @@ velocitiesInputPort=5014
 	public static final String SSHD_USER_DIRECTIVE = "sshUser";
 	public static final String SSHD_PASS_DIRECTIVE = "sshPass";
 	
+	//flightplan
+	public static final String FLIGHT_PLAN_DIRECTIVE = "flightPlanName";
+	
 }

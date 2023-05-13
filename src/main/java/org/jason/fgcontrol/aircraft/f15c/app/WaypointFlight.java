@@ -2,20 +2,24 @@ package org.jason.fgcontrol.aircraft.f15c.app;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Properties;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.fgcontrol.aircraft.f15c.F15C;
 import org.jason.fgcontrol.aircraft.f15c.F15CConfig;
 import org.jason.fgcontrol.aircraft.f15c.flight.F15CFlightParameters;
-import org.jason.fgcontrol.aircraft.f15c.flight.WaypointFlightExecutor;
+import org.jason.fgcontrol.aircraft.f15c.flight.F15CWaypointFlightExecutor;
 import org.jason.fgcontrol.exceptions.FlightGearSetupException;
-import org.jason.fgcontrol.flight.position.KnownRoutes;
 import org.jason.fgcontrol.flight.position.WaypointPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Demonstrate Waypoint flight with the f15c 
+ * 
+ * @author jason
+ *
+ */
 public class WaypointFlight {
         
     private final static Logger LOGGER = LoggerFactory.getLogger(WaypointFlight.class);
@@ -32,10 +36,9 @@ public class WaypointFlight {
         //f15c script launches from YVR
         
         //too fast for the local tour
-        ArrayList<WaypointPosition> route = KnownRoutes.VAN_ISLAND_TOUR_SOUTH;
-        
-        //for fun, mix it up
-        //java.util.Collections.reverse(route);
+        //ArrayList<WaypointPosition> route = KnownRoutes.VAN_ISLAND_TOUR_SOUTH2;
+        //ArrayList<WaypointPosition> route = KnownRoutes.BC_WEST_COAST;
+        //ArrayList<WaypointPosition> route = KnownRoutes.BC_SOUTH_DEMO;
         
         try {
         	
@@ -55,15 +58,30 @@ public class WaypointFlight {
         
     		plane.refillFuel();
             
-            plane.setWaypoints(route);
+			//route set in config
+			//plane.setWaypoints(route);
+            
+            String waypointList = "[";
+            
+            for( WaypointPosition waypoint : plane.getWaypoints()) {
+            	waypointList += waypoint.toString();
+            }
+            waypointList += "]";
+            
+            LOGGER.info("Flying waypoints: {}", waypointList);
             
             plane.setDamageEnabled(false);
             plane.setGMT(LAUNCH_TIME_GMT);
             
-            F15CFlightParameters parameters = new F15CFlightParameters();
-            parameters.setBearingRecalculationCycleSleep(500L);
+            F15CFlightParameters flightParameters = new F15CFlightParameters();
+            //6600 for KnownRoutes.BC_WEST_COAST
+            //flightParameters.setTargetAltitude(6600.0);
             
-            WaypointFlightExecutor.runFlight(plane);
+            //8000 for bc south demo
+            
+            //parameters.setBearingRecalculationCycleSleep(500L);
+            
+            F15CWaypointFlightExecutor.runFlight(plane, flightParameters);
             
             //since we're done and no longer stabilizing the plane, pause the sim so the plane doesn't fall
             plane.setPause(true);

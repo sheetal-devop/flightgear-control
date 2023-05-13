@@ -8,7 +8,6 @@ import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.fgcontrol.aircraft.f35b2.F35B2;
 import org.jason.fgcontrol.aircraft.f35b2.F35B2Config;
 import org.jason.fgcontrol.aircraft.f35b2.F35B2Fields;
-import org.jason.fgcontrol.aircraft.f35b2.flight.WaypointFlightExecutor;
 import org.jason.fgcontrol.exceptions.FlightGearSetupException;
 import org.jason.fgcontrol.flight.util.FlightUtilities;
 import org.slf4j.Logger;
@@ -153,7 +152,8 @@ public class SustainedFlight {
             double targetRoll = 0.0;
             double maxPitch = 2.0;
             double targetPitch = 0.0;
-            double courseAdjustmentIncrement = 1.0;
+            double courseAdjustmentIncrement = 4.0;
+            double maxHeadingDeviation = 3.0;
             
             while(running && cycles < maxCycles) {
                 
@@ -161,12 +161,12 @@ public class SustainedFlight {
             
                 //check altitude first, if we're in a nose dive that needs to be corrected first
                 FlightUtilities.altitudeCheck(plane, 1000, TARGET_ALTITUDE);
-
                 
-                
-                WaypointFlightExecutor.stabilizeCheck(plane, currentHeading,
-                   	maxRoll, targetRoll, maxPitch, targetPitch, courseAdjustmentIncrement
-                );   
+                FlightUtilities.stabilizeCheck(plane, 
+                	currentHeading, courseAdjustmentIncrement, maxHeadingDeviation,
+                    maxRoll, targetRoll, 
+                    maxPitch, targetPitch 
+                );
                 
                 //refill all tanks for balance
                 if (
