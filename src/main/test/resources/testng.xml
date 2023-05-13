@@ -4,6 +4,7 @@
     <test name = "Unit">
 	    <classes>
 	        <class name="org.jason.fgcontrol.test.FlightUtilitiesTest"/>
+	        <class name="org.jason.fgcontrol.test.KnownRoutesTest"/>
 	        <class name="org.jason.fgcontrol.test.WaypointUtilitiesTest"/>
 	        <class name="org.jason.fgcontrol.test.WaypointManagerTest"/>
 	    </classes>
