@@ -38,7 +38,7 @@
     <logger name="org.jason.fgcontrol.aircraft" level="INFO" />
     <logger name="org.jason.fgcontrol.aircraft.c172p.flight" level="DEBUG" />
     <logger name="org.jason.fgcontrol.aircraft.f15c.flight" level="DEBUG" />
-    <logger name="org.jason.fgcontrol.connection" level="DEBUG" />
+    <logger name="org.jason.fgcontrol.connection" level="INFO" />
     <!--<logger name="org.jason.fgcontrol.connection.sockets" level="TRACE" />-->
     
     <!-- apps -->

@@ -111,7 +111,7 @@ public abstract class F35B2Fields {
     
     //want a marginal amount aileron trim to offset a tendency to roll clockwise
     //aileron to -0.0318 seems to be good for a left-turning flight plan maybe change depending on heading
-    public final static double AILERON_DEFAULT = 0.0;
+    public final static double AILERON_DEFAULT = 0.005;
     public final static double AILERON_TRIM_DEFAULT = -0.005;
     public final static double AILERON_MAX = 1.0;
     public final static double AILERON_MIN = -1.0;
@@ -137,7 +137,7 @@ public abstract class F35B2Fields {
     
     //want a marginal amount of default lift on the elevator trim to offset gravity
     //negative elevator points the plane up, positive elevator points the plane down
-    public final static double ELEVATOR_DEFAULT = -0.001;
+    public final static double ELEVATOR_DEFAULT = -0.011;
     public final static double ELEVATOR_TRIM_DEFAULT = 0.0001;
     public final static double ELEVATOR_MAX = 1.0;
     public final static double ELEVATOR_MIN = -1.0;

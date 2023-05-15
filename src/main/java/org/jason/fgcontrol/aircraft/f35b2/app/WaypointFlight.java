@@ -59,7 +59,12 @@ public class WaypointFlight {
             plane.setGMT(LAUNCH_TIME_GMT);
             
             F35B2FlightParameters parameters = new F35B2FlightParameters();
-            parameters.setBearingRecalculationCycleSleep(1000L);
+            
+            //this plane can suffer control problems at higher throttle and lower altitude
+            parameters.setTargetAltitude(15000.0);
+            parameters.setThrottleFlight(0.7);
+            
+            //parameters.setBearingRecalculationCycleSleep(1000L);
             
             F35B2WaypointFlightExecutor.runFlight(plane, parameters);
             

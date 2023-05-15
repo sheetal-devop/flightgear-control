@@ -6,7 +6,19 @@ Easily and economically simulate a complex real-world machine with mechanical ca
 
 Generically fly aircraft by executing the plane's engine startup script and diligently correcting drift and deviation from a flight path by constantly repositioning the plane orientation within the simulator environment along a set of waypoints. 
 
+
+<!---
+ "loop" and "autoplay" aren't supported by github markdown rendering but maybe one day.
+-->
+
+<video controls="controls" muted="muted" loop="loop" autoplay="autoplay" src="https://github.com/jas0ndiamond/flightgear-control/assets/7103526/1934b311-00de-4316-be74-1b0301427464" >
+  Your browser does not support the video tag.
+</video>
+
 ----
+
+
+
 #### Requirements ####
 
 1. Linux x86_64 running with a windowing system.
