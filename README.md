@@ -4,7 +4,7 @@ Control and interact with a FlightGear aircraft generically using telnet and soc
 
 Easily and economically simulate a complex real-world machine with mechanical causality.
 
-Generically fly aircraft by executing the plane's engine startup script and diligently correcting drift and deviation from a flight path by constantly repositioning the plane orientation within the simulator environment along a set of waypoints. 
+Generically fly aircraft by executing the plane's engine startup script and diligently correcting drift and deviation from a flight path by enforcing orientation constraints within the simulator environment along a set of waypoints. 
 
 
 <!---
