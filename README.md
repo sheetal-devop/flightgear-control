@@ -1,6 +1,6 @@
 # flightgear-control
 
-Control and interact with a FlightGear aircraft generically using telnet and sockets. 
+Control and interact with virtual aircraft through the FlightGear simulator generically using telnet and sockets. 
 
 Easily and economically simulate a complex real-world machine with mechanical causality.
 
@@ -23,7 +23,7 @@ Generically fly aircraft by executing the plane's engine startup script and dili
 
 1. Linux x86_64 running with a windowing system.
 1. Git
-1. JDK 8
+1. JDK 8+
 1. GPU preferably with more than 2Gb VRAM.
 
 ----
