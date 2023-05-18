@@ -14,9 +14,19 @@ repositories {
     //need both of these maven repos for geotools
     maven {
         url "https://maven.geo-solutions.it/"
+        content {
+            includeGroupByRegex "org\\.geotools.*"
+            includeGroupByRegex "it\\.geosolutions\\.jgridshift.*"
+            includeGroupByRegex "javax\\.media.*"
+        }
     }
     maven {
         url "https://repo.osgeo.org/repository/release/"
+        content {
+            includeGroupByRegex "org\\.geotools.*"
+            includeGroupByRegex "it\\.geosolutions\\.jgridshift.*"
+            includeGroupByRegex "javax\\.media.*"
+        }
     }
     
     mavenCentral()
