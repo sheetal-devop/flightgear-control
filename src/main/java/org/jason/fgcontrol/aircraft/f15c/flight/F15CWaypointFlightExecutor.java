@@ -34,8 +34,9 @@ public abstract class F15CWaypointFlightExecutor {
 	
 	public static void runFlight(F15C plane, F15CFlightParameters parameters) throws IOException {
 		
+		//loud error message because this can get buried in all the output
 		if(plane.getWaypointCount() <= 0) {
-			LOGGER.error("runFlight invoked with empty WaypointManager. Aborting");
+			LOGGER.error("===============================\nF15C runFlight invoked with empty WaypointManager. Aborting\n===============================");
 			return;
 		}
 		
