@@ -27,3 +27,6 @@ scripts/updateProtocolFiles.sh
 /flights
 
 /*.gpx
+
+# common test output file
+output
