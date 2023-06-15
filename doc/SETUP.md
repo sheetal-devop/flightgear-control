@@ -67,7 +67,7 @@ This guide covers usage of flightgear with an AppImage, which is the preferred m
         * 49.19524 - initial latitude position
         * -123.18084 - initial longitude position
         * f15c_beta - aircraft nickname
-    * A table of port ranges mapped to aircraft nicknames is available [here](../conf/README.md)
+    * A table of port ranges mapped to aircraft nicknames is available [here](PORT_RANGES.md)
     * The scripts in `flightgear-control/scripts` are organized into [aircraft]_runway.sh and [aircraft]_flight.sh. 
     
 ----
