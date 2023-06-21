@@ -182,4 +182,3 @@ task appJar(type: Jar) {
         exclude 'testng*'
     }
 }
-

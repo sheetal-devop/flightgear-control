@@ -1,7 +1,6 @@
 #!/bin/bash
 
 #flightgear appimage setup script for flightgear-control project in Mac.
-
   #FlightGear-2020.3.17.dmg: Install FlightGear to Desktop or User folder Eg: /Users/<userName>/flightGear/FlightGear.app
   #FlightGear-2020.3.17-data and FlightGear-2020.3.17-update-data: Using terminal, unzip both the folders
   #FG_BIN_PATH : Set the path of fgfs folder to FG_BIN_PATH
