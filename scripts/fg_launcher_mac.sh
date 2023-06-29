@@ -9,7 +9,6 @@
 
 APPIMAGE_FILE=fgfs
 FG_BIN_PATH=`whereis -b $APPIMAGE_FILE | awk '{print $2}'`
-FG_BIN_DATA_PATH='/Users/jyothironda/flightGear/fgdata'
 
 #############################
 #explicitly set a display
@@ -25,19 +24,19 @@ if [ -z "$FG_BIN_PATH" ]; then
     exit 1
 else
     echo "Found FlightGear AppImage at $FG_BIN_PATH"
-    
-    FG_BIN_DIR=`dirname $FG_BIN_DATA_PATH`
-    
+
+    FG_BIN_DIR=`dirname $FG_BIN_PATH  | rev | cut -d/ -f4- | rev`
+
     if [ -z "$FG_BIN_DIR" ]; then
         echo "Could not determine parent directory for FlightGear AppImage"
         exit 1
     else
         echo "Found FlightGear directory at $FG_BIN_DIR"
-        
+
         FG_HOME_DIR=$FG_BIN_DIR/fgfs
         FG_ROOT_DIR=$FG_BIN_DIR/fgdata
-        
-        #run the simulator launcher 
+
+        #run the simulator launcher
         DISPLAY=$DISPLAY_STR FG_HOME=$FG_HOME_DIR $FG_BIN_PATH --fg-root=$FG_ROOT_DIR --launcher
     fi
 fi
