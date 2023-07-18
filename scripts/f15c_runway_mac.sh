@@ -170,4 +170,3 @@ DISPLAY=$DISPLAY_STR FG_HOME=$FG_HOME_DIR $FG_BINARY\
  --allow-nasal-from-sockets\
  --turbulence=0.0\
  --wind=0\@0
- --httpd=$CAM_VIEW_PORT\
