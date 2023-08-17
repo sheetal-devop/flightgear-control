@@ -94,4 +94,17 @@ public abstract class KnownPositions {
     public final static WaypointPosition SANDIEGO_PTC_OFFICE = new WaypointPosition(32.93657, -117.23303, "San Diego PTC Office");
     public final static WaypointPosition BOSTON_PTC_OFFICE = new WaypointPosition(42.35120, -71.04463, "Boston Seaport PTC Office");
     public final static WaypointPosition PORTLAND_PTC_OFFICE = new WaypointPosition(43.65848, -70.25726, "Portland PTC Office");
+    
+    // Familiar Routes
+    //public final static WaypointPosition NAGPUR_AIRPORT = new WaypointPosition(21.09016, 79.05223, "Nagpur International Airport");
+    public final static WaypointPosition AMRAVATI_CITY = new WaypointPosition(20.90422, 77.67934, "Amravati City");
+    public final static WaypointPosition BHUSAVAL_CITY = new WaypointPosition(21.03964, 75.76847, "Bhusaval City");
+    public final static WaypointPosition AHMEDNAGAR_CITY = new WaypointPosition(19.11046, 74.66027, "Ahmednagar City");
+    public final static WaypointPosition DAUND_CITY = new WaypointPosition(18.45720, 74.56167, "Daund City");
+    public final static WaypointPosition PUNE_AIRPORT = new WaypointPosition(18.57934, 73.90634, "Pune International Airport");
+
+//     public final static WaypointPosition PCCOE_COLLEGE = new WaypointPosition(18.65215, -73.76161, "PCCOE College");
+//     public final static WaypointPosition BOMBAY_SAPPERS = new WaypointPosition(18.56080, -73.92120, "Bombay Sappers");
+//     public final static WaypointPosition PUNE_AIRPORT = new WaypointPosition(18.57934, -73.90617, "Pune International Airport");
+//     public final static WaypointPosition NAGPUR_AIRPORT = new WaypointPosition(21.09016, 79.05223, "Nagpur International Airport");
 }

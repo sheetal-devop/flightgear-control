@@ -8,7 +8,7 @@ FG_AIRCRAFT=org.flightgear.fgaddon.stable_2020.f15c
 #find the AppImage on the path
 #keep consistent with fg_launcher.sh
 
-APPIMAGE_FILE=FlightGear-2020.3.17-x86_64.AppImage
+APPIMAGE_FILE=FlightGear-2020.3.18-x86_64.AppImage
 
 FG_BIN_PATH=`whereis -b $APPIMAGE_FILE | awk '{print $2}'`
 
@@ -105,8 +105,8 @@ ALT=9000
 
 ########
 #start position, default to yvr 49.19524, -123.18084
-START_LAT=${3:-49.19524}
-START_LON=${4:--123.18084}
+START_LAT=${3:-21.09016}
+START_LON=${4:-79.05223}
 
 ########
 #name of this aircraft

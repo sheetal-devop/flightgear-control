@@ -13,16 +13,16 @@ public class KnownRoutesTest {
 	
 	@Test
 	public void testIsEqual() {
-		Assert.assertTrue( KnownRoutes.isEqual( KnownRoutes.VANCOUVER_TOUR, KnownRoutes.VANCOUVER_TOUR) );
-		Assert.assertFalse( KnownRoutes.isEqual( KnownRoutes.VANCOUVER_TOUR, KnownRoutes.BC_SOUTH_DEMO) );
-		
+		Assert.assertTrue( KnownRoutes.isEqual( KnownRoutes.PUNE_TOUR, KnownRoutes.PUNE_TOUR) );
+		Assert.assertFalse( KnownRoutes.isEqual( KnownRoutes.PUNE_TOUR, KnownRoutes.BC_SOUTH_DEMO) );
+
 		Assert.assertFalse(KnownRoutes.isEqual( null, null) );
 		
 		Assert.assertTrue(KnownRoutes.isEqual( new ArrayList<WaypointPosition>(), new ArrayList<WaypointPosition>()) );
 		
-		Assert.assertFalse(KnownRoutes.isEqual( new ArrayList<WaypointPosition>(), KnownRoutes.VANCOUVER_TOUR ) );
+		Assert.assertFalse(KnownRoutes.isEqual( new ArrayList<WaypointPosition>(), KnownRoutes.PUNE_TOUR ) );
 		
-		Assert.assertFalse(KnownRoutes.isEqual( KnownRoutes.VANCOUVER_TOUR, new ArrayList<WaypointPosition>() ) );
+		Assert.assertFalse(KnownRoutes.isEqual( KnownRoutes.PUNE_TOUR, new ArrayList<WaypointPosition>() ) );
 	}
 	
     @Test
@@ -30,8 +30,8 @@ public class KnownRoutesTest {
         
     	Assert.assertTrue( 
     		KnownRoutes.isEqual(
-    			KnownRoutes.VANCOUVER_TOUR, 
-    			KnownRoutes.lookupKnownRoute("Vancouver Tour")
+    			KnownRoutes.PUNE_TOUR,
+    			KnownRoutes.lookupKnownRoute("Pune Tour")
     		)
     	);
     }
@@ -41,8 +41,8 @@ public class KnownRoutesTest {
     	//Happy case indirect 
     	Assert.assertTrue( 
     		KnownRoutes.isEqual(
-    			KnownRoutes.VANCOUVER_TOUR, 
-    			KnownRoutes.lookupKnownRoute("vancouver tour")
+    			KnownRoutes.PUNE_TOUR,
+    			KnownRoutes.lookupKnownRoute("pune tour")
     		)
     	);
     }
@@ -51,50 +51,50 @@ public class KnownRoutesTest {
     public void testDirectLookupWhitespace() {
     	Assert.assertTrue( 
     		KnownRoutes.isEqual(
-    			KnownRoutes.VANCOUVER_TOUR, 
-    			KnownRoutes.lookupKnownRoute("vancouver tour        ")
+    			KnownRoutes.PUNE_TOUR,
+    			KnownRoutes.lookupKnownRoute("pune tour        ")
     		)
     	);
     	
     	Assert.assertTrue( 
         	KnownRoutes.isEqual(
-        		KnownRoutes.VANCOUVER_TOUR, 
-        		KnownRoutes.lookupKnownRoute("        vancouver tour       ")
+        		KnownRoutes.PUNE_TOUR,
+        		KnownRoutes.lookupKnownRoute("        pune tour       ")
         	)
         );
     	
     	Assert.assertTrue( 
         	KnownRoutes.isEqual(
-        		KnownRoutes.VANCOUVER_TOUR, 
-        		KnownRoutes.lookupKnownRoute("vancouver tour\n")
+        		KnownRoutes.PUNE_TOUR,
+        		KnownRoutes.lookupKnownRoute("pune tour\n")
         	)
         );
     	
     	Assert.assertTrue( 
            	KnownRoutes.isEqual(
-           		KnownRoutes.VANCOUVER_TOUR, 
-           		KnownRoutes.lookupKnownRoute("\tvancouver tour")
+           		KnownRoutes.PUNE_TOUR,
+           		KnownRoutes.lookupKnownRoute("\tpune tour")
            	)
         );
     	
     	Assert.assertTrue( 
            	KnownRoutes.isEqual(
-           		KnownRoutes.VANCOUVER_TOUR, 
-           		KnownRoutes.lookupKnownRoute("vancouver tour\n\n\n\n")
+           		KnownRoutes.PUNE_TOUR,
+           		KnownRoutes.lookupKnownRoute("pune tour\n\n\n\n")
            	)
         );
     	
     	Assert.assertTrue( 
     		KnownRoutes.isEqual(
-            	KnownRoutes.VANCOUVER_TOUR, 
-            	KnownRoutes.lookupKnownRoute("    vancouver tour\n\n\n\n")
+            	KnownRoutes.PUNE_TOUR,
+            	KnownRoutes.lookupKnownRoute("    pune tour\n\n\n\n")
             )
         );
     	
     	Assert.assertTrue( 
            	KnownRoutes.isEqual(
-           		KnownRoutes.VANCOUVER_TOUR, 
-           		KnownRoutes.lookupKnownRoute("\n\n          \n\n\nvancouver tour\n\n\n\n")
+           		KnownRoutes.PUNE_TOUR,
+           		KnownRoutes.lookupKnownRoute("\n\n          \n\n\npune tour\n\n\n\n")
            	)
         );
     }
