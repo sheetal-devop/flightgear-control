@@ -85,6 +85,24 @@ SYSTEMS_INPUT_PORT=$((START_PORT_RANGE+14))
 VELOCITIES_INPUT_PORT=$((START_PORT_RANGE+15))
 
 ########
+#start heading
+#use heading if supplied, otherwise just head north
+HEADING=${2:-0}
+
+#known headings in degrees
+#yvr -> abbotsford: 103.836
+#yvr -> victoria: 189.012
+#yvr -> ubc: 326.577
+#yvr -> west lion: 359.09
+
+ALT=9000
+
+########
+#start position, default to yvr 49.19524, -123.18084
+START_LAT=${3:-49.19524}
+START_LON=${4:--123.18084}
+
+########
 #name of this aircraft
 #mostly for the log directory so multiple simulators aren't logging to the same place
 DATE_STR="$(date +%s)"
@@ -164,6 +182,12 @@ DISPLAY=$DISPLAY_STR FG_HOME=$FG_HOME_DIR $FG_BINARY\
  --max-fps=30\
  --disable-clouds3d\
  --disable-specular-highlight\
+ --vc=600\
+ --heading=$HEADING\
+ --altitude=$ALT\
+ --lat=$START_LAT\
+ --lon=$START_LON\
+ --enable-freeze\
  --allow-nasal-from-sockets\
  --turbulence=0.0\
  --wind=0\@0
