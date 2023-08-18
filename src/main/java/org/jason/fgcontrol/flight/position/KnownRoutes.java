@@ -25,11 +25,11 @@ public abstract class KnownRoutes {
 
             {
                //add(KnownPositions.NAGPUR_AIRPORT)
-               add(KnownPositions.AMRAVATI_CITY)
-               add(KnownPositions.BHUSAVAL_CITY)
-               add(KnownPositions.AHMEDNAGAR_CITY)
-               add(KnownPositions.DAUND_CITY)
-               add(KnownPositions.PUNE_AIRPORT)
+               add(KnownPositions.AMRAVATI_CITY);
+               add(KnownPositions.BHUSAVAL_CITY);
+               add(KnownPositions.AHMEDNAGAR_CITY);
+               add(KnownPositions.DAUND_CITY);
+               add(KnownPositions.PUNE_AIRPORT);
             }
         };
 
