@@ -24,7 +24,6 @@ public abstract class KnownRoutes {
             private static final long serialVersionUID = 3487720676170767955L;
 
             {
-               //add(KnownPositions.NAGPUR_AIRPORT)
                add(KnownPositions.AMRAVATI_CITY);
                add(KnownPositions.BHUSAVAL_CITY);
                add(KnownPositions.AHMEDNAGAR_CITY);
@@ -38,7 +37,6 @@ public abstract class KnownRoutes {
             private static final long serialVersionUID = 3487720676170767955L;
 
             {
-               //add(KnownPositions.NAGPUR_AIRPORT)
                add(KnownPositions.SURAT_CITY);
                add(KnownPositions.VADODARA_CITY);
                add(KnownPositions.RATLAM_CITY);
@@ -372,7 +370,7 @@ public abstract class KnownRoutes {
     	private static final long serialVersionUID = -8393587070456328149L;
 
 		{
-    		addAll(PUNE_TOUR);
+    		addAll(VANCOUVER_TOUR);
     	}
     };
 }

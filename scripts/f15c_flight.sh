@@ -105,8 +105,8 @@ ALT=9000
 
 ########
 #start position, default to yvr 49.19524, -123.18084
-START_LAT=${3:-21.09016}
-START_LON=${4:-79.05223}
+START_LAT=${3:-49.19524}
+START_LON=${4:--123.18084}
 
 ########
 #name of this aircraft
