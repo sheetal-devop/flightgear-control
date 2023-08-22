@@ -33,26 +33,40 @@ public abstract class KnownRoutes {
             }
         };
 
-//     public final static ArrayList<WaypointPosition> VANCOUVER_TOUR = new ArrayList<WaypointPosition>() {
-//
-//         private static final long serialVersionUID = 3487720676170767955L;
-//
-//         {
-//             add( KnownPositions.UBC );
-//             add( KnownPositions.STANLEY_PARK );
-//             add( KnownPositions.LONSDALE_QUAY );
-//             add( KnownPositions.MT_SEYMOUR );
-//             add( KnownPositions.GROUSE_MOUNTAIN );
-//             add( KnownPositions.WEST_LION );
-//             add( KnownPositions.LANGDALE );
-//             add( KnownPositions.BOWEN_BAY );
-//             add( KnownPositions.HORSESHOE_BAY );
-//             add( KnownPositions.MARPOLE_CC );
-//             add( KnownPositions.BURNABY_8RINKS );
-//             add( KnownPositions.PLANET_ICE_DELTA );
-//             add( KnownPositions.VAN_INTER_AIRPORT_YVR );
-//         }
-//     };
+    public final static ArrayList<WaypointPosition> DELHI_TOUR = new ArrayList<WaypointPosition>() {
+
+            private static final long serialVersionUID = 3487720676170767955L;
+
+            {
+               //add(KnownPositions.NAGPUR_AIRPORT)
+               add(KnownPositions.SURAT_CITY);
+               add(KnownPositions.VADODARA_CITY);
+               add(KnownPositions.RATLAM_CITY);
+               add(KnownPositions.KOTA_CITY);
+               add(KnownPositions.DELHI_CITY);
+            }
+        };
+
+    public final static ArrayList<WaypointPosition> VANCOUVER_TOUR = new ArrayList<WaypointPosition>() {
+
+        private static final long serialVersionUID = 3487720676170767955L;
+
+        {
+            add( KnownPositions.UBC );
+            add( KnownPositions.STANLEY_PARK );
+            add( KnownPositions.LONSDALE_QUAY );
+            add( KnownPositions.MT_SEYMOUR );
+            add( KnownPositions.GROUSE_MOUNTAIN );
+            add( KnownPositions.WEST_LION );
+            add( KnownPositions.LANGDALE );
+            add( KnownPositions.BOWEN_BAY );
+            add( KnownPositions.HORSESHOE_BAY );
+            add( KnownPositions.MARPOLE_CC );
+            add( KnownPositions.BURNABY_8RINKS );
+            add( KnownPositions.PLANET_ICE_DELTA );
+            add( KnownPositions.VAN_INTER_AIRPORT_YVR );
+        }
+    };
 
     //flight plan with minimal course corrections starting from hs bay
     public final static ArrayList<WaypointPosition> VANCOUVER_NORTH_SHORE_DEMO = new ArrayList<WaypointPosition>() {
@@ -256,7 +270,8 @@ public abstract class KnownRoutes {
     	private static final long serialVersionUID = -8393587070456328149L;
 
 		{
-//     		put("Vancouver Tour", VANCOUVER_TOUR);
+    		put("Vancouver Tour", VANCOUVER_TOUR);
+    		put("Delhi Tour", DELHI_TOUR);
             put("Pune Tour", PUNE_TOUR);
     		put("Vancouver North Shore Demo", VANCOUVER_NORTH_SHORE_DEMO);
     		put("Vancouver Low Altitude Tour", VANCOUVER_LOW_ALT_TOUR);
