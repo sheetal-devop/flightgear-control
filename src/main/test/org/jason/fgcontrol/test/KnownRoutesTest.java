@@ -22,7 +22,7 @@ public class KnownRoutesTest {
 		
 		Assert.assertFalse(KnownRoutes.isEqual( new ArrayList<WaypointPosition>(), new ArrayList<WaypointPosition>(), KnownRoutes.VANCOUVER_TOUR ) );
 		
-		Assert.assertFalse(KnownRoutes.isEqual( KnownRoutes.PUNE_TOUR, new ArrayList<WaypointPosition>() ) );
+		Assert.assertFalse(KnownRoutes.isEqual( KnownRoutes.VANCOUVER_TOUR, new ArrayList<WaypointPosition>() ) );
 	}
 	
     @Test
