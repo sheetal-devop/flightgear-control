@@ -95,7 +95,7 @@ public abstract class KnownPositions {
     public final static WaypointPosition BOSTON_PTC_OFFICE = new WaypointPosition(42.35120, -71.04463, "Boston Seaport PTC Office");
     public final static WaypointPosition PORTLAND_PTC_OFFICE = new WaypointPosition(43.65848, -70.25726, "Portland PTC Office");
     
-    // Familiar Routes in India
+    // Familiar Places in India
     public final static WaypointPosition AMRAVATI_CITY = new WaypointPosition(20.90422, 77.67934, "Amravati City");
     public final static WaypointPosition BHUSAVAL_CITY = new WaypointPosition(21.03964, 75.76847, "Bhusaval City");
     public final static WaypointPosition AHMEDNAGAR_CITY = new WaypointPosition(19.11046, 74.66027, "Ahmednagar City");
