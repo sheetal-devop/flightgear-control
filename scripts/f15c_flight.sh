@@ -8,7 +8,7 @@ FG_AIRCRAFT=org.flightgear.fgaddon.stable_2020.f15c
 #find the AppImage on the path
 #keep consistent with fg_launcher.sh
 
-APPIMAGE_FILE=FlightGear-2020.3.18-x86_64.AppImage
+APPIMAGE_FILE=FlightGear-2020.3.17-x86_64.AppImage
 
 FG_BIN_PATH=`whereis -b $APPIMAGE_FILE | awk '{print $2}'`
 
