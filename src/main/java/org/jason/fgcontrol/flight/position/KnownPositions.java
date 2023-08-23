@@ -101,7 +101,6 @@ public abstract class KnownPositions {
     public final static WaypointPosition AHMEDNAGAR_CITY = new WaypointPosition(19.11046, 74.66027, "Ahmednagar City");
     public final static WaypointPosition DAUND_CITY = new WaypointPosition(18.45720, 74.56167, "Daund City");
     public final static WaypointPosition PUNE_AIRPORT = new WaypointPosition(18.57934, 73.90634, "Pune International Airport");
-
     public final static WaypointPosition SURAT_CITY = new WaypointPosition(21.15934, 72.73989, "Surat City");
     public final static WaypointPosition VADODARA_CITY = new WaypointPosition(22.32224, 73.09068, "Vadodara City");
     public final static WaypointPosition RATLAM_CITY = new WaypointPosition(23.33676, 75.00124, "Ratlam City");

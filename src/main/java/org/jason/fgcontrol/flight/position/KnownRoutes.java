@@ -20,7 +20,7 @@ public abstract class KnownRoutes {
     private final static Logger LOGGER = LoggerFactory.getLogger(KnownRoutes.class);
 
     public final static ArrayList<WaypointPosition> PUNE_TOUR = new ArrayList<WaypointPosition>() {
-
+             // Starting position for the route - Nagpur -> Amravati -> Bhusaval -> Ahmednagar -> Daund -> Pune Airport with starting position of Nagpur location (latitude, longitude) - 18.96902, 72.81795
             private static final long serialVersionUID = 3487720676170767955L;
 
             {
@@ -33,7 +33,7 @@ public abstract class KnownRoutes {
         };
 
     public final static ArrayList<WaypointPosition> DELHI_TOUR = new ArrayList<WaypointPosition>() {
-
+            // Starting position for the route - Mumbai Airport -> Surat -> Vadodara -> Ratlam -> Kota -> Delhi with starting position of Mumbai Airport location (latitude, longitude) - 21.09016, 79.05223
             private static final long serialVersionUID = 3487720676170767955L;
 
             {
