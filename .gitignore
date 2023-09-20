@@ -30,3 +30,7 @@ scripts/updateProtocolFiles.sh
 
 # common test output file
 output
+
+#ignore for Project
+.DS_Store
+.idea/
