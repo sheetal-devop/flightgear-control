@@ -27,3 +27,7 @@ scripts/updateProtocolFiles.sh
 /flights
 
 /*.gpx
+
+#ignore for Project
+.DS_Store
+.idea/
