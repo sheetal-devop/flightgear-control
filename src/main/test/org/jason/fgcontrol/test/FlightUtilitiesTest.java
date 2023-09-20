@@ -160,7 +160,53 @@ public class FlightUtilitiesTest {
     	
     	currentHeading = 120.0;
     	Assert.assertEquals(115.0, FlightUtilities.determineCourseChangeAdjustment(currentHeading, 5.0, 20.0));
+    }
+    
+    @Test
+    public void testWithinPitchThreshold() {
+    	//pitch is -180 to 180
     	
+    	Assert.assertTrue(FlightUtilities.withinPitchThreshold(0.0, 5.0, 0.0));
+    	Assert.assertTrue(FlightUtilities.withinPitchThreshold(0.5, 1.0, 0.5));
 
+    	
+    	Assert.assertTrue(FlightUtilities.withinPitchThreshold(-2.0, 5.0, 0.0));    	
+    	
+    	Assert.assertFalse(FlightUtilities.withinPitchThreshold(0.0, 1.0, 2.0));
+    	Assert.assertFalse(FlightUtilities.withinPitchThreshold(0.5, 1.5, 2.5));
+    	
+    	Assert.assertFalse(FlightUtilities.withinPitchThreshold(-2.0, 1.0, 0.0));
+    	Assert.assertFalse(FlightUtilities.withinPitchThreshold(-2.2, 1.0, 0.2));
+    	    	
+    	//boundaries
+    	Assert.assertFalse(FlightUtilities.withinPitchThreshold(5.0, 0.0, 5.0));
+    	Assert.assertFalse(FlightUtilities.withinPitchThreshold(-5.0, 0.0, -5.0));
+    	
+    	Assert.assertFalse(FlightUtilities.withinPitchThreshold(5.0, 0.0, 4.9));
+    	Assert.assertFalse(FlightUtilities.withinPitchThreshold(-5.0, 0.0, -4.9));
+    }
+    
+    @Test
+    public void testWithinRollThreshold() {
+    	//roll is +180 to -180
+    	
+    	Assert.assertTrue(FlightUtilities.withinRollThreshold(0.0, 5.0, 0.0));
+    	Assert.assertTrue(FlightUtilities.withinRollThreshold(0.5, 1.0, 0.5));
+
+    	
+    	Assert.assertTrue(FlightUtilities.withinRollThreshold(-2.0, 5.0, 0.0));    	
+    	
+    	Assert.assertFalse(FlightUtilities.withinRollThreshold(0.0, 1.0, 2.0));
+    	Assert.assertFalse(FlightUtilities.withinRollThreshold(0.5, 1.5, 2.5));
+    	
+    	Assert.assertFalse(FlightUtilities.withinRollThreshold(-2.0, 1.0, 0.0));
+    	Assert.assertFalse(FlightUtilities.withinRollThreshold(-2.2, 1.0, 0.2));
+    	    	
+    	//boundaries
+    	Assert.assertFalse(FlightUtilities.withinRollThreshold(5.0, 0.0, 5.0));
+    	Assert.assertFalse(FlightUtilities.withinRollThreshold(-5.0, 0.0, -5.0));
+    	
+    	Assert.assertFalse(FlightUtilities.withinRollThreshold(5.0, 0.0, 4.9));
+    	Assert.assertFalse(FlightUtilities.withinRollThreshold(-5.0, 0.0, -4.9));
     }
 }

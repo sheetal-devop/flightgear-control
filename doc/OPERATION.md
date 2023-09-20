@@ -11,6 +11,7 @@ Ensure the simulator environment setup is completed. Process documented [here](S
 1. Run the WaypointFlight program of the `flightgear-control` from the project root:
     `/path/to/jdk8/bin/java -cp build/libs/flightgear-control-[version]-app.jar org.jason.fgcontrol.aircraft.f15c.app.WaypointFlight scripts/conf/f15c/f15c_beta_flight.properties`
     * The properties file specifies which ports the flightgear-control application will use to communicate with the flightgear simulator instance. 
+    * The properties file can optionally specify a flight plan- Use directive `flightPlanName` to specify the flight plan by name. Names are resolved against `org.jason.fgcontrol.flight.position.KnownRoutes.KNOWN_ROUTES`.
     * For flight applications, ensure that the simulator launches with an initial heading/bearing of the first waypoint in the flightplan from the starting position. Failure to ensure this can cause the aircraft to tumble in an unrecoverable manner.
     * Additionally for flight applications, the launch script will pause the simulator state after its startup is completed. It is the responsibility of the `flightgear-control` application to manage the initial paused simulator state as part of its plan. For a simple test, it can be unpaused by pressing 'P'. Runway applications do not start with a paused simulator.
     * The simulator launch scripts will check for the environment variable DISPLAY, and will invoke the simulator with this display if defined. 

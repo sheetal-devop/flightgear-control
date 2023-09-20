@@ -195,7 +195,7 @@ public abstract class FlightGearAircraft {
     		else {
     			LOGGER.error("Failed to resolve a flight plan for name: {}", flightPlanName);
 
-    			//just report the error 
+    			//just report the error. it's possible a flightplan is set later on.
     		}
     		
     	} else {

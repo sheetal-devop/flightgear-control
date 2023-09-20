@@ -3,7 +3,6 @@ package org.jason.fgcontrol.flight.util;
 import java.io.IOException;
 
 import org.jason.fgcontrol.aircraft.FlightGearAircraft;
-import org.jason.fgcontrol.flight.position.WaypointPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -185,8 +184,10 @@ public class FlightUtilities {
     }
     
     public static boolean withinPitchThreshold(FlightGearAircraft plane, double maxDifference, double targetPitch) {
-
-        double currentPitch = plane.getPitch();
+    	return withinPitchThreshold(plane.getPitch(), maxDifference, targetPitch);
+    }
+    	
+    public static boolean withinPitchThreshold(double currentPitch, double maxDifference, double targetPitch) {
         
         //pitch is -180 to 180
         
@@ -210,7 +211,10 @@ public class FlightUtilities {
     }
     
     public static boolean withinRollThreshold(FlightGearAircraft plane, double maxDifference, double targetRoll) {
-        double currentRoll = plane.getRoll();
+        return withinRollThreshold(plane.getRoll(), maxDifference, targetRoll);
+    }
+        
+    public static boolean withinRollThreshold(double currentRoll, double maxDifference, double targetRoll) {
         
         //roll is +180 to -180
         

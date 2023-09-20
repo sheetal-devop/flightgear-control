@@ -35,7 +35,7 @@ public abstract class C172PWaypointFlightExecutor {
 	public static void runFlight(C172P plane, C172PFlightParameters parameters) throws IOException {
 		
 		if(plane.getWaypointCount() <= 0) {
-			LOGGER.error("runFlight invoked with empty WaypointManager. Aborting");
+			LOGGER.error("===============================\nC172P runFlight invoked with empty WaypointManager. Aborting\n===============================");
 			return;
 		}
 		
