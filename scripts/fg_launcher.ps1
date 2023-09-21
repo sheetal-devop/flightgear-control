@@ -1,4 +1,4 @@
-#flightgear appimage setup script for flightgear-control project.
+#flightgear windows setup script for flightgear-control project.
 
 $BINARY_FILE="fgfs"
 
@@ -23,10 +23,11 @@ if( [string]::IsNullOrEmpty($FG_BIN_PATH) ) {
     } else {
         echo "Found FlightGear directory at $FG_BIN_DIR"
 
+		# Use the user's home directory as the parent for the resource directories
         $FG_HOME_DIR="$Home/fgfs"
         $FG_ROOT_DIR="$Home/fgdata"
 
-	$Env:FG_HOME = $FG_HOME_DIR
+		$Env:FG_HOME = $FG_HOME_DIR
 
         #run the simulator launcher
         & "$FG_BIN_PATH" --fg-root=$FG_ROOT_DIR --launcher
