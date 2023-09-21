@@ -16,7 +16,7 @@ $FG_BIN_PATH=((Get-Command $BINARY_FILE).Source)
 #############################
 
 if( [string]::IsNullOrEmpty($FG_BIN_PATH) ) {
-    echo "Could not find FlightGear Binary on path. Ensure the FlightGear AppImage location is on PATH: $Env:Path."
+    echo "Could not find FlightGear Binary on path. Ensure the FlightGear binary location is on PATH: $Env:Path."
     exit 1
 } else {
     echo "Found FlightGear Binary at $FG_BIN_PATH"
@@ -24,7 +24,7 @@ if( [string]::IsNullOrEmpty($FG_BIN_PATH) ) {
     $FG_BIN_DIR=(Split-Path $FG_BIN_PATH)
 
     if( [string]::IsNullOrEmpty($FG_BIN_DIR )) {
-        echo "Could not determine parent directory for FlightGear AppImage"
+        echo "Could not determine parent directory for FlightGear binary"
         exit 1
     } else {
         echo "Found FlightGear directory at $FG_BIN_DIR"
