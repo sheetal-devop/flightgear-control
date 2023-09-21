@@ -32,7 +32,9 @@ This guide covers usage of flightgear with an AppImage, which is the preferred m
     `flightgear-control/scripts/fg_launcher.sh`
     
 ----
+
 ##### flightgear aircraft model installation #####
+
 1. After the launcher UI is visible, click 'Okay' on the welcome screen if it appears. Enlarge the window if the welcome screen doesn't appear to show an 'Okay' button.
 1. If inclined, navigate to "Settings" and disable crash and error reporting.
 1. Navigate to the "Aircraft" section. 
@@ -104,7 +106,7 @@ This guide covers usage of flightgear with an AppImage, which is the preferred m
 
 #### Generate flightgear-control application jar ####
 
-1. Switch to the project root of the `flightgear-control` project, and ensure the latest release is checked out.
+1. Switch to the project root of the `flightgear-control` project, and ensure the latest release or development branch is checked out..
 1. Run the build tasks `appjar` with the gradle wrapper, specifying JDK 8:
     `JAVA_HOME=/path/to/jdk8 ./gradlew appjar`
 1. Check that the application jar `flightgear-control-[version]-app.jar` appears in `build/lib`
