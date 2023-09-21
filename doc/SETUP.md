@@ -1,11 +1,13 @@
 # flightgear-control Environment Setup 
 This document describes the steps to set up your linux system with flightgear for running flights with the flightgear-control and thingworx-flightgear-edge projects. The target flightgear version is 2020.3.17.
 
+
+
 ## Dependencies ##
 1. Linux x86_64 running with a windowing system.
 1. Git
 1. JDK 8
-1. GPU preferably with more than 2Gb VRAM.
+1. GPU preferably with more than 1Gb of VRAM.
 
 ## Simulator installation ##
 This guide covers usage of flightgear with an AppImage, which is the preferred method of running the flightgear simulator. Alternatively, flightgear may be available through your package manager.

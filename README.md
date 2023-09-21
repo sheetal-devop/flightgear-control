@@ -16,15 +16,12 @@ Generically fly aircraft by executing the plane's engine startup script and dili
 </video>
 
 ----
-
-
-
 #### Requirements ####
 
-1. Linux x86_64 running with a windowing system.
+1. Mac OSX, Windows 10, or Linux x86_64 running with a windowing system.
 1. Git
 1. JDK 8+
-1. GPU preferably with more than 2Gb VRAM.
+1. GPU preferably with more than 1Gb of VRAM.
 
 ----
 #### Setup ####
