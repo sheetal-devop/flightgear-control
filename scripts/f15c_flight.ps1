@@ -29,8 +29,8 @@ if( [string]::IsNullOrEmpty($FG_BIN_PATH) ) {
     } else {
         echo "Found FlightGear directory at $FG_BIN_DIR"
 
-        $FG_HOME_DIR="$Home/fgfs"
-        $FG_ROOT_DIR="$Home/fgdata"
+        $FG_HOME_DIR="$Home\fgfs\"
+        $FG_ROOT_DIR="$Home\fgdata\"
 
         $Env:FG_HOME = $FG_HOME_DIR
     }
@@ -184,6 +184,7 @@ $SIM_ARGS=@"
 --aircraft=$FG_AIRCRAFT
 --fog-fastest
 --fg-root=$FG_ROOT_DIR
+--download-dir=$FG_ROOT_DIR
 --generic=socket,out,45,$TELEM_HOST,$TELEM_OUTPUT_PORT,udp,f15c_output
 --generic=socket,in,45,$INPUT_HOST,$CONSUMABLES_INPUT_PORT,udp,f15c_input_consumables
 --generic=socket,in,45,$INPUT_HOST,$CONTROLS_INPUT_PORT,udp,f15c_input_controls
