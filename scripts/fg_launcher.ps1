@@ -30,6 +30,9 @@ if( [string]::IsNullOrEmpty($FG_BIN_PATH) ) {
 		$Env:FG_HOME = $FG_HOME_DIR
 
         #run the simulator launcher
-        & "$FG_BIN_PATH" --fg-root=$FG_ROOT_DIR --launcher
+
+		#specify download dir otherwise windows puts it in $Home\FlightGear
+
+        & "$FG_BIN_PATH" --fg-root=$FG_ROOT_DIR --download-dir=$FG_ROOT_DIR --launcher
     }
 }
