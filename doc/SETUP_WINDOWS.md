@@ -52,11 +52,7 @@ This guide covers usage of a standard installation of flightgear on Windows 10.
 
 1. Locate the flightgear installation directory on your OS. 
 1. Copy the project protocol xml files under `flightgear-control/protocol` directory into the flightgear installation data `Protocol` directory without preserving the source directory structure. All xml files should end up in this directory without the source directory structure. For example:
-    * `cp -v flightgear-control/protocol/input/c172p/c172p*.xml flightgear-2020.3.17/fgdata/Protocol/`
-    * `cp -v flightgear-control/protocol/output/c172p/c172p*.xml flightgear-2020.3.17/fgdata/Protocol/`
-    * `cp -v flightgear-control/protocol/input/f15c/f15c*.xml flightgear-2020.3.17/fgdata/Protocol/`
-    * `cp -v flightgear-control/protocol/output/f15c/f15c*.xml flightgear-2020.3.17/fgdata/Protocol/`
-    * ...
+	* `Get-ChildItem ".\protocol\" -Include *.xml -Recurse | Copy-Item -Destination  "$Home/fgdata/Protocol" -Verbose`
 
 ----
 
@@ -117,6 +113,15 @@ This guide covers usage of a standard installation of flightgear on Windows 10.
 
 1. Ensure your IDE has gradle project support.
 1. Import flightgear-control as a gradle project, and configure it to use the included gradle wrapper.
+
+----
+
+#### Notes ####
+
+* Simulator startup appears to have trouble synchronizing terrain assets with the remote server on Windows. If the simulator appears to exit without error upon launch, try re-running it. It typically succeeds after several (5-15) attempts.
+* The project powershell scripts specify a `--download-dir` parameter when the simulator is invoked, which defaults to a path outside of FG_ROOT.
+* Windows setup places the simulator data assets in the user home directory rather than the default simulator install directory in `C:\Program Files\`.
+* Simulator arguments with spaces and some special characters (@) are not properly escaped/handled by the project powershell scripts. 
 
 ----
 
