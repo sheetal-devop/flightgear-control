@@ -601,7 +601,16 @@ public class C172P extends FlightGearAircraft {
         LOGGER.info("Toggling anti-ice heaters: {}", enabled);
         
         writeControlInput(inputHash, this.controlInputConnection);
+    }
 
+    public synchronized void setCarbIce(double iceAmount) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.ENGINES_INPUT_FIELDS);
+
+        inputHash.put(C172PFields.ENGINES_CARB_ICE, String.valueOf(iceAmount));
+
+        LOGGER.info("Setting carburetor ice amount: {}", iceAmount);
+
+        writeControlInput(inputHash, this.enginesInputConnection);
     }
     
     public synchronized void setComplexEngineProcedures(boolean enabled) throws IOException {
