@@ -343,6 +343,18 @@ public class C172P extends FlightGearAircraft {
     ///////////////////
     //engine
     
+	public Double getCarbIce() {
+		return Double.parseDouble(getTelemetryField(C172PFields.ENGINES_CARB_ICE));
+	}
+
+	public int getComplexEngineProcedures() {
+		return Character.getNumericValue(getTelemetryField(C172PFields.ENGINES_COMPLEX_ENGINE_PROCEDURES).charAt(0));
+	}
+
+	public boolean isComplexEngineProceduresEnabled() {
+		return getComplexEngineProcedures() == C172PFields.ENGINES_COMPLEX_ENGINE_PROCEDURES_INT_TRUE;
+	}
+
     public double getCowlingAirTemperature() {
         return Double.parseDouble(getTelemetryField(C172PFields.ENGINES_COWLING_AIR_TEMPERATURE_FIELD));
     }
