@@ -181,6 +181,9 @@ public abstract class C172PFields {
     /////////////
     // engines
     
+    public final static String ENGINES_CARB_ICE = "/engines/active-engine/carb_ice";
+    public final static String ENGINES_CARB_ICE_DESC = "Amount of ice accumulated in the engine carburetor";
+
     public final static String ENGINES_COMPLEX_ENGINE_PROCEDURES = "/engines/active-engine/complex-engine-procedures";
     public final static String ENGINES_COMPLEX_ENGINE_PROCEDURES_DESC = "Toggle complex engine procedures and failures for the C172P. Disable for easier flight management";
     
@@ -247,6 +250,7 @@ public abstract class C172PFields {
     };
     
     public final static String[] ENGINES_INPUT_FIELDS = {
+    	ENGINES_CARB_ICE,
         ENGINES_COMPLEX_ENGINE_PROCEDURES,
         ENGINES_WINTER_KIT_INSTALLED
     };

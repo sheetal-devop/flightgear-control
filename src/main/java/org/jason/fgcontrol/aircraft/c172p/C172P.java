@@ -343,6 +343,18 @@ public class C172P extends FlightGearAircraft {
     ///////////////////
     //engine
     
+	public Double getCarbIce() {
+		return Double.parseDouble(getTelemetryField(C172PFields.ENGINES_CARB_ICE));
+	}
+
+	public int getComplexEngineProcedures() {
+		return Character.getNumericValue(getTelemetryField(C172PFields.ENGINES_COMPLEX_ENGINE_PROCEDURES).charAt(0));
+	}
+
+	public boolean isComplexEngineProceduresEnabled() {
+		return getComplexEngineProcedures() == C172PFields.ENGINES_COMPLEX_ENGINE_PROCEDURES_INT_TRUE;
+	}
+
     public double getCowlingAirTemperature() {
         return Double.parseDouble(getTelemetryField(C172PFields.ENGINES_COWLING_AIR_TEMPERATURE_FIELD));
     }
@@ -601,7 +613,16 @@ public class C172P extends FlightGearAircraft {
         LOGGER.info("Toggling anti-ice heaters: {}", enabled);
         
         writeControlInput(inputHash, this.controlInputConnection);
+    }
 
+    public synchronized void setCarbIce(double iceAmount) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.ENGINES_INPUT_FIELDS);
+
+        inputHash.put(C172PFields.ENGINES_CARB_ICE, String.valueOf(iceAmount));
+
+        LOGGER.info("Setting carburetor ice amount: {}", iceAmount);
+
+        writeControlInput(inputHash, this.enginesInputConnection);
     }
     
     public synchronized void setComplexEngineProcedures(boolean enabled) throws IOException {
