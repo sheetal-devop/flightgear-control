@@ -143,6 +143,10 @@ public final class FlightGearFields {
     public final static String FDM_FSZ_AERO_FIELD = "/fdm/jsbsim/forces/fsz-aero-lbs";
     public final static String FDM_FSZ_AERO_DESC = "The FDM force vector FSZ aero in pounds";
     
+    //fwx
+    public final static String FDM_FWX_AERO_FIELD = "/fdm/jsbsim/forces/fwx-aero-lbs";
+    public final static String FDM_FWX_AERO_DESC = "The FDM force vector FWX aero in pounds";
+    
     //fwy
     public final static String FDM_FWY_AERO_FIELD = "/fdm/jsbsim/forces/fwy-aero-lbs";
     public final static String FDM_FWY_AERO_DESC = "The FDM force vector FWY aero in pounds";
@@ -206,6 +210,9 @@ public final class FlightGearFields {
         FDM_FSX_AERO_FIELD,
         FDM_FSY_AERO_FIELD,
         FDM_FSZ_AERO_FIELD,
+
+        FDM_FWX_AERO_FIELD,
+        FDM_FWY_AERO_FIELD,
         FDM_FWZ_AERO_FIELD,
         
         FDM_LOAD_FACTOR_FIELD,
