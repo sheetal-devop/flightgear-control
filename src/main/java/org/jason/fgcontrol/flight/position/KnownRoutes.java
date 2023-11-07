@@ -19,6 +19,18 @@ public abstract class KnownRoutes {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(KnownRoutes.class);
 
+    public final static ArrayList<WaypointPosition> NA_CALIFORNIA = new ArrayList<WaypointPosition>() {
+        // Starting position for the route: Stanford -> SFO -> SANJOSE -> SACRAMENTO -> TAHOE -> Stanford with starting position of Standford University location 37.4276642,-122.1726403
+        private static final long serialVersionUID = 3487720676170767955L;
+
+        {
+            add(KnownPositions.SFO_CITY);
+            add(KnownPositions.SANJOSE_CITY);
+            add(KnownPositions.SACRAMENTO_CITY);
+            add(KnownPositions.TAHOE_CITY);
+        }
+    };
+
     // initial heading Nagpur to Amravati City: 261
     public final static ArrayList<WaypointPosition> PUNE_TOUR = new ArrayList<WaypointPosition>() {
              // Starting position for the route - Nagpur -> Amravati -> Bhusaval -> Ahmednagar -> Daund -> Pune Airport with starting position of Nagpur location (latitude, longitude) - 21.09016, 79.05223
@@ -284,6 +296,7 @@ public abstract class KnownRoutes {
     		put("Vancouver Island South 2 Tour", VAN_ISLAND_TOUR_SOUTH2);
     		put("BC West Coast Demo", BC_WEST_COAST);
     		put("PTC NA Office Tour", PTC_NA_OFFICE_TOUR);
+            put("North California Tour", NA_CALIFORNIA);
     	}
     };
 
