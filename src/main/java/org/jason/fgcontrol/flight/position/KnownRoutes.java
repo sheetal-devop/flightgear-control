@@ -21,7 +21,7 @@ public abstract class KnownRoutes {
 
     public final static ArrayList<WaypointPosition> NA_CALIFORNIA = new ArrayList<WaypointPosition>() {
         // initial heading Stanford -> SFO: 328.11
-        // Starting position for the route: Stanford -> SFO -> SANJOSE -> SACRAMENTO -> TAHOE -> Stanford with starting position of Standford University location 37.4276642,-122.1726403
+        // Starting position for the route: Stanford -> SFO -> SANJOSE -> SACRAMENTO -> TAHOE -> Stanford with starting position of Standford University location 37.42766,-122.17264
         private static final long serialVersionUID = 6061211922312686004L;
 
         {
