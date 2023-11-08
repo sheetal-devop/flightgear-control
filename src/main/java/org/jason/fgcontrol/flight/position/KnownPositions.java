@@ -106,4 +106,10 @@ public abstract class KnownPositions {
     public final static WaypointPosition RATLAM_CITY = new WaypointPosition(23.33676, 75.00124, "Ratlam City");
     public final static WaypointPosition KOTA_CITY = new WaypointPosition(25.17353, 75.76456, "Kota City");
     public final static WaypointPosition DELHI_CITY = new WaypointPosition(28.64428, 76.92842, "Delhi City");
+
+    //North California Tour
+    public final static WaypointPosition SFO_CITY = new WaypointPosition(37.81993, -122.48083, "SFO City");
+    public final static WaypointPosition SANJOSE_CITY = new WaypointPosition(37.33373, -121.89250, "SanJose Museum");
+    public final static WaypointPosition SACRAMENTO_CITY = new WaypointPosition(38.53928, -121.50658, "Sacramento Zoo");
+    public final static WaypointPosition TAHOE_CITY = new WaypointPosition(39.09295, -120.21011, "Lake Tahoe");
 }
