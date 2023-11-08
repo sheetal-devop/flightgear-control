@@ -108,8 +108,8 @@ public abstract class KnownPositions {
     public final static WaypointPosition DELHI_CITY = new WaypointPosition(28.64428, 76.92842, "Delhi City");
 
     //North California Tour
-    public final static WaypointPosition SFO_CITY = new WaypointPosition(37.8199328, -122.4808354, "SFO City");
-    public final static WaypointPosition SANJOSE_CITY = new WaypointPosition(37.3337304, -121.8925048, "SanJose Museum");
-    public final static WaypointPosition SACRAMENTO_CITY = new WaypointPosition(38.5392833, -121.5065844, "Sacramento Zoo");
-    public final static WaypointPosition TAHOE_CITY = new WaypointPosition(39.092952, -120.2101189, "Lake Tahoe");
+    public final static WaypointPosition SFO_CITY = new WaypointPosition(37.81993, -122.48083, "SFO City");
+    public final static WaypointPosition SANJOSE_CITY = new WaypointPosition(37.33373, -121.89250, "SanJose Museum");
+    public final static WaypointPosition SACRAMENTO_CITY = new WaypointPosition(38.53928, -121.50658, "Sacramento Zoo");
+    public final static WaypointPosition TAHOE_CITY = new WaypointPosition(39.09295, -120.21011, "Lake Tahoe");
 }
