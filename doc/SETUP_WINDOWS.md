@@ -6,7 +6,7 @@ This document describes the steps to set up your Windows system with flightgear 
 ## Dependencies ##
 1. Windows 10.
 1. Git
-1. JDK 8
+1. JDK 11
 1. GPU preferably with more than 1Gb of VRAM.
 
 ## Simulator installation ##
@@ -91,7 +91,7 @@ This guide covers usage of a standard installation of flightgear on Windows 10.
 #### Generate flightgear-control library jars ####
 
 1. Switch to the project root of the `flightgear-control` project, and ensure the latest release or development branch is checked out.
-1. Run the build tasks `jar` and `sourcesjar` with the gradle wrapper, specifying JDK 8:
+1. Run the build tasks `jar` and `sourcesjar` with the gradle wrapper, specifying JDK 11:
 	`$Env:JAVA_HOME = "C:/Users/user/Desktop/openjdk-11.0.2"`
 	`./gradlew jar sourcesjar`
 1. Check that the jars `flightgear-control-[version].jar` and `flightgear-control-[version]-src.jar` appear in `build/lib`.
@@ -102,7 +102,7 @@ This guide covers usage of a standard installation of flightgear on Windows 10.
 #### Generate flightgear-control application jar ####
 
 1. Switch to the project root of the `flightgear-control` project, and ensure the latest release or development branch is checked out.
-1. Run the build tasks `appjar` with the gradle wrapper, specifying JDK 8:
+1. Run the build tasks `appjar` with the gradle wrapper, specifying JDK 11:
 	`$Env:JAVA_HOME = "C:/Users/user/Desktop/openjdk-11.0.2"`
 	`./gradlew jar appjar`
 1. Check that the application jar `flightgear-control-[version]-app.jar` appears in `build/lib`
