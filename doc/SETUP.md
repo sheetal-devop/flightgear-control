@@ -6,7 +6,7 @@ This document describes the steps to set up your linux system with flightgear fo
 ## Dependencies ##
 1. Linux x86_64 running with a windowing system.
 1. Git
-1. JDK 8
+1. JDK 11
 1. GPU preferably with more than 1Gb of VRAM.
 
 ## Simulator installation ##
@@ -97,8 +97,8 @@ This guide covers usage of flightgear with an AppImage, which is the preferred m
 #### Generate flightgear-control library jars ####
 
 1. Switch to the project root of the `flightgear-control` project, and ensure the latest release or development branch is checked out.
-1. Run the build tasks `jar` and `sourcesjar` with the gradle wrapper, specifying JDK 8:
-    `JAVA_HOME=/path/to/jdk8 ./gradlew jar sourcesjar`
+1. Run the build tasks `jar` and `sourcesjar` with the gradle wrapper, specifying JDK 11:
+    `JAVA_HOME=/path/to/jdk11 ./gradlew jar sourcesjar`
 1. Check that the jars `flightgear-control-[version].jar` and `flightgear-control-[version]-src.jar` appear in `build/lib`.
 1. Use these jars in other projects.
     
@@ -107,8 +107,8 @@ This guide covers usage of flightgear with an AppImage, which is the preferred m
 #### Generate flightgear-control application jar ####
 
 1. Switch to the project root of the `flightgear-control` project, and ensure the latest release or development branch is checked out..
-1. Run the build tasks `appjar` with the gradle wrapper, specifying JDK 8:
-    `JAVA_HOME=/path/to/jdk8 ./gradlew appjar`
+1. Run the build tasks `appjar` with the gradle wrapper, specifying JDK 11:
+    `JAVA_HOME=/path/to/jdk11 ./gradlew appjar`
 1. Check that the application jar `flightgear-control-[version]-app.jar` appears in `build/lib`
     
 ----

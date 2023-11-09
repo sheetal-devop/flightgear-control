@@ -20,7 +20,7 @@ Generically fly aircraft by executing the plane's engine startup script and dili
 
 1. Mac OSX, Windows 10, or Linux x86_64 running with a windowing system.
 1. Git
-1. JDK 8+
+1. JDK 11
 1. GPU preferably with more than 1Gb of VRAM.
 
 ----

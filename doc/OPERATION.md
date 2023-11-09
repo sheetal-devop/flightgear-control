@@ -9,7 +9,7 @@ Ensure the simulator environment setup is completed. Process documented [here](S
     `flightgear-control/scripts/f15c_flight.sh 5220 103 49.19524 -123.18084 f15c_beta`
 1. Select the config file that corresponds to the port range that will be used by the simulator. For the above example, the lower bounds of the port range is 5220, and the corresponding config file is `scripts/conf/f15c/f15c_beta_flight.properties`
 1. Run the WaypointFlight program of the `flightgear-control` from the project root:
-    `/path/to/jdk8/bin/java -cp build/libs/flightgear-control-[version]-app.jar org.jason.fgcontrol.aircraft.f15c.app.WaypointFlight scripts/conf/f15c/f15c_beta_flight.properties`
+    `/path/to/jdk/bin/java -cp build/libs/flightgear-control-[version]-app.jar org.jason.fgcontrol.aircraft.f15c.app.WaypointFlight scripts/conf/f15c/f15c_beta_flight.properties`
     * The properties file specifies which ports the flightgear-control application will use to communicate with the flightgear simulator instance. 
     * The properties file can optionally specify a flight plan- Use directive `flightPlanName` to specify the flight plan by name. Names are resolved against `org.jason.fgcontrol.flight.position.KnownRoutes.KNOWN_ROUTES`.
     * For flight applications, ensure that the simulator launches with an initial heading/bearing of the first waypoint in the flightplan from the starting position. Failure to ensure this can cause the aircraft to tumble in an unrecoverable manner.
