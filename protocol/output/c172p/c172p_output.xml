@@ -158,6 +158,12 @@
          </chunk>
          <!-- engines - only one engine on the c172p -->
          <chunk>
+            <node>/engines/active-engine/carb_ice</node>
+            <name>carb_ice</name>
+            <type>float</type>
+            <format>"/engines/active-engine/carb_ice": %f,</format>
+         </chunk>
+         <chunk>
             <node>/engines/active-engine/complex-engine-procedures</node>
             <name>complex-engine-procedures</name>
             <type>bool</type>
@@ -507,6 +513,12 @@
             <name>roll-deg</name>
             <type>float</type>
             <format>"/orientation/roll-deg": %f,</format>
+         </chunk>
+         <chunk>
+            <node>/orientation/track-deg</node>
+            <name>track-deg</name>
+            <type>float</type>
+            <format>"/orientation/track-deg": %f,</format>
          </chunk>
          <chunk>
             <node>/orientation/track-magnetic-deg</node>

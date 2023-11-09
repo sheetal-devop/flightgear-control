@@ -20,8 +20,6 @@ public class FlightUtilities {
     
     public static final double COMPARATOR_REFERENCE_DEGREES = 90.0;
     
-    //private final static int VELOCITIES_CHANGE_SLEEP = 2500;
-    
     //TODO: maybe make these functions boolean so we can easily determine if a change was made
 
     //TODO: this affects altitude. don't want a subsequent altitude check teleporting the plane into a mountain
@@ -66,10 +64,10 @@ public class FlightUtilities {
      * 
      * 
      * 
-     * @param plane
-     * @param targetHeading    0-360 degrees
+     * @param plane				0-360 degrees
+     * @param targetHeading    	0-360 degrees
      * 
-     * @return    -1 for clockwise, 0 if none, 1 for counterclockwise
+     * @return    1 for clockwise, 0 if none, -1 for counterclockwise
      */
     public static int headingCompareTo(FlightGearAircraft plane, double targetHeading) {        
         return headingCompareTo( plane.getHeading(), targetHeading);
@@ -80,18 +78,19 @@ public class FlightUtilities {
      * 
      * 
      * 
-     * @param currentHeading
-     * @param targetHeading    0-360 degrees
+     * @param currentHeading	0-360 degrees
+     * @param targetHeading    	0-360 degrees
      * 
-     * @return    -1 for clockwise, 0 if none, 1 for counterclockwise
+     * @return    1 for clockwise, 0 if none, -1 for counterclockwise
      */
     public static int headingCompareTo(double currentHeading, double targetHeading) {
         
         int retval = HEADING_NO_ADJUST;
         
-        if(currentHeading < 0.0) currentHeading += DEGREES_CIRCLE;    
+        //normalize
+        if(currentHeading < DEGREES_ZERO) currentHeading += DEGREES_CIRCLE;    
         if(currentHeading >= DEGREES_CIRCLE) currentHeading %= DEGREES_CIRCLE;
-        if(targetHeading < 0.0) targetHeading += DEGREES_CIRCLE;    
+        if(targetHeading < DEGREES_ZERO) targetHeading += DEGREES_CIRCLE;    
         if(targetHeading >= DEGREES_CIRCLE) targetHeading %= DEGREES_CIRCLE;
 
         //if we're already on our way in the right direction
@@ -106,9 +105,40 @@ public class FlightUtilities {
             retval = HEADING_CCW_ADJUST;
         }
         
-        LOGGER.info("Comparing headings {} : {} => {}", currentHeading, targetHeading, retval);
+        LOGGER.debug("Comparing headings {} : {} => {}", currentHeading, targetHeading, retval);
         
         return retval;
+    }
+    
+    public static double determineCourseChangeAdjustment(double currentHeading, double courseAdjustmentIncrement, double targetHeading) {
+    	
+    	double intermediateHeading = currentHeading;
+    	
+    	if(withinHeadingThreshold(currentHeading, courseAdjustmentIncrement, targetHeading)) {
+    		//within threshold -> stick with current heading
+    	} else {
+        	int headingComparisonResult = headingCompareTo(currentHeading, targetHeading);
+        	
+            //adjust clockwise or counter? 
+            //this may actually change in the middle of the transition itself
+            
+            if(headingComparisonResult == FlightUtilities.HEADING_NO_ADJUST) {
+                LOGGER.warn("Found no adjustment needed");
+                
+                //nothing, default intermediateHeading is currentHeading as assigned above
+            } else if(headingComparisonResult == FlightUtilities.HEADING_CW_ADJUST) {
+                //1: adjust clockwise
+                intermediateHeading = (intermediateHeading + courseAdjustmentIncrement ) % FlightUtilities.DEGREES_CIRCLE;
+            } else {
+                //-1: adjust counterclockwise
+                intermediateHeading -= courseAdjustmentIncrement;
+                
+                //normalize 0-360
+                if(intermediateHeading < 0) intermediateHeading += FlightUtilities.DEGREES_CIRCLE;
+            }
+    	}
+        
+        return intermediateHeading;
     }
     
     public static boolean withinHeadingThreshold(FlightGearAircraft plane, double maxDifference, double targetHeading) {
@@ -154,8 +184,10 @@ public class FlightUtilities {
     }
     
     public static boolean withinPitchThreshold(FlightGearAircraft plane, double maxDifference, double targetPitch) {
-
-        double currentPitch = plane.getPitch();
+    	return withinPitchThreshold(plane.getPitch(), maxDifference, targetPitch);
+    }
+    	
+    public static boolean withinPitchThreshold(double currentPitch, double maxDifference, double targetPitch) {
         
         //pitch is -180 to 180
         
@@ -179,7 +211,10 @@ public class FlightUtilities {
     }
     
     public static boolean withinRollThreshold(FlightGearAircraft plane, double maxDifference, double targetRoll) {
-        double currentRoll = plane.getRoll();
+        return withinRollThreshold(plane.getRoll(), maxDifference, targetRoll);
+    }
+        
+    public static boolean withinRollThreshold(double currentRoll, double maxDifference, double targetRoll) {
         
         //roll is +180 to -180
         
@@ -225,4 +260,54 @@ public class FlightUtilities {
             plane.setPause(false);
         }
     }
+    
+	/**
+	 * Check if aircraft orientation is in need of correction based on heading, roll, pitch, and their
+	 * respective thresholds.
+	 * 
+	 * @param plane
+	 * @param waypointBearing
+	 * @param courseAdjustmentIncrement
+	 * @param maxHeadingDeviation
+	 * @param maxRoll
+	 * @param targetRoll
+	 * @param maxPitch
+	 * @param targetPitch
+	 * @throws IOException
+	 */
+	public static void stabilizeCheck(FlightGearAircraft plane, double waypointBearing,
+			double courseAdjustmentIncrement, double maxHeadingDeviation, double maxRoll, double targetRoll,
+			double maxPitch, double targetPitch) throws IOException {
+
+		// if any one of these thresholds are not met, forcibly correct to supplied
+		// values
+		if (
+			!FlightUtilities.withinRollThreshold(plane, maxRoll, targetRoll) ||
+			!FlightUtilities.withinPitchThreshold(plane, maxPitch, targetPitch) ||
+			!FlightUtilities.withinHeadingThreshold(plane, maxHeadingDeviation, waypointBearing)
+		) {
+			if(LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Correcting aircraft orientation");
+			}
+			
+			// if the current heading is too far from the waypoint bearing, adjust by
+			// courseAdjustmentIncrement
+			double currentHeading = plane.getHeading();
+			double intermediateHeading = FlightUtilities.determineCourseChangeAdjustment(currentHeading,
+					courseAdjustmentIncrement, waypointBearing);
+
+			// TODO: if we can update roll/pitch without updating heading, without creating
+			// a custom protocol for
+			// each of the single fields have forceStablilize selectively updating heading
+
+			// stabilize plane
+			plane.forceStabilize(intermediateHeading, targetRoll, targetPitch, false);
+		}
+		else {
+			if(LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Aircraft orientation within thresholds");
+			}
+		}
+
+	}
 }

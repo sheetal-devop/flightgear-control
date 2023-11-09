@@ -143,6 +143,10 @@ public final class FlightGearFields {
     public final static String FDM_FSZ_AERO_FIELD = "/fdm/jsbsim/forces/fsz-aero-lbs";
     public final static String FDM_FSZ_AERO_DESC = "The FDM force vector FSZ aero in pounds";
     
+    //fwx
+    public final static String FDM_FWX_AERO_FIELD = "/fdm/jsbsim/forces/fwx-aero-lbs";
+    public final static String FDM_FWX_AERO_DESC = "The FDM force vector FWX aero in pounds";
+    
     //fwy
     public final static String FDM_FWY_AERO_FIELD = "/fdm/jsbsim/forces/fwy-aero-lbs";
     public final static String FDM_FWY_AERO_DESC = "The FDM force vector FWY aero in pounds";
@@ -206,6 +210,9 @@ public final class FlightGearFields {
         FDM_FSX_AERO_FIELD,
         FDM_FSY_AERO_FIELD,
         FDM_FSZ_AERO_FIELD,
+
+        FDM_FWX_AERO_FIELD,
+        FDM_FWY_AERO_FIELD,
         FDM_FWZ_AERO_FIELD,
         
         FDM_LOAD_FACTOR_FIELD,
@@ -239,6 +246,9 @@ public final class FlightGearFields {
     public final static String ROLL_FIELD = "/orientation/roll-deg";
     public final static String ROLL_FIELD_DESC = "The roll of the plane in degrees";
 
+    public final static String TRACK_FIELD = "/orientation/track-deg";
+    public final static String TRACK_FIELD_DESC = "The track of the plane in degrees";
+    
     public final static String TRACK_MAG_FIELD = "/orientation/track-magnetic-deg";
     public final static String TRACK_MAG_FIELD_DESC = "The magnetic track of the plane in degrees";
 

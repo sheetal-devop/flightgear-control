@@ -2,17 +2,15 @@ package org.jason.fgcontrol.aircraft.c172p.app;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Properties;
 
 import org.apache.commons.net.telnet.InvalidTelnetOptionException;
 import org.jason.fgcontrol.aircraft.c172p.C172P;
 import org.jason.fgcontrol.aircraft.c172p.C172PConfig;
 import org.jason.fgcontrol.aircraft.c172p.C172PFields;
-import org.jason.fgcontrol.aircraft.c172p.flight.WaypointFlightExecutor;
+import org.jason.fgcontrol.aircraft.c172p.flight.C172PFlightParameters;
+import org.jason.fgcontrol.aircraft.c172p.flight.C172PWaypointFlightExecutor;
 import org.jason.fgcontrol.exceptions.FlightGearSetupException;
-import org.jason.fgcontrol.flight.position.KnownRoutes;
-import org.jason.fgcontrol.flight.position.WaypointPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +28,7 @@ public class WaypointFlight {
         
         //local tour
         //C172P script launches from YVR
-        ArrayList<WaypointPosition> route = KnownRoutes.VANCOUVER_TOUR ;
+        //ArrayList<WaypointPosition> route = KnownRoutes.VANCOUVER_TOUR;
         
         //bc tour - much longer
         //C172P script launches from YVR
@@ -68,12 +66,16 @@ public class WaypointFlight {
 				plane = new C172P();
 			}
 	
+			// odd behavior of set view in fgfs 2020.3.17
+			// set in runFlight after a delay
+			//plane.setCurrentView(2);
+				
+					
 			// prep plane
-			plane.setWaypoints(route);
-	
-			// set chase view
-			plane.setCurrentView(2);
-	
+			
+			//route set in config
+			//plane.setWaypoints(route);
+			
 			plane.setDamageEnabled(false);
 			plane.setComplexEngineProcedures(false);
 			plane.setWinterKitInstalled(true);
@@ -83,15 +85,24 @@ public class WaypointFlight {
 			plane.refillFuel();
 			plane.setBatteryCharge(C172PFields.BATTERY_CHARGE_MAX);
 			
+			C172PFlightParameters flightParameters = new C172PFlightParameters();
+			
+			flightParameters.setFlightPitchMax(8.0);
+			flightParameters.setSimSpeedup(1.0);
+			
+			//test
+			//flightParameters.setMaxHeadingDeviation(10.0);
+			//flightParameters.setCourseAdjustmentIncrement(10.5);
+			
 			//kick off our flight in the main thread
-			WaypointFlightExecutor.runFlight(plane);
+			C172PWaypointFlightExecutor.runFlight(plane, flightParameters);
 	            
 	        //pause so the plane doesn't list from its heading and crash
 	        plane.setPause(true);
         } catch (FlightGearSetupException e) {
-            e.printStackTrace();
+            LOGGER.error("FlightGearSetupException occurred", e);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("IOException occurred", e);
         } 
         finally {
             if(plane != null) {
@@ -101,18 +112,23 @@ public class WaypointFlight {
                 try {
                     plane.terminateSimulator();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                	LOGGER.error("IOException occurred during shutdown", e);
                 } catch (InvalidTelnetOptionException e) {
-                    e.printStackTrace();
+                	LOGGER.error("InvalidTelnetOptionException occurred during shutdown", e);
                 }
-            }
             
-            plane.writeFlightLogGPX(System.getProperty("user.dir") + "/c172p_"+System.currentTimeMillis() + ".gpx");
+	            if(plane.getFlightLogTrackPositionCount() > 0) {
+	                plane.writeFlightLogGPX(System.getProperty("user.dir") + "/c172p_"+System.currentTimeMillis() + ".gpx");
+	            }
+	            else {
+	            	LOGGER.warn("No track positions in flightlog");
+	            }
+	            
+	            long tripTime = (System.currentTimeMillis() - startTime);
+	            
+	            LOGGER.info("Completed course in: {}ms => {} minutes", tripTime, ( ((double)tripTime / 1000.0) / 60.0 ) );
+            }
         }
-        
-        long tripTime = (System.currentTimeMillis() - startTime);
-        
-        LOGGER.info("Completed course in: {}ms => {} minutes", tripTime, ( ((double)tripTime / 1000.0) / 60.0 ) );
     }
 }
 

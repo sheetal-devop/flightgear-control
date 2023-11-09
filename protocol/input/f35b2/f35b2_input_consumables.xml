@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+ <PropertyList>
+ <generic>
+    <input>
+        <line_separator>newline</line_separator>
+        <var_separator>,</var_separator>
+ 
+        <!-- fuel tanks 0,1,2,3,4,5,6,7,8 -->
+         <chunk>
+            <!-- Tank 0 -->
+            <node>/consumables/fuel/tank/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <!-- Tank 1 -->
+            <node>/consumables/fuel/tank[1]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <!-- Tank 2 -->
+            <node>/consumables/fuel/tank[2]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <!-- Tank 3 -->
+            <node>/consumables/fuel/tank[3]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <!-- Tank 4 -->
+            <node>/consumables/fuel/tank[4]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <!-- Tank 5 -->
+            <node>/consumables/fuel/tank[5]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <!-- Tank 6 -->
+            <node>/consumables/fuel/tank[6]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <!-- Tank 7 -->
+            <node>/consumables/fuel/tank[7]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+         <chunk>
+            <!-- Tank 8 -->
+            <node>/consumables/fuel/tank[8]/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+    </input>
+  </generic>
+ </PropertyList>

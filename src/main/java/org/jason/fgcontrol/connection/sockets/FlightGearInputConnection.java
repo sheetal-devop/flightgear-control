@@ -16,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Control a virtual plane in a flightgear sim through a socket connection
- *  
+ * Control a virtual plane in a flightgear sim through a socket connection. Uses DatagramSocket for 
+ * the send, which is asynchronous. 
  *
  */
 //TODO: support optionally setting a schema and enforce it on writes. Then require a schema read from the protocol xml file.

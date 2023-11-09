@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+ <PropertyList>
+ <generic>
+    <input>
+        <line_separator>newline</line_separator>
+        <var_separator>,</var_separator>
+ 
+        <!-- fuel tank 0 -->
+         <chunk>
+            <!-- Tank 0 -->
+            <node>/consumables/fuel/tank/level-gal_us</node>
+            <name>level-gal_us</name>
+            <type>float</type>
+         </chunk>
+    </input>
+  </generic>
+ </PropertyList>

@@ -107,12 +107,27 @@ public class C172P extends FlightGearAircraft {
             //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
             launchTelemetryThread();
             
-            if(enableCameraViewer) {
-            	launchCameraViewerThread();
+            if(enabledCameraStreamer) {
+            	launchCameraStreamer();
             }
-        } catch (SocketException | UnknownHostException e) {
             
-            LOGGER.error("Exception occurred during setup", e);
+            if(enabledSSHDServer) {
+            	launchSSHDServer();
+            }
+        } catch (SocketException e) {
+            
+            LOGGER.error("Socket Exception occurred during setup", e);
+            
+            throw new FlightGearSetupException(e);
+            
+        } catch (UnknownHostException e) {
+            
+            LOGGER.error("Socket Exception occurred during setup", e);
+            
+            throw new FlightGearSetupException(e);
+            
+        } catch (IOException e) {
+            LOGGER.error("IOException occurred during setup", e);
             
             throw new FlightGearSetupException(e);
         }
@@ -328,6 +343,18 @@ public class C172P extends FlightGearAircraft {
     ///////////////////
     //engine
     
+	public Double getCarbIce() {
+		return Double.parseDouble(getTelemetryField(C172PFields.ENGINES_CARB_ICE));
+	}
+
+	public int getComplexEngineProcedures() {
+		return Character.getNumericValue(getTelemetryField(C172PFields.ENGINES_COMPLEX_ENGINE_PROCEDURES).charAt(0));
+	}
+
+	public boolean isComplexEngineProceduresEnabled() {
+		return getComplexEngineProcedures() == C172PFields.ENGINES_COMPLEX_ENGINE_PROCEDURES_INT_TRUE;
+	}
+
     public double getCowlingAirTemperature() {
         return Double.parseDouble(getTelemetryField(C172PFields.ENGINES_COWLING_AIR_TEMPERATURE_FIELD));
     }
@@ -386,7 +413,8 @@ public class C172P extends FlightGearAircraft {
     //////////////
     //telemetry modifiers
     
-    private void forceStablizationWrite(double targetHeading, double targetRoll, double targetPitch) throws IOException {
+    @Override
+    protected void forceStabilizationWrite(double targetHeading, double targetRoll, double targetPitch) throws IOException {
     	LinkedHashMap<String, String> orientationFields = copyStateFields(FlightGearFields.ORIENTATION_INPUT_FIELDS);
     	
         orientationFields.put(FlightGearFields.HEADING_FIELD, String.valueOf(targetHeading) ) ;
@@ -396,39 +424,7 @@ public class C172P extends FlightGearAircraft {
         writeControlInput(orientationFields, this.orientationInputConnection);
         
         if(LOGGER.isDebugEnabled()) {
-        	LOGGER.debug("Force stablizing to {}", orientationFields.entrySet().toString());
-        }
-    }
-    
-    public void forceStabilize(double targetHeading, double targetRoll, double targetPitch) throws IOException {
-    	forceStabilize(targetHeading, targetRoll, targetPitch, true);
-    }
-    
-    public void forceStabilize(double targetHeading, double targetRoll, double targetPitch, boolean pauseSim) throws IOException {
-        
-    	if(LOGGER.isDebugEnabled()) {
-    		LOGGER.debug("forceStabilize called");
-    	}
-        
-        //pause before copyStateFields so we're not changing an orientation in the past
-        //
-        //for most fields we need to be careful about overwriting fields, but for forcibly 
-        //re-orienting the plane we care less about orientation/roll/pitch
-        if(pauseSim) {
-        	try {
-        		setPause(true);
-        	
-        		forceStablizationWrite(targetHeading, targetRoll, targetPitch);
-        	} finally {
-        		setPause(false);
-        	}
-        } 
-        else {
-        	forceStablizationWrite(targetHeading, targetRoll, targetPitch);
-        }
-        
-        if(LOGGER.isDebugEnabled()) {
-        	LOGGER.debug("forceStabilize returning");
+        	LOGGER.debug("Force stabilizing to {}", orientationFields.entrySet().toString());
         }
     }
     
@@ -617,7 +613,16 @@ public class C172P extends FlightGearAircraft {
         LOGGER.info("Toggling anti-ice heaters: {}", enabled);
         
         writeControlInput(inputHash, this.controlInputConnection);
+    }
 
+    public synchronized void setCarbIce(double iceAmount) throws IOException {
+        LinkedHashMap<String, String> inputHash = copyStateFields(C172PFields.ENGINES_INPUT_FIELDS);
+
+        inputHash.put(C172PFields.ENGINES_CARB_ICE, String.valueOf(iceAmount));
+
+        LOGGER.info("Setting carburetor ice amount: {}", iceAmount);
+
+        writeControlInput(inputHash, this.enginesInputConnection);
     }
     
     public synchronized void setComplexEngineProcedures(boolean enabled) throws IOException {

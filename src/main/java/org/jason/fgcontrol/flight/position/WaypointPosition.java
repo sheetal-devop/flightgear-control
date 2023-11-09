@@ -1,5 +1,7 @@
 package org.jason.fgcontrol.flight.position;
 
+import java.util.Objects;
+
 /**
  * Wrapper for a plane position in flight. 
  *
@@ -50,7 +52,33 @@ public class WaypointPosition extends LatLonPosition {
 
     @Override
     public String toString() {
-        return "PlanePosition [latitude=" + latitude + ", longitude=" + longitude + ", altitude=" + altitude + ", name="
+        return "WaypointPosition [latitude=" + latitude + ", longitude=" + longitude + ", altitude=" + altitude + ", name="
                 + name + "]";
     }
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + Objects.hash(altitude, name);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		
+		WaypointPosition other = (WaypointPosition) obj;
+		return Double.doubleToLongBits(altitude) == Double.doubleToLongBits(other.altitude)
+				&& Objects.equals(name, other.name) && 
+				getLatitude() == other.getLatitude() &&
+				getLongitude() == other.getLongitude();
+	}
+
+
 }

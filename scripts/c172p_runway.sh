@@ -1,6 +1,58 @@
 #!/bin/bash
 
-#Usage: ./c172p_runway.sh START_PORT_RANGE
+#Usage: ./c172p_runway.sh START_PORT_RANGE NAME
+
+FG_AIRCRAFT=c172p
+
+#############################
+#find the AppImage on the path
+#keep consistent with fg_launcher.sh
+
+APPIMAGE_FILE=FlightGear-2020.3.17-x86_64.AppImage
+
+FG_BIN_PATH=`whereis -b $APPIMAGE_FILE | awk '{print $2}'`
+
+if [ -z "$FG_BIN_PATH" ]; then
+    echo "Could not find FlightGear AppImage on path. Ensure the FlightGear AppImage location is in \$PATH."
+    exit 1
+else
+    echo "Found FlightGear AppImage at $FG_BIN_PATH"
+    
+    FG_BIN_DIR=`dirname $FG_BIN_PATH`
+    
+    if [ -z "$FG_BIN_DIR" ]; then
+        echo "Could not determine parent directory for FlightGear AppImage"
+        exit 1
+    else
+        echo "Found FlightGear directory at $FG_BIN_DIR"
+        
+        FG_HOME_DIR=$FG_BIN_DIR/fgfs 
+        FG_ROOT_DIR=$FG_BIN_DIR/fgdata 
+    fi
+fi
+
+#############################
+#explicitly set a display
+
+DISPLAY_STR=${DISPLAY:-":0.0"}
+
+echo "Using display $DISPLAY_STR"
+#############################
+
+#works for external and internal input
+INPUT_HOST="0.0.0.0"
+
+TELEM_HOST="localhost"
+
+#############################
+#this is the window geometry, not the sim video resolution
+#for visuals use larger geometry: --geometry=1024x768\
+#for apps user smaller geometry: --geometry=320x200\
+
+X_RES=1024
+Y_RES=768
+
+RES_GEOMETRY_STR=""$X_RES"x"$Y_RES
 
 ################
 #ports
@@ -19,6 +71,7 @@ START_PORT_RANGE=${1:-6500}
 #...
 TELEM_OUTPUT_PORT=$START_PORT_RANGE
 TELNET_PORT=$((START_PORT_RANGE+1))
+CAM_VIEW_PORT=$((START_PORT_RANGE+2))
 CONSUMABLES_INPUT_PORT=$((START_PORT_RANGE+3))
 CONTROLS_INPUT_PORT=$((START_PORT_RANGE+4))
 ENGINES_INPUT_PORT=$((START_PORT_RANGE+5))
@@ -33,48 +86,90 @@ SIM_TIME_INPUT_PORT=$((START_PORT_RANGE+13))
 SYSTEMS_INPUT_PORT=$((START_PORT_RANGE+14))
 VELOCITIES_INPUT_PORT=$((START_PORT_RANGE+15))
 
-fgfs \
+########
+#name of this aircraft
+#mostly for the log directory so multiple simulators aren't logging to the same place
+DATE_STR="$(date +%s)"
+DEFAULT_NAME="C172P_"$DATE_STR
+NAME=${2:-$DEFAULT_NAME}
+
+#log directory from the aircraft name
+LOG_DIR=$FG_HOME_DIR/log/fgfs_$NAME
+
+#create the directory if it doesnt already exist
+if [ ! -d $LOG_DIR ]; then
+    mkdir -p $LOG_DIR
+    
+    #check that the log directory exists now
+    if [ ! -d $LOG_DIR ]; then
+        echo "Error creating the simulator log directory"
+        exit 1
+    fi
+fi
+
+########
+
+#switch "--enable-terrasync" with "--disable-terrasync" for offline use
+
+#particles=true or recent c172p models have errors
+
+#use --airport=CYVR for location
+
+DISPLAY=$DISPLAY_STR FG_HOME=$FG_HOME_DIR $APPIMAGE_FILE\
  --verbose\
  --ignore-autosave\
  --enable-terrasync\
- --metar=XXXX 012345Z 15003KT 12SM SCT041 FEW200 20/08 Q1015 NOSIG\
  --timeofday=noon\
  --disable-rembrandt\
- --aircraft-dir=/usr/share/games/flightgear/Aircraft/c172p\
- --aircraft=c172p\
+ --aircraft=$FG_AIRCRAFT\
  --state=auto\
  --fog-fastest\
- --fg-scenery=/usr/share/games/flightgear/Scenery\
- --fg-aircraft=/usr/share/games/flightgear/Aircraft\
  --airport=CYVR\
- --generic=socket,out,45,localhost,$TELEM_OUTPUT_PORT,udp,c172p_output\
- --generic=socket,in,45,localhost,$CONSUMABLES_INPUT_PORT,udp,c172p_input_consumables\
- --generic=socket,in,45,localhost,$CONTROLS_INPUT_PORT,udp,c172p_input_controls\
- --generic=socket,in,45,localhost,$ENGINES_INPUT_PORT,udp,c172p_input_engines\
- --generic=socket,in,45,localhost,$FDM_INPUT_PORT,udp,c172p_input_fdm\
- --generic=socket,in,45,localhost,$ORIENTATION_INPUT_PORT,udp,c172p_input_orientation\
- --generic=socket,in,45,localhost,$POSITION_INPUT_PORT,udp,c172p_input_position\
- --generic=socket,in,45,localhost,$SIM_INPUT_PORT,udp,c172p_input_sim\
- --generic=socket,in,45,localhost,$SIM_FREEZE_INPUT_PORT,udp,c172p_input_sim_freeze\
- --generic=socket,in,45,localhost,$SIM_MODEL_INPUT_PORT,udp,c172p_input_sim_model\
- --generic=socket,in,45,localhost,$SIM_SPEEDUP_INPUT_PORT,udp,c172p_input_sim_speedup\
- --generic=socket,in,45,localhost,$SIM_TIME_INPUT_PORT,udp,c172p_input_sim_time\
- --generic=socket,in,45,localhost,$SYSTEMS_INPUT_PORT,udp,c172p_input_systems\
- --generic=socket,in,45,localhost,$VELOCITIES_INPUT_PORT,udp,c172p_input_velocities\
+ --fg-root=$FG_ROOT_DIR\
+ --generic=socket,out,45,$TELEM_HOST,$TELEM_OUTPUT_PORT,udp,c172p_output\
+ --generic=socket,in,45,$INPUT_HOST,$CONSUMABLES_INPUT_PORT,udp,c172p_input_consumables\
+ --generic=socket,in,45,$INPUT_HOST,$CONTROLS_INPUT_PORT,udp,c172p_input_controls\
+ --generic=socket,in,45,$INPUT_HOST,$ENGINES_INPUT_PORT,udp,c172p_input_engines\
+ --generic=socket,in,45,$INPUT_HOST,$FDM_INPUT_PORT,udp,c172p_input_fdm\
+ --generic=socket,in,45,$INPUT_HOST,$ORIENTATION_INPUT_PORT,udp,c172p_input_orientation\
+ --generic=socket,in,45,$INPUT_HOST,$POSITION_INPUT_PORT,udp,c172p_input_position\
+ --generic=socket,in,45,$INPUT_HOST,$SIM_INPUT_PORT,udp,c172p_input_sim\
+ --generic=socket,in,45,$INPUT_HOST,$SIM_FREEZE_INPUT_PORT,udp,c172p_input_sim_freeze\
+ --generic=socket,in,45,$INPUT_HOST,$SIM_MODEL_INPUT_PORT,udp,c172p_input_sim_model\
+ --generic=socket,in,45,$INPUT_HOST,$SIM_SPEEDUP_INPUT_PORT,udp,c172p_input_sim_speedup\
+ --generic=socket,in,45,$INPUT_HOST,$SIM_TIME_INPUT_PORT,udp,c172p_input_sim_time\
+ --generic=socket,in,45,$INPUT_HOST,$SYSTEMS_INPUT_PORT,udp,c172p_input_systems\
+ --generic=socket,in,45,$INPUT_HOST,$VELOCITIES_INPUT_PORT,udp,c172p_input_velocities\
  --telnet=$TELNET_PORT\
+ --httpd=$CAM_VIEW_PORT\
+ --log-dir=$LOG_DIR\
  --disable-ai-traffic\
  --disable-sound\
  --disable-real-weather-fetch\
- --geometry=1024x768\
- --texture-filtering=8\
+ --geometry=$RES_GEOMETRY_STR\
+ --texture-filtering=4\
  --disable-anti-alias-hud\
  --enable-auto-coordination\
- --prop:/environment/weather-scenario=Fair weather\
+ --prop:/environment/weather-scenario=Fair\ weather\
  --prop:/nasal/local_weather/enabled=false\
+ --prop:/sim/menubar/autovisibility/enabled=true\
+ --prop:/sim/menubar/visibility/enabled=false\
  --prop:/sim/rendering/fps-display=1\
  --prop:/sim/rendering/frame-latency-display=1\
  --prop:/sim/rendering/multithreading-mode=AutomaticSelection\
+ --prop:/sim/rendering/redout/enabled=0\
+ --prop:/sim/rendering/redout/internal/log/g-force=0\
+ --prop:/sim/rendering/particles=false\
+ --prop:/sim/rendering/rembrant/enabled=false\
+ --prop:/sim/rendering/rembrant/bloom=false\
+ --prop:/sim/rendering/shading=false\
+ --prop:/sim/rendering/shadow-volume=false\
+ --prop:/sim/rendering/shadows/enabled=false\
+ --prop:/sim/rendering/texture-cache/cache-enabled=true\
  --prop:/sim/startup/save-on-exit=false\
+ --max-fps=30\
+ --disable-clouds3d\
+ --disable-specular-highlight\
  --allow-nasal-from-sockets\
  --turbulence=0.0\
  --wind=0\@0

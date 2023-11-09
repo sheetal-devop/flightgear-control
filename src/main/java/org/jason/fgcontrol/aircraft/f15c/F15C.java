@@ -101,9 +101,28 @@ public class F15C extends FlightGearAircraft {
             
             //launch this after the fgsockets connection is initialized, because the telemetry reads depends on this
             launchTelemetryThread();
-        } catch (SocketException | UnknownHostException e) {
             
-            LOGGER.error("Exception occurred during setup", e);
+            if(enabledCameraStreamer) {
+            	launchCameraStreamer();
+            }
+            
+            if(enabledSSHDServer) {
+            	launchSSHDServer();
+            }
+        } catch (SocketException e) {
+            
+            LOGGER.error("Socket Exception occurred during setup", e);
+            
+            throw new FlightGearSetupException(e);
+            
+        } catch (UnknownHostException e) {
+            
+            LOGGER.error("Socket Exception occurred during setup", e);
+            
+            throw new FlightGearSetupException(e);
+            
+        } catch (IOException e) {
+            LOGGER.error("IOException occurred during setup", e);
             
             throw new FlightGearSetupException(e);
         }
@@ -452,7 +471,8 @@ public class F15C extends FlightGearAircraft {
     //////////////
     //telemetry modifiers
     
-    private void forceStablizationWrite(double targetHeading, double targetRoll, double targetPitch) throws IOException {
+    @Override
+    protected void forceStabilizationWrite(double targetHeading, double targetRoll, double targetPitch) throws IOException {
     	LinkedHashMap<String, String> orientationFields = copyStateFields(FlightGearFields.ORIENTATION_INPUT_FIELDS);
     	
         orientationFields.put(FlightGearFields.HEADING_FIELD, String.valueOf(targetHeading) ) ;
@@ -462,40 +482,10 @@ public class F15C extends FlightGearAircraft {
         writeControlInput(orientationFields, this.orientationInputConnection);
         
         if(LOGGER.isDebugEnabled()) {
-        	LOGGER.debug("Force stablizing to {}", orientationFields.entrySet().toString());
+        	LOGGER.debug("Force stabilizing to {}", orientationFields.entrySet().toString());
         }
     }
-    
-    public void forceStabilize(double targetHeading, double targetRoll, double targetPitch) throws IOException {
-    	forceStabilize(targetHeading, targetRoll, targetPitch, true);
-    }
-    
-    public void forceStabilize(double targetHeading, double targetRoll, double targetPitch, boolean pauseSim) throws IOException {
-        
-    	if(LOGGER.isDebugEnabled()) {
-    		LOGGER.debug("forceStabilize called");
-    	}
-                
-        //pause before copyStateFields so we're not changing an orientation in the past
-        //
-        //for most fields we need to be careful about overwriting fields, but for forcibly 
-        //re-orienting the plane we care less about orientation/roll/pitch
-        if(pauseSim) {
-        	try {
-        		setPause(true);
-        	
-        		forceStablizationWrite(targetHeading, targetRoll, targetPitch);
-        	} finally {
-        		setPause(false);
-        	}
-        } else {
-        	forceStablizationWrite(targetHeading, targetRoll, targetPitch);
-        }
-               
-        if(LOGGER.isDebugEnabled()) {
-        	LOGGER.debug("forceStabilize returning");
-        }
-    }
+
     
     @Override
     public synchronized void refillFuel() throws IOException {

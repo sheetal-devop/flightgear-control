@@ -5,15 +5,30 @@ apply from: 'dependencies.gradle'
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
 
+//perc requires jdk 8
+//sourceCompatibility = JavaVersion.VERSION_1_8
+//targetCompatibility = JavaVersion.VERSION_1_8
+
+
 repositories {
     //need both of these maven repos for geotools
     maven {
         url "https://maven.geo-solutions.it/"
+        content {
+            includeGroupByRegex "org\\.geotools.*"
+            includeGroupByRegex "it\\.geosolutions\\.jgridshift.*"
+            includeGroupByRegex "javax\\.media.*"
+        }
     }
     maven {
         url "https://repo.osgeo.org/repository/release/"
+        content {
+            includeGroupByRegex "org\\.geotools.*"
+            includeGroupByRegex "it\\.geosolutions\\.jgridshift.*"
+            includeGroupByRegex "javax\\.media.*"
+        }
     }
-    
+
     mavenCentral()
 }
 
@@ -22,13 +37,15 @@ dependencies {
     implementation libs.flightgear_control
     implementation libs.flightgear_control_gateway
     implementation libs.geotools
-    
+    implementation libs.mina_sshd
+    implementation libs.rest
+
     implementation libs.flightgear_control_test
     testImplementation libs.flightgear_control_test
 }
 
 ext {
-    fgControlVersion = "0.3"
+    fgControlVersion = "0.4"
     title = "flightgear-control"
 }
 
@@ -51,10 +68,10 @@ distZip.dependsOn("jar")
 
 distributions {
     //the jar, libs, protocol files
-    
+
     main {
         distributionBaseName = title
-        
+
         contents {
             into('') {
                 from( project.file("build/libs/"))
@@ -69,6 +86,15 @@ distributions {
     }
 }
 
+compileJava {
+    //TODO: remove once jdk8 streamer is built
+    exclude (
+            //"org/jason/fgcontrol/view/*",
+            //"org/jason/fgcontrol/view/app/*",
+            //"org/jason/fgcontrol/view/mjpeg/*",
+    )
+}
+
 //may need to run the 'clean' task first
 test {
     useTestNG() {
@@ -80,47 +106,51 @@ test {
 }
 
 jar {
-    archiveBaseName = title 
+    archiveBaseName = title
     archiveVersion = fgControlVersion
 
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    
-    from sourceSets.main.output    
-    
+
+    from sourceSets.main.output
+
     manifest {
         //no main- not directly runnable as we have multiple demo apps
         attributes ([
-            "Package-Title": "flightgear-control",
-            "Package-Version": fgControlVersion
+                "Package-Title": "flightgear-control",
+                "Package-Version": fgControlVersion
         ])
     }
-    
+
     exclude (
-        "org/jason/fgcontrol/aircraft/c172p/app/**",
-        "org/jason/fgcontrol/aircraft/f15c/app/**",
-        "org/jason/fgcontrol/connection/sockets/app/**",
-        "org/jason/fgcontrol/connection/telnet/app/**",
-        "org/jason/fgcontrol/test/**",
-        "org/jason/fgcontrol/aircraft/view/app/**"
+            "org/jason/fgcontrol/aircraft/c172p/app/**",
+            "org/jason/fgcontrol/aircraft/f15c/app/**",
+            "org/jason/fgcontrol/connection/sockets/app/**",
+            "org/jason/fgcontrol/connection/rest/app/**",
+            "org/jason/fgcontrol/connection/telnet/app/**",
+            "org/jason/fgcontrol/flight/position/app/**",
+            "org/jason/fgcontrol/sshd/app/**",
+            "org/jason/fgcontrol/view/app/**",
     )
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'src'
     archiveVersion = fgControlVersion
-    
+
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    
-    from sourceSets.main.allSource 
+
+    from sourceSets.main.allSource
 
     //exclude mains
-    exclude( 
-        "org/jason/fgcontrol/aircraft/c172p/app/**",
-        "org/jason/fgcontrol/aircraft/f15c/app/**",
-        "org/jason/fgcontrol/connection/sockets/app/**",
-        "org/jason/fgcontrol/connection/telnet/app/**",
-        "org/jason/fgcontrol/test/**",
-        "org/jason/fgcontrol/aircraft/view/app/**"
+    exclude(
+            "org/jason/fgcontrol/aircraft/c172p/app/**",
+            "org/jason/fgcontrol/aircraft/f15c/app/**",
+            "org/jason/fgcontrol/connection/sockets/app/**",
+            "org/jason/fgcontrol/connection/rest/app/**",
+            "org/jason/fgcontrol/connection/telnet/app/**",
+            "org/jason/fgcontrol/flight/position/app/**",
+            "org/jason/fgcontrol/sshd/app/**",
+            "org/jason/fgcontrol/view/app/**",
     )
 }
 
@@ -138,16 +168,16 @@ task appJar(type: Jar) {
 
     classifier = 'app'
     archiveVersion = fgControlVersion
-    
+
     manifest {
         //no main- not directly runnable as we have multiple demo apps
         attributes ([
-            "Package-Title": "flightgear-control",
-            "Package-Version": fgControlVersion
+                "Package-Title": "flightgear-control",
+                "Package-Version": fgControlVersion
         ])
     }
-    
-    from sourceSets.main.output    
+
+    from sourceSets.main.output
 
     from (configurations.runtimeClasspath.collect { entry -> zipTree(entry) }) {
         //class files from classpath including thirdparty
@@ -156,10 +186,9 @@ task appJar(type: Jar) {
         exclude 'META-INF/*.SF'
         exclude 'META-INF/*.DSA'
         exclude 'META-INF/*.RSA'
-        
+
         //don't need testng resources
         exclude 'org/testng**/'
         exclude 'testng*'
     }
 }
-

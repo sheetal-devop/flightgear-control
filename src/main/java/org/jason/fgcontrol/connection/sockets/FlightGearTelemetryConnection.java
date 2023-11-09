@@ -40,12 +40,9 @@ public class FlightGearTelemetryConnection {
     
     public FlightGearTelemetryConnection(String host,  int telemetryPort) 
             throws SocketException, UnknownHostException {
-        
-        //set this here rather than before the match because we don't want to initialize it with every telemetry read
-        this.telemetryLinePattern = Pattern.compile("^[\"/]\\S+[\": ]\\S+[,]?$");
-        
+               
         this.host = host;
-        this.hostIp = InetAddress.getByName(host);
+        this.hostIp = InetAddress.getByName(this.host);
         
         if( telemetryPort <= 0 ) {
             throw new SocketException("Invalid port");
@@ -54,6 +51,9 @@ public class FlightGearTelemetryConnection {
         this.telemetryPort = telemetryPort;
         
         LOGGER.info("Initializing FlightGearTelemetryConnection for {}({}):{}", this.host, this.hostIp, this.telemetryPort);
+        
+        //set this here rather than before the match because we don't want to initialize it with every telemetry read
+        this.telemetryLinePattern = Pattern.compile("^[\"/]\\S+[\": ]\\S+[,]?$");
         
     	//TODO: if this is configured with the wrong port or host, it won't be known until the first read, 
     	//because the constructor doesn't actually establish a connection. maybe call a throwaway read
