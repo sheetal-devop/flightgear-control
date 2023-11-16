@@ -13,7 +13,6 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
-@SuppressWarnings("restriction") //for api resource location variability not observed in the jdks (v8) we're testing
 public class StreamHandler implements HttpHandler {
 	
 	private final static Logger LOGGER = LoggerFactory.getLogger(StreamHandler.class);

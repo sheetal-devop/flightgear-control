@@ -17,7 +17,6 @@ import com.sun.net.httpserver.HttpHandler;
  * @author jason
  *
  */
-@SuppressWarnings("restriction")
 public class CameraViewHandler implements HttpHandler {
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(CameraViewHandler.class);

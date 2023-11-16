@@ -17,7 +17,6 @@ import com.sun.net.httpserver.HttpServer;
  * @author jason
  *
  */
-@SuppressWarnings("restriction")
 public class MJPEGStreamer {
 
 	private final static Logger LOGGER = LoggerFactory.getLogger(MJPEGStreamer.class);
