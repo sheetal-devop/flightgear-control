@@ -7,8 +7,12 @@ ext {
             'org.json:json:20210307',
             'ch.qos.logback:logback-classic:1.2.3'
         ],
-        flightgear_control_gateway: [
-        
+        gateway: [
+            'org.springframework.boot:spring-boot:2.7.16',
+            'org.springframework.boot:spring-boot-dependencies:2.7.16',
+            'org.springframework.boot:spring-boot-starter-web:2.7.16',
+            'org.springframework.boot:spring-boot-starter-actuator:2.7.16',
+            'org.springframework.boot:spring-boot-starter-security:2.7.16'
         ],
         mina_sshd: [
             'org.apache.sshd:sshd-core:2.9.2'
@@ -20,8 +24,9 @@ ext {
             'org.testng:testng:7.4.0'
         ],
         rest: [
-            'io.rest-assured:rest-assured:5.3.0',
+            'io.rest-assured:rest-assured:5.3.2',
+            'io.rest-assured:xml-path:5.3.2',
             'org.apache.httpcomponents:httpcore:4.4.16'
-        ]
+        ]    
     ]
 }

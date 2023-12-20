@@ -1,13 +1,18 @@
-apply plugin: 'java'
-apply plugin: 'distribution'
+plugins {
+    id 'java'
+    id 'distribution'
+    id 'org.springframework.boot' version '2.7.16'
+    id 'io.spring.dependency-management' version '1.1.0'
+}
+
 apply from: 'dependencies.gradle'
 
-//sourceCompatibility = JavaVersion.VERSION_11
-//targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
 
 //perc requires jdk 8
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+//sourceCompatibility = JavaVersion.VERSION_1_8
+//targetCompatibility = JavaVersion.VERSION_1_8
 
 
 repositories {
@@ -35,13 +40,14 @@ repositories {
 dependencies {
 
     implementation libs.flightgear_control
-    implementation libs.flightgear_control_gateway
     implementation libs.geotools
     implementation libs.mina_sshd
     implementation libs.rest
 
     implementation libs.flightgear_control_test
     testImplementation libs.flightgear_control_test
+    
+    implementation libs.gateway
 }
 
 ext {
@@ -191,4 +197,29 @@ task appJar(type: Jar) {
         exclude 'org/testng**/'
         exclude 'testng*'
     }
+}
+
+bootJar {
+    archiveVersion = fgControlVersion
+    classifier = 'gateway'
+    
+    //test
+    manifest {
+        attributes ([
+                "Package-Title": "flightgear-control",
+                "Package-Version": fgControlVersion,
+                'Start-Class': 'org.jason.fgcontrol.gateway.app.poc.HelloWorld'
+        ])
+    }
+    
+    // main required
+    //manifest {
+    //    attributes ([
+    //            "Package-Title": "flightgear-control",
+    //            "Package-Version": fgControlVersion,
+    //            'Start-Class': 'org.jason.fgcontrol.gateway.GatewayC172PApp'
+    //    ])
+    //}
+    //
+    //TODO: exclude
 }
