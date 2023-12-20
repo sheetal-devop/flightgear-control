@@ -34,3 +34,6 @@ scripts/updateProtocolFiles.sh
 #ignore for Project
 .DS_Store
 .idea/
+
+#springboot resources
+src/main/resources/users.properties
