@@ -20,11 +20,6 @@ public class GatewayApp {
     	LOGGER.info("Constructing Gateway Application");
 	}
 	
-    /**
-     * 
-     * 
-     * @throws Exception
-     */
     @PreDestroy
     private void onDestroy(){
     	LOGGER.info("Destroying Gateway Application");
