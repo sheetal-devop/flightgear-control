@@ -46,15 +46,18 @@ public class BasicAuthWebSecurityConfiguration {
 		
 		LOGGER.debug("Gateway filterChain invoked");
 			
+		//use permitAll() if we don't care about roles
+		
 		http
 			.csrf()
 			.disable()
 			.authorizeRequests()
 			.antMatchers(
 				"/helloworld/*",
+				"/fgctl/c172p/*",
+				"/fgctl/f15c/*",
 				"/actuator/shutdown"
-			)
-			.permitAll()
+			).hasRole(GATEWAY_USER_ROLE)
 			.anyRequest()
 			.authenticated()
 			.and()
