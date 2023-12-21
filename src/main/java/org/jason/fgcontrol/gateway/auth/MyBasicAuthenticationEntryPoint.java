@@ -1,4 +1,4 @@
-package org.jason.fgcontrol.gateway.app.poc;
+package org.jason.fgcontrol.gateway.auth;
 
 import java.io.IOException;
 import java.io.PrintWriter;
