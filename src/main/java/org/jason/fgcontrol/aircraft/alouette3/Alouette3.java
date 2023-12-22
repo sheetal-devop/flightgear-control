@@ -59,14 +59,14 @@ public class Alouette3 extends FlightGearAircraft {
         try {
         	LOGGER.info("Establishing input socket connections.");
         	
-        	consumeablesInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getConsumeablesInputPort());
+        	consumeablesInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getConsumeablesInputPort());
 //			controlInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getControlsInputPort());
 //			enginesInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getEnginesInputPort());
 //			fdmInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getFdmInputPort());
-			orientationInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getOrientationInputPort());
-			positionInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getPositionInputPort());
+			orientationInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getOrientationInputPort());
+			positionInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getPositionInputPort());
 //			simInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimInputPort());
-			simFreezeInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimFreezeInputPort());
+			simFreezeInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimFreezeInputPort());
 //			simModelInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimModelInputPort());
 //			simSpeedupInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimSpeedupInputPort());
 //			simTimeInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimTimeInputPort());
@@ -143,7 +143,7 @@ public class Alouette3 extends FlightGearAircraft {
 	}
 
 	@Override
-	protected void writeControlInput(LinkedHashMap<String, String> inputHash) throws IOException {
+	protected void writeControlsInput(LinkedHashMap<String, String> inputHash) throws IOException {
 		// TODO Auto-generated method stub
 
 	}

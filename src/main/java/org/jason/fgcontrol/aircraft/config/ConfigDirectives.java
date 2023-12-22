@@ -1,5 +1,10 @@
 package org.jason.fgcontrol.aircraft.config;
 
+import java.util.TreeSet;
+
+/**
+ * Known simulator config directives. 
+ */
 public interface ConfigDirectives {
 	
 	public static final String AIRCRAFT_NAME_DIRECTIVE = "aircraftName";
@@ -34,8 +39,10 @@ velocitiesInputPort=5014
 	public static final String HTTPD_CAMERA_PORT_DIRECTIVE = "telnetPort";
 	
 	//telemetry
+	public static final String CONTROL_INPUT_HOST_DIRECTIVE = "controlInputHost";
+	
 	public static final String CONSUMEABLES_PORT_DIRECTIVE = "consumeablesInputPort";
-	public static final String CONTROL_PORT_DIRECTIVE = "controlsInputPort";
+	public static final String CONTROLS_PORT_DIRECTIVE = "controlsInputPort";
 	public static final String ENGINES_PORT_DIRECTIVE = "enginesInputPort";
 	public static final String FDM_PORT_DIRECTIVE = "fdmInputPort";
 	public static final String ORIENTATION_PORT_DIRECTIVE = "orientationInputPort";
@@ -65,4 +72,47 @@ velocitiesInputPort=5014
 	//flightplan
 	public static final String FLIGHT_PLAN_DIRECTIVE = "flightPlanName";
 	
+	/////////////
+	
+	public final static TreeSet<String> KNOWN_CONFIG_DIRECTIVES = new TreeSet<String>() {
+
+		private static final long serialVersionUID = 8267318529441921834L;
+		
+		{
+			add(AIRCRAFT_NAME_DIRECTIVE);
+			
+			add(TELEM_OUTPUT_HOST_DIRECTIVE);
+			add(TELEM_OUTPUT_PORT_DIRECTIVE);
+			
+			add(HTTPD_CAMERA_HOST_DIRECTIVE);
+			add(HTTPD_CAMERA_PORT_DIRECTIVE);
+			
+			add(CONSUMEABLES_PORT_DIRECTIVE);
+			add(CONTROLS_PORT_DIRECTIVE);
+			add(ENGINES_PORT_DIRECTIVE);
+			add(FDM_PORT_DIRECTIVE);
+			add(ORIENTATION_PORT_DIRECTIVE);
+			add(POSITION_PORT_DIRECTIVE);
+			add(SIM_PORT_DIRECTIVE);
+			add(SIM_FREEZE_PORT_DIRECTIVE);
+			add(SIM_MODEL_PORT_DIRECTIVE);
+			add(SIM_SPEEDUP_PORT_DIRECTIVE);
+			add(SIM_TIME_PORT_DIRECTIVE);
+			add(SYSTEMS_PORT_DIRECTIVE);
+			add(VELOCITIES_PORT_DIRECTIVE);
+			
+			add(CAMERA_VIEW_HOST_DIRECTIVE);
+			add(CAMERA_VIEW_PORT_DIRECTIVE);
+			
+			add(CAMERA_STREAM_HOST_DIRECTIVE);
+			add(CAMERA_STREAM_PORT_DIRECTIVE);
+			
+			add(SSHD_PORT_DIRECTIVE);
+			add(SSHD_HOME_DIR_DIRECTIVE);
+			add(SSHD_USER_DIRECTIVE);
+			add(SSHD_PASS_DIRECTIVE);
+			
+			add(FLIGHT_PLAN_DIRECTIVE);
+		}
+	};
 }

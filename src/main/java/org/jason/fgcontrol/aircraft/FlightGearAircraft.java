@@ -731,7 +731,7 @@ public abstract class FlightGearAircraft {
     /////////////////
     
     protected abstract void writeConsumeablesInput(LinkedHashMap<String, String> inputHash) throws IOException;
-    protected abstract void writeControlInput(LinkedHashMap<String, String> inputHash) throws IOException;
+    protected abstract void writeControlsInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeEnginesInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeFdmInput(LinkedHashMap<String, String> inputHash) throws IOException;
     protected abstract void writeOrientationInput(LinkedHashMap<String, String> inputHash) throws IOException;

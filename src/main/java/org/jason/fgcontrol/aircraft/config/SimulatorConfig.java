@@ -2,34 +2,53 @@ package org.jason.fgcontrol.aircraft.config;
 
 import java.util.Properties;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SimulatorConfig {
 	
-	protected final static int UNCONFIG_PORT = -1;
+	private final static Logger LOGGER = LoggerFactory.getLogger(SimulatorConfig.class);
+	
+	public final static int UNCONFIG_PORT = -1;
 
-    protected final static String DEFAULT_SOCKETS_TELEM_HOST = "localhost";
-    protected final static int DEFAULT_SOCKETS_TELEM_PORT = 6501;
+	//telemetry
+	public final static String DEFAULT_SOCKETS_TELEM_HOST = "localhost";
+    public final static int DEFAULT_SOCKETS_TELEM_PORT = 6501;
     
+    //camera view
+    //port is unconfigured since it may not always run
+    public final static String DEFAULT_CAMERA_VIEW_HOST = null;   
+    public final static int DEFAULT_CAMERA_VIEW_PORT = UNCONFIG_PORT;   
     
-    protected final static String DEFAULT_CAMERA_VIEW_HOST = "localhost";   
+    //camera stream - 
+    //port is unconfigured since it may not always run
+    public final static String DEFAULT_CAMERA_STREAM_HOST = null;   
+    public final static int DEFAULT_CAMERA_STREAM_PORT = UNCONFIG_PORT;  
     
-    protected final static String DEFAULT_TELNET_HOST = "localhost";
-    protected final static int DEFAULT_TELNET_PORT = 5501;
+    //telnet
+    public final static String DEFAULT_TELNET_HOST = "localhost";
+    public final static int DEFAULT_TELNET_PORT = 5501;
 
-    protected final static String DEFAULT_SOCKETS_INPUT_HOST = "localhost";
-    protected final static int DEFAULT_SOCKETS_INPUT_CONSUMABLES_PORT = 6601;
-    protected final static int DEFAULT_SOCKETS_INPUT_CONTROLS_PORT = 6602;
-    protected final static int DEFAULT_SOCKETS_INPUT_ENGINES_PORT = 6603;
-    protected final static int DEFAULT_SOCKETS_INPUT_FDM_PORT = 6604;
-    protected final static int DEFAULT_SOCKETS_INPUT_ORIENTATION_PORT = 6605;
-    protected final static int DEFAULT_SOCKETS_INPUT_POSITION_PORT = 6606;
-    protected final static int DEFAULT_SOCKETS_INPUT_SIM_PORT = 6607;
-    protected final static int DEFAULT_SOCKETS_INPUT_SIM_FREEZE_PORT = 6608;
-    protected final static int DEFAULT_SOCKETS_INPUT_SIM_MODEL_PORT = 6609;
-    protected final static int DEFAULT_SOCKETS_INPUT_SIM_SPEEDUP_PORT = 6610;
-    protected final static int DEFAULT_SOCKETS_INPUT_SIM_TIME_PORT = 6611;
-    protected final static int DEFAULT_SOCKETS_INPUT_SYSTEM_PORT = 6612;
-    protected final static int DEFAULT_SOCKETS_INPUT_VELOCITIES_PORT = 6613;
+    //socket input
+    public final static String DEFAULT_SOCKETS_INPUT_HOST = "localhost";
+    public final static int DEFAULT_SOCKETS_INPUT_CONSUMABLES_PORT = 6601;
+    public final static int DEFAULT_SOCKETS_INPUT_CONTROLS_PORT = 6602;
+    public final static int DEFAULT_SOCKETS_INPUT_ENGINES_PORT = 6603;
+    public final static int DEFAULT_SOCKETS_INPUT_FDM_PORT = 6604;
+    public final static int DEFAULT_SOCKETS_INPUT_ORIENTATION_PORT = 6605;
+    public final static int DEFAULT_SOCKETS_INPUT_POSITION_PORT = 6606;
+    public final static int DEFAULT_SOCKETS_INPUT_SIM_PORT = 6607;
+    public final static int DEFAULT_SOCKETS_INPUT_SIM_FREEZE_PORT = 6608;
+    public final static int DEFAULT_SOCKETS_INPUT_SIM_MODEL_PORT = 6609;
+    public final static int DEFAULT_SOCKETS_INPUT_SIM_SPEEDUP_PORT = 6610;
+    public final static int DEFAULT_SOCKETS_INPUT_SIM_TIME_PORT = 6611;
+    public final static int DEFAULT_SOCKETS_INPUT_SYSTEM_PORT = 6612;
+    public final static int DEFAULT_SOCKETS_INPUT_VELOCITIES_PORT = 6613;
 
+    //internal sshd - host will likely always be localhost
+    //port is unconfigured since it may not always run
     public final static String DEFAULT_SSHD_HOME_DIR = "/tmp/flightgear-control";
     public final static int DEFAULT_SSHD_PORT = UNCONFIG_PORT;
 	public final static String DEFAULT_SSHD_USER = "edge";
@@ -42,7 +61,7 @@ public class SimulatorConfig {
     protected int telnetPort;
     
     //expect the same host for all inputs. hard to imagine a plane in a sim on multiple hosts
-    protected String socketInputHost;
+    protected String controlInputHost;
 
     protected int consumeablesInputPort;
     protected int controlsInputPort;
@@ -70,9 +89,14 @@ public class SimulatorConfig {
     protected String sshdPass;
     
     protected String flightPlanName;
+
+	private final static int MAX_STR_INPUT_LEN = 1024;
     
-	//simple option for simple sim setups and testing
-    //default control input ports are still set but the sim probably doesn't have them open
+	/**
+	 * Simple option for simple sim setups and testing. default control input ports are still 
+     * set but the sim probably doesn't have them open
+	 * 
+	 */
 	public SimulatorConfig() {
         
         telemetryOutputHost = DEFAULT_SOCKETS_TELEM_HOST;
@@ -81,7 +105,7 @@ public class SimulatorConfig {
         telnetHost = DEFAULT_TELNET_HOST;
         telnetPort = DEFAULT_TELNET_PORT;
         
-        socketInputHost = DEFAULT_SOCKETS_INPUT_HOST;
+        controlInputHost = DEFAULT_SOCKETS_INPUT_HOST;
         
         consumeablesInputPort = DEFAULT_SOCKETS_INPUT_CONSUMABLES_PORT;
         controlsInputPort = DEFAULT_SOCKETS_INPUT_CONTROLS_PORT;
@@ -98,15 +122,15 @@ public class SimulatorConfig {
         velocitiesInputPort = DEFAULT_SOCKETS_INPUT_VELOCITIES_PORT;
         
         //defaults to signal not to configure- config must define all
-        cameraViewHost = null;
-        cameraViewPort = UNCONFIG_PORT;
+        cameraViewHost = DEFAULT_CAMERA_VIEW_HOST;
+        cameraViewPort = DEFAULT_CAMERA_VIEW_PORT;
 
         //defaults to signal not to configure- config must define all
-        cameraStreamHost = null;
-        cameraStreamPort = UNCONFIG_PORT;
+        cameraStreamHost = DEFAULT_CAMERA_STREAM_HOST;
+        cameraStreamPort = DEFAULT_CAMERA_STREAM_PORT;
         
         //port dictates whether or not to configure an sshd server
-        sshdPort = UNCONFIG_PORT;
+        sshdPort = DEFAULT_SSHD_PORT;
         sshdHomeDir = DEFAULT_SSHD_HOME_DIR;
         sshdUser = DEFAULT_SSHD_USER;
         sshdPass = DEFAULT_SSHD_PASS;
@@ -114,8 +138,15 @@ public class SimulatorConfig {
         flightPlanName = null;
     }
 
-	//simple option for simple sim setups and testing
-	//default control input ports are still set but the sim probably doesn't have them open
+    /**
+     * Another simple option for simple sim setups and testing. default control input ports are still 
+     * set but the sim probably doesn't have them open
+     * 
+     * @param telnetHost
+     * @param telnetPort
+     * @param socketsTelemHost
+     * @param socketsTelemPort
+     */
     public SimulatorConfig(String telnetHost, int telnetPort, String socketsTelemHost, int socketsTelemPort) 
     {
     	//set defaults and let propertiesFile overwrite
@@ -128,11 +159,72 @@ public class SimulatorConfig {
         this.telnetPort = telnetPort;
 	}
     
+    /**
+     * Read in config from a properties object. Common usage for project- expect most of these to be defined.
+     * 
+     * @param configProperties
+     */
     public SimulatorConfig(Properties configProperties) {
     	//set defaults and let propertiesFile overwrite
     	this();
     	
+    	LOGGER.debug("Loading SimulatorConfig from properties");
+    	
     	//override the defaults with what the config file defines
+    	load(configProperties);
+    }
+    
+    /**
+     * Read in config from a JSON string.
+     * 
+     * @param configJSONStr
+     */
+    public SimulatorConfig(String configJSONStr) {
+    	this();
+    	
+    	LOGGER.debug("Loading SimulatorConfig from JSON string");
+    	
+    	if(configJSONStr.length() > MAX_STR_INPUT_LEN) {
+    		LOGGER.error("Successfully processed config JSON string");
+    		
+    		//error out since truncating will likely not result in valid json
+    		throw new RuntimeException("Config JSON string larger than maximum");
+    	}
+    	else if(configJSONStr != null && configJSONStr.charAt(0) == '{') {
+            JSONObject configJSON = new JSONObject(configJSONStr);
+            
+            Properties configProperties = new Properties();
+            
+            JSONArray valueArray;
+            String value;
+            for( String key : configJSON.keySet() ) {
+            	if(ConfigDirectives.KNOWN_CONFIG_DIRECTIVES.contains(key)) {
+            		            		
+            		//value is a jsonarray with one value
+            		valueArray = configJSON.getJSONArray(key);
+            		
+            		if(valueArray.length() != 1) {
+                    	LOGGER.error("Failed to parse config JSON string");
+                    	throw new RuntimeException("Failed to parse config JSON string");
+            		}
+            		value = String.valueOf(valueArray.get(0));
+
+            		configProperties.setProperty(key, value);
+            		LOGGER.debug(key + " => " + value);
+            	}
+            }
+            	
+        	LOGGER.debug("Successfully processed config JSON string");
+            
+            load(configProperties);
+        } else {
+        	LOGGER.error("Failed to read config JSON string");
+        	throw new RuntimeException("Failed to read config JSON string");
+        }
+    }
+    
+    /////////////
+    private void load(Properties configProperties) {
     	
     	////////////////
     	//telemetry output
@@ -177,14 +269,19 @@ public class SimulatorConfig {
     	}
     	
     	////////////////
+    	//control input
+    	if(configProperties.containsKey(ConfigDirectives.CONTROL_INPUT_HOST_DIRECTIVE)) {
+    		controlInputHost = configProperties.getProperty(ConfigDirectives.CONTROL_INPUT_HOST_DIRECTIVE);
+    	}
+    	
     	//consumeables
     	if(configProperties.containsKey(ConfigDirectives.CONSUMEABLES_PORT_DIRECTIVE)) {
     		consumeablesInputPort = Integer.parseInt(configProperties.getProperty(ConfigDirectives.CONSUMEABLES_PORT_DIRECTIVE));
     	}
     	
     	//controls
-    	if(configProperties.containsKey(ConfigDirectives.CONTROL_PORT_DIRECTIVE)) {
-    		controlsInputPort = Integer.parseInt(configProperties.getProperty(ConfigDirectives.CONTROL_PORT_DIRECTIVE));
+    	if(configProperties.containsKey(ConfigDirectives.CONTROLS_PORT_DIRECTIVE)) {
+    		controlsInputPort = Integer.parseInt(configProperties.getProperty(ConfigDirectives.CONTROLS_PORT_DIRECTIVE));
     	}
     	
     	//engines
@@ -323,12 +420,12 @@ public class SimulatorConfig {
         this.telnetPort = telnetPort;
     }
 
-    public String getSocketInputHost() {
-        return socketInputHost;
+    public String getControlInputHost() {
+        return controlInputHost;
     }
 
-    public void setSocketInputHost(String socketInputHost) {
-        this.socketInputHost = socketInputHost;
+    public void setControlInputHost(String controlInputHost) {
+        this.controlInputHost = controlInputHost;
     }
     
     public int getConsumeablesInputPort() {
@@ -483,6 +580,10 @@ public class SimulatorConfig {
 		this.cameraViewPort = cameraViewerPort;
 	}
 	
+	public String getCameraStreamHost() {
+		return cameraStreamHost;
+	}
+	
 	public int getCameraStreamPort() {
 		return cameraStreamPort;
 	}
@@ -503,7 +604,7 @@ public class SimulatorConfig {
 	public String toString() {
 		return "SimulatorConfig [telemetryOutputHost=" + telemetryOutputHost + ", telemetryOutputPort="
 				+ telemetryOutputPort + ", telnetHost=" + telnetHost + ", telnetPort=" + telnetPort
-				+ ", socketInputHost=" + socketInputHost + ", consumeablesInputPort=" + consumeablesInputPort
+				+ ", controlInputHost=" + controlInputHost + ", consumeablesInputPort=" + consumeablesInputPort
 				+ ", controlsInputPort=" + controlsInputPort + ", enginesInputPort=" + enginesInputPort
 				+ ", fdmInputPort=" + fdmInputPort + ", orientationInputPort=" + orientationInputPort
 				+ ", positionInputPort=" + positionInputPort + ", simInputPort=" + simInputPort
@@ -514,5 +615,54 @@ public class SimulatorConfig {
 				+ cameraStreamHost + ", cameraStreamPort=" + cameraStreamPort + ", sshdPort=" + sshdPort
 				+ ", sshdHomeDir=" + sshdHomeDir + ", sshdUser=" + sshdUser + ", sshdPass=" + sshdPass
 				+ ", flightPlanName=" + flightPlanName + "]";
+	}
+	
+	public String toJSON() {
+		
+		JSONObject json = new JSONObject();
+		
+		//telemetry
+		json.append(ConfigDirectives.TELEM_OUTPUT_HOST_DIRECTIVE, this.getTelemetryOutputHost());
+		json.append(ConfigDirectives.TELEM_OUTPUT_PORT_DIRECTIVE, this.getTelemetryOutputPort());
+		
+		//telnet
+		json.append(ConfigDirectives.TELNET_HOST_DIRECTIVE, this.getTelnetHost());
+		json.append(ConfigDirectives.TELNET_PORT_DIRECTIVE, this.getTelnetPort());
+		
+		//control input
+		json.append(ConfigDirectives.CONTROL_INPUT_HOST_DIRECTIVE, this.getControlInputHost());
+		
+		//control input ports
+		json.append(ConfigDirectives.CONSUMEABLES_PORT_DIRECTIVE, this.getConsumeablesInputPort());
+		json.append(ConfigDirectives.CONTROLS_PORT_DIRECTIVE, this.getControlsInputPort());
+		json.append(ConfigDirectives.ENGINES_PORT_DIRECTIVE, this.getEnginesInputPort());
+		json.append(ConfigDirectives.FDM_PORT_DIRECTIVE, this.getFdmInputPort());
+		json.append(ConfigDirectives.ORIENTATION_PORT_DIRECTIVE, this.getOrientationInputPort());
+		json.append(ConfigDirectives.POSITION_PORT_DIRECTIVE, this.getPositionInputPort());
+		json.append(ConfigDirectives.SIM_PORT_DIRECTIVE, this.getSimInputPort());
+		json.append(ConfigDirectives.SIM_FREEZE_PORT_DIRECTIVE, this.getSimFreezeInputPort());
+		json.append(ConfigDirectives.SIM_MODEL_PORT_DIRECTIVE, this.getSimModelInputPort());
+		json.append(ConfigDirectives.SIM_SPEEDUP_PORT_DIRECTIVE, this.getSimSpeedupInputPort());
+		json.append(ConfigDirectives.SIM_TIME_PORT_DIRECTIVE, this.getSimTimeInputPort());
+		json.append(ConfigDirectives.SYSTEMS_PORT_DIRECTIVE, this.getSystemsInputPort());
+		json.append(ConfigDirectives.VELOCITIES_PORT_DIRECTIVE, this.getVelocitiesInputPort());
+		
+		//camera view
+		json.append(ConfigDirectives.CAMERA_VIEW_HOST_DIRECTIVE, this.getCameraViewerHost());
+		json.append(ConfigDirectives.CAMERA_VIEW_PORT_DIRECTIVE, this.getCameraViewerPort());
+
+		//camera stream
+		json.append(ConfigDirectives.CAMERA_STREAM_HOST_DIRECTIVE, this.getCameraStreamHost());
+		json.append(ConfigDirectives.CAMERA_STREAM_PORT_DIRECTIVE, this.getCameraStreamPort());
+		
+		//sshd
+		json.append(ConfigDirectives.SSHD_PORT_DIRECTIVE, this.getSshdPort());
+		json.append(ConfigDirectives.SSHD_USER_DIRECTIVE, this.getSshdUser());
+		json.append(ConfigDirectives.SSHD_PASS_DIRECTIVE, this.getSshdPass());
+		json.append(ConfigDirectives.SSHD_HOME_DIR_DIRECTIVE, this.getSshdHomeDir());
+
+		json.append(ConfigDirectives.FLIGHT_PLAN_DIRECTIVE, this.getFlightPlanName());
+		
+		return json.toString();
 	}
 }

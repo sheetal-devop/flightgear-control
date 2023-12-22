@@ -27,7 +27,7 @@ public class F15C extends FlightGearAircraft {
     private FlightGearTelemetryConnection socketsTelemetryConnection;
     
     private FlightGearInputConnection consumeablesInputConnection;
-    private FlightGearInputConnection controlInputConnection;
+    private FlightGearInputConnection controlsInputConnection;
     private FlightGearInputConnection fdmInputConnection;
     private FlightGearInputConnection orientationInputConnection;
     private FlightGearInputConnection positionInputConnection;
@@ -69,17 +69,17 @@ public class F15C extends FlightGearAircraft {
         try {
             LOGGER.info("Establishing input socket connections.");
             
-            consumeablesInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getConsumeablesInputPort());
-            controlInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getControlsInputPort());
-            fdmInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getFdmInputPort());
-            orientationInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getOrientationInputPort());
-            positionInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getPositionInputPort());
-            simInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimInputPort());
-            simFreezeInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimFreezeInputPort());
-            simModelInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimModelInputPort());
-            simSpeedupInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimSpeedupInputPort());
-            simTimeInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimTimeInputPort());
-            velocitiesInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getVelocitiesInputPort());
+            consumeablesInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getConsumeablesInputPort());
+            controlsInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getControlsInputPort());
+            fdmInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getFdmInputPort());
+            orientationInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getOrientationInputPort());
+            positionInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getPositionInputPort());
+            simInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimInputPort());
+            simFreezeInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimFreezeInputPort());
+            simModelInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimModelInputPort());
+            simSpeedupInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimSpeedupInputPort());
+            simTimeInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimTimeInputPort());
+            velocitiesInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getVelocitiesInputPort());
             
             LOGGER.info("Input socket connections established.");
         } catch (SocketException | UnknownHostException e) {
@@ -603,7 +603,7 @@ public class F15C extends FlightGearAircraft {
         
         LOGGER.info("Setting battery switch to {}", switchOn);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setEngine0Cutoff(boolean cutoffState) throws IOException {
@@ -618,7 +618,7 @@ public class F15C extends FlightGearAircraft {
         
         LOGGER.info("Setting engine 0 cutoff to {}", cutoffState);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setEngine1Cutoff(boolean cutoffState) throws IOException {
@@ -633,7 +633,7 @@ public class F15C extends FlightGearAircraft {
         
         LOGGER.info("Setting engine 1 cutoff to {}", cutoffState);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setAileron(double orientation) throws IOException {
@@ -643,7 +643,7 @@ public class F15C extends FlightGearAircraft {
 
         LOGGER.info("Setting aileron to {}", orientation);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setAileronTrim(double orientation) throws IOException {
@@ -653,7 +653,7 @@ public class F15C extends FlightGearAircraft {
 
         LOGGER.info("Setting aileron trim to {}", orientation);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setAutoCoordination(boolean enabled) throws IOException {
@@ -668,7 +668,7 @@ public class F15C extends FlightGearAircraft {
 
         LOGGER.info("Setting autocoordination to {}", enabled);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setElevator(double orientation) throws IOException {
@@ -678,7 +678,7 @@ public class F15C extends FlightGearAircraft {
 
         LOGGER.info("Setting elevator to {}", orientation);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setElevatorTrim(double orientation) throws IOException {
@@ -688,7 +688,7 @@ public class F15C extends FlightGearAircraft {
 
         LOGGER.info("Setting elevator trim to {}", orientation);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setFlaps(double orientation) throws IOException {
@@ -698,7 +698,7 @@ public class F15C extends FlightGearAircraft {
 
         LOGGER.info("Setting flaps to {}", orientation);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setRudder(double orientation) throws IOException {
@@ -708,7 +708,7 @@ public class F15C extends FlightGearAircraft {
 
         LOGGER.info("Setting rudder to {}", orientation);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setRudderTrim(double orientation) throws IOException {
@@ -718,7 +718,7 @@ public class F15C extends FlightGearAircraft {
 
         LOGGER.info("Setting rudder trim to {}", orientation);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     /**
@@ -746,7 +746,7 @@ public class F15C extends FlightGearAircraft {
         
         LOGGER.info("Setting engine throttles to {}", finalThrottle);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setEngine0Throttle( double throttle ) throws IOException {
@@ -756,7 +756,7 @@ public class F15C extends FlightGearAircraft {
         
         LOGGER.info("Setting engine 0 throttle to {}", throttle);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setEngine0Mixture( double mixture ) throws IOException {
@@ -766,7 +766,7 @@ public class F15C extends FlightGearAircraft {
         
         LOGGER.info("Setting engine 0 mixture to {}", mixture);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setEngine1Throttle( double throttle ) throws IOException {
@@ -776,7 +776,7 @@ public class F15C extends FlightGearAircraft {
         
         LOGGER.info("Setting engine 1 throttle to {}", throttle);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setEngine1Mixture( double mixture ) throws IOException {
@@ -786,7 +786,7 @@ public class F15C extends FlightGearAircraft {
         
         LOGGER.info("Setting engine 1 mixture to {}", mixture);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setGearDown(boolean isGearDown) throws IOException {
@@ -801,7 +801,7 @@ public class F15C extends FlightGearAircraft {
 
         LOGGER.info("Setting gear down to {}", isGearDown);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setArmamentAGMCount(int count) throws IOException {
@@ -847,7 +847,7 @@ public class F15C extends FlightGearAircraft {
         inputHash.put(F15CFields.RUDDER_FIELD, String.valueOf(F15CFields.RUDDER_DEFAULT));
         inputHash.put(F15CFields.RUDDER_TRIM_FIELD, String.valueOf(F15CFields.RUDDER_DEFAULT));
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
         
         LOGGER.info("Reset of control surfaces completed");
     }
@@ -961,7 +961,7 @@ public class F15C extends FlightGearAircraft {
         
         LOGGER.info("Setting parking brake to {}", brakeEnabled);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     @Override
@@ -1002,7 +1002,7 @@ public class F15C extends FlightGearAircraft {
             LOGGER.error("Exception closing consumeables input socket", e);
         }
         try {
-            controlInputConnection.close();
+            controlsInputConnection.close();
         } catch (IOException e) {
             LOGGER.error("Exception closing control input socket", e);
         }
@@ -1081,8 +1081,8 @@ public class F15C extends FlightGearAircraft {
     }
 
     @Override
-    protected void writeControlInput(LinkedHashMap<String, String> inputHash) throws IOException {
-        this.controlInputConnection.writeControlInput(inputHash);
+    protected void writeControlsInput(LinkedHashMap<String, String> inputHash) throws IOException {
+        this.controlsInputConnection.writeControlInput(inputHash);
     }
 
     @Override

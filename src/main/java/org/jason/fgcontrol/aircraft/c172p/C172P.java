@@ -27,7 +27,7 @@ public class C172P extends FlightGearAircraft {
     private FlightGearTelemetryConnection socketsTelemetryConnection;
     
     private FlightGearInputConnection consumeablesInputConnection;
-    private FlightGearInputConnection controlInputConnection;
+    private FlightGearInputConnection controlsInputConnection;
     private FlightGearInputConnection enginesInputConnection;
     private FlightGearInputConnection fdmInputConnection;
     private FlightGearInputConnection orientationInputConnection;
@@ -69,19 +69,19 @@ public class C172P extends FlightGearAircraft {
         try {
             LOGGER.info("Establishing input socket connections.");
             
-            consumeablesInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getConsumeablesInputPort());
-            controlInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getControlsInputPort());
-            enginesInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getEnginesInputPort());
-            fdmInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getFdmInputPort());
-            orientationInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getOrientationInputPort());
-            positionInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getPositionInputPort());
-            simInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimInputPort());
-            simFreezeInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimFreezeInputPort());
-            simModelInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimModelInputPort());
-            simSpeedupInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimSpeedupInputPort());
-            simTimeInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimTimeInputPort());
-            systemsInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSystemsInputPort());
-            velocitiesInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getVelocitiesInputPort());
+            consumeablesInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getConsumeablesInputPort());
+            controlsInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getControlsInputPort());
+            enginesInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getEnginesInputPort());
+            fdmInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getFdmInputPort());
+            orientationInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getOrientationInputPort());
+            positionInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getPositionInputPort());
+            simInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimInputPort());
+            simFreezeInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimFreezeInputPort());
+            simModelInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimModelInputPort());
+            simSpeedupInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimSpeedupInputPort());
+            simTimeInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimTimeInputPort());
+            systemsInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSystemsInputPort());
+            velocitiesInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getVelocitiesInputPort());
             
             LOGGER.info("Input socket connections established.");
         } catch (SocketException | UnknownHostException e) {
@@ -491,7 +491,7 @@ public class C172P extends FlightGearAircraft {
         
         LOGGER.info("Setting battery switch to {}", switchOn);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setElevator(double orientation) throws IOException {
@@ -501,7 +501,7 @@ public class C172P extends FlightGearAircraft {
 
         LOGGER.info("Setting elevator to {}", orientation);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setAileron(double orientation) throws IOException {
@@ -511,7 +511,7 @@ public class C172P extends FlightGearAircraft {
 
         LOGGER.info("Setting aileron to {}", orientation);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setAutoCoordination(boolean enabled) throws IOException {
@@ -526,7 +526,7 @@ public class C172P extends FlightGearAircraft {
 
         LOGGER.info("Setting autocoordination to {}", enabled);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setFlaps(double orientation) throws IOException {
@@ -536,7 +536,7 @@ public class C172P extends FlightGearAircraft {
 
         LOGGER.info("Setting flaps to {}", orientation);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setRudder(double orientation) throws IOException {
@@ -546,7 +546,7 @@ public class C172P extends FlightGearAircraft {
 
         LOGGER.info("Setting rudder to {}", orientation);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setThrottle(double throttle) throws IOException {
@@ -556,7 +556,7 @@ public class C172P extends FlightGearAircraft {
         
         LOGGER.info("Setting throttle to {}", throttle);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void setMixture(double mixture) throws IOException {
@@ -566,7 +566,7 @@ public class C172P extends FlightGearAircraft {
         
         LOGGER.info("Setting mixture to {}", mixture);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
     
     public synchronized void resetControlSurfaces() throws IOException {
@@ -592,7 +592,7 @@ public class C172P extends FlightGearAircraft {
             LOGGER.debug("Writing control surface reset:\n{}", inputHash.entrySet().toString());
         }
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
         
         LOGGER.info("Reset of control surfaces completed");
     }
@@ -612,7 +612,7 @@ public class C172P extends FlightGearAircraft {
         
         LOGGER.info("Toggling anti-ice heaters: {}", enabled);
         
-        writeControlInput(inputHash, this.controlInputConnection);
+        writeControlInput(inputHash, this.controlsInputConnection);
     }
 
     public synchronized void setCarbIce(double iceAmount) throws IOException {
@@ -785,7 +785,7 @@ public class C172P extends FlightGearAircraft {
             LOGGER.error("Exception closing consumeables input socket", e);
         }
         try {
-            controlInputConnection.close();
+            controlsInputConnection.close();
         } catch (IOException e) {
             LOGGER.error("Exception closing control input socket", e);
         }
@@ -918,8 +918,8 @@ public class C172P extends FlightGearAircraft {
     }
 
     @Override
-    protected void writeControlInput(LinkedHashMap<String, String> inputHash) throws IOException {
-        this.controlInputConnection.writeControlInput(inputHash);
+    protected void writeControlsInput(LinkedHashMap<String, String> inputHash) throws IOException {
+        this.controlsInputConnection.writeControlInput(inputHash);
     }
 
     @Override

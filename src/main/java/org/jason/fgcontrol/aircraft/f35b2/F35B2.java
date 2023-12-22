@@ -69,17 +69,17 @@ public class F35B2 extends FlightGearAircraft {
         try {
             LOGGER.info("Establishing input socket connections.");
             
-            consumeablesInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getConsumeablesInputPort());
-            controlInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getControlsInputPort());
-            fdmInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getFdmInputPort());
-            orientationInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getOrientationInputPort());
-            positionInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getPositionInputPort());
-            simInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimInputPort());
-            simFreezeInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimFreezeInputPort());
-            simModelInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimModelInputPort());
-            simSpeedupInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimSpeedupInputPort());
-            simTimeInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getSimTimeInputPort());
-            velocitiesInputConnection = new FlightGearInputConnection(simulatorConfig.getSocketInputHost(), simulatorConfig.getVelocitiesInputPort());
+            consumeablesInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getConsumeablesInputPort());
+            controlInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getControlsInputPort());
+            fdmInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getFdmInputPort());
+            orientationInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getOrientationInputPort());
+            positionInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getPositionInputPort());
+            simInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimInputPort());
+            simFreezeInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimFreezeInputPort());
+            simModelInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimModelInputPort());
+            simSpeedupInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimSpeedupInputPort());
+            simTimeInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getSimTimeInputPort());
+            velocitiesInputConnection = new FlightGearInputConnection(simulatorConfig.getControlInputHost(), simulatorConfig.getVelocitiesInputPort());
             
             LOGGER.info("Input socket connections established.");
         } catch (SocketException | UnknownHostException e) {
@@ -939,7 +939,7 @@ public class F35B2 extends FlightGearAircraft {
     }
 
     @Override
-    protected void writeControlInput(LinkedHashMap<String, String> inputHash) throws IOException {
+    protected void writeControlsInput(LinkedHashMap<String, String> inputHash) throws IOException {
         this.controlInputConnection.writeControlInput(inputHash);
     }
 
