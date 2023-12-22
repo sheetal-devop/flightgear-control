@@ -115,6 +115,9 @@ jar {
     archiveBaseName = title
     archiveVersion = fgControlVersion
 
+    //need this or else the classifer defaults to "plain"
+    classifier = ''
+
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     from sourceSets.main.output
@@ -129,6 +132,7 @@ jar {
 
     exclude (
             "org/jason/fgcontrol/aircraft/c172p/app/**",
+            "org/jason/fgcontrol/aircraft/config/app/**",
             "org/jason/fgcontrol/aircraft/f15c/app/**",
             "org/jason/fgcontrol/connection/sockets/app/**",
             "org/jason/fgcontrol/connection/rest/app/**",
