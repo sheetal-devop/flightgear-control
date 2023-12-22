@@ -204,13 +204,7 @@ bootJar {
     classifier = 'gateway'
     
     //test
-    //manifest {
-    //    attributes ([
-    //            "Package-Title": "flightgear-control",
-    //            "Package-Version": fgControlVersion,
     //            'Start-Class': 'org.jason.fgcontrol.gateway.app.poc.HelloWorld'
-    //    ])
-    //}
     
     // main required
     manifest {
