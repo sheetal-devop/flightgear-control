@@ -6,9 +6,7 @@ import java.util.TreeSet;
  * Known simulator config directives. 
  */
 public interface ConfigDirectives {
-	
-	public static final String AIRCRAFT_NAME_DIRECTIVE = "aircraftName";
-	
+		
 	/*
 consumeablesInputPort=5002
 controlsInputPort=5003
@@ -72,15 +70,16 @@ velocitiesInputPort=5014
 	//flightplan
 	public static final String FLIGHT_PLAN_DIRECTIVE = "flightPlanName";
 	
+	//aircraft name
+	public static final String AIRCRAFT_NAME_DIRECTIVE = "aircraftName";
+	
 	/////////////
 	
 	public final static TreeSet<String> KNOWN_CONFIG_DIRECTIVES = new TreeSet<String>() {
 
 		private static final long serialVersionUID = 8267318529441921834L;
 		
-		{
-			add(AIRCRAFT_NAME_DIRECTIVE);
-			
+		{		
 			add(TELEM_OUTPUT_HOST_DIRECTIVE);
 			add(TELEM_OUTPUT_PORT_DIRECTIVE);
 			
@@ -113,6 +112,8 @@ velocitiesInputPort=5014
 			add(SSHD_PASS_DIRECTIVE);
 			
 			add(FLIGHT_PLAN_DIRECTIVE);
+		
+			add(AIRCRAFT_NAME_DIRECTIVE);
 		}
 	};
 }

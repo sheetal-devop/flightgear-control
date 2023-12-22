@@ -2,7 +2,6 @@ package org.jason.fgcontrol.aircraft.config;
 
 import java.util.Properties;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +52,8 @@ public class SimulatorConfig {
     public final static int DEFAULT_SSHD_PORT = UNCONFIG_PORT;
 	public final static String DEFAULT_SSHD_USER = "edge";
 	public final static String DEFAULT_SSHD_PASS = "twxedge";
+	
+	public final static String DEFAULT_AIRCRAFT_NAME = "Aircraft_Default";
     
     protected String telemetryOutputHost;
     protected int telemetryOutputPort;
@@ -89,6 +90,8 @@ public class SimulatorConfig {
     protected String sshdPass;
     
     protected String flightPlanName;
+    
+    protected String aircraftName;
 
 	private final static int MAX_STR_INPUT_LEN = 1024;
     
@@ -136,6 +139,8 @@ public class SimulatorConfig {
         sshdPass = DEFAULT_SSHD_PASS;
         
         flightPlanName = null;
+        
+        aircraftName = DEFAULT_AIRCRAFT_NAME;
     }
 
     /**
@@ -195,20 +200,12 @@ public class SimulatorConfig {
             
             Properties configProperties = new Properties();
             
-            JSONArray valueArray;
             String value;
             for( String key : configJSON.keySet() ) {
             	if(ConfigDirectives.KNOWN_CONFIG_DIRECTIVES.contains(key)) {
-            		            		
-            		//value is a jsonarray with one value
-            		valueArray = configJSON.getJSONArray(key);
-            		
-            		if(valueArray.length() != 1) {
-                    	LOGGER.error("Failed to parse config JSON string");
-                    	throw new RuntimeException("Failed to parse config JSON string");
-            		}
-            		value = String.valueOf(valueArray.get(0));
-
+            		        
+            		value = String.valueOf(configJSON.get(key));
+     		
             		configProperties.setProperty(key, value);
             		LOGGER.debug(key + " => " + value);
             	}
@@ -362,6 +359,12 @@ public class SimulatorConfig {
     	//flight plan
     	if(configProperties.containsKey(ConfigDirectives.FLIGHT_PLAN_DIRECTIVE)) {
     		flightPlanName = configProperties.getProperty(ConfigDirectives.FLIGHT_PLAN_DIRECTIVE);
+    	}
+    	
+    	////////////////
+    	//aircraft name
+    	if(configProperties.containsKey(ConfigDirectives.AIRCRAFT_NAME_DIRECTIVE)) {
+    		aircraftName = configProperties.getProperty(ConfigDirectives.AIRCRAFT_NAME_DIRECTIVE);
     	}
     }
     
@@ -600,6 +603,14 @@ public class SimulatorConfig {
 		this.flightPlanName = flightPlanName;
 	}
 	
+	public String getAircraftName() {
+		return aircraftName;
+	}
+
+	public void setAircraftName(String aircraftName) {
+		this.aircraftName = aircraftName;
+	}
+
 	@Override
 	public String toString() {
 		return "SimulatorConfig [telemetryOutputHost=" + telemetryOutputHost + ", telemetryOutputPort="
@@ -622,46 +633,50 @@ public class SimulatorConfig {
 		JSONObject json = new JSONObject();
 		
 		//telemetry
-		json.append(ConfigDirectives.TELEM_OUTPUT_HOST_DIRECTIVE, this.getTelemetryOutputHost());
-		json.append(ConfigDirectives.TELEM_OUTPUT_PORT_DIRECTIVE, this.getTelemetryOutputPort());
+		json.put(ConfigDirectives.TELEM_OUTPUT_HOST_DIRECTIVE, this.getTelemetryOutputHost());
+		json.put(ConfigDirectives.TELEM_OUTPUT_PORT_DIRECTIVE, this.getTelemetryOutputPort());
 		
 		//telnet
-		json.append(ConfigDirectives.TELNET_HOST_DIRECTIVE, this.getTelnetHost());
-		json.append(ConfigDirectives.TELNET_PORT_DIRECTIVE, this.getTelnetPort());
+		json.put(ConfigDirectives.TELNET_HOST_DIRECTIVE, this.getTelnetHost());
+		json.put(ConfigDirectives.TELNET_PORT_DIRECTIVE, this.getTelnetPort());
 		
 		//control input
-		json.append(ConfigDirectives.CONTROL_INPUT_HOST_DIRECTIVE, this.getControlInputHost());
+		json.put(ConfigDirectives.CONTROL_INPUT_HOST_DIRECTIVE, this.getControlInputHost());
 		
 		//control input ports
-		json.append(ConfigDirectives.CONSUMEABLES_PORT_DIRECTIVE, this.getConsumeablesInputPort());
-		json.append(ConfigDirectives.CONTROLS_PORT_DIRECTIVE, this.getControlsInputPort());
-		json.append(ConfigDirectives.ENGINES_PORT_DIRECTIVE, this.getEnginesInputPort());
-		json.append(ConfigDirectives.FDM_PORT_DIRECTIVE, this.getFdmInputPort());
-		json.append(ConfigDirectives.ORIENTATION_PORT_DIRECTIVE, this.getOrientationInputPort());
-		json.append(ConfigDirectives.POSITION_PORT_DIRECTIVE, this.getPositionInputPort());
-		json.append(ConfigDirectives.SIM_PORT_DIRECTIVE, this.getSimInputPort());
-		json.append(ConfigDirectives.SIM_FREEZE_PORT_DIRECTIVE, this.getSimFreezeInputPort());
-		json.append(ConfigDirectives.SIM_MODEL_PORT_DIRECTIVE, this.getSimModelInputPort());
-		json.append(ConfigDirectives.SIM_SPEEDUP_PORT_DIRECTIVE, this.getSimSpeedupInputPort());
-		json.append(ConfigDirectives.SIM_TIME_PORT_DIRECTIVE, this.getSimTimeInputPort());
-		json.append(ConfigDirectives.SYSTEMS_PORT_DIRECTIVE, this.getSystemsInputPort());
-		json.append(ConfigDirectives.VELOCITIES_PORT_DIRECTIVE, this.getVelocitiesInputPort());
+		json.put(ConfigDirectives.CONSUMEABLES_PORT_DIRECTIVE, this.getConsumeablesInputPort());
+		json.put(ConfigDirectives.CONTROLS_PORT_DIRECTIVE, this.getControlsInputPort());
+		json.put(ConfigDirectives.ENGINES_PORT_DIRECTIVE, this.getEnginesInputPort());
+		json.put(ConfigDirectives.FDM_PORT_DIRECTIVE, this.getFdmInputPort());
+		json.put(ConfigDirectives.ORIENTATION_PORT_DIRECTIVE, this.getOrientationInputPort());
+		json.put(ConfigDirectives.POSITION_PORT_DIRECTIVE, this.getPositionInputPort());
+		json.put(ConfigDirectives.SIM_PORT_DIRECTIVE, this.getSimInputPort());
+		json.put(ConfigDirectives.SIM_FREEZE_PORT_DIRECTIVE, this.getSimFreezeInputPort());
+		json.put(ConfigDirectives.SIM_MODEL_PORT_DIRECTIVE, this.getSimModelInputPort());
+		json.put(ConfigDirectives.SIM_SPEEDUP_PORT_DIRECTIVE, this.getSimSpeedupInputPort());
+		json.put(ConfigDirectives.SIM_TIME_PORT_DIRECTIVE, this.getSimTimeInputPort());
+		json.put(ConfigDirectives.SYSTEMS_PORT_DIRECTIVE, this.getSystemsInputPort());
+		json.put(ConfigDirectives.VELOCITIES_PORT_DIRECTIVE, this.getVelocitiesInputPort());
 		
 		//camera view
-		json.append(ConfigDirectives.CAMERA_VIEW_HOST_DIRECTIVE, this.getCameraViewerHost());
-		json.append(ConfigDirectives.CAMERA_VIEW_PORT_DIRECTIVE, this.getCameraViewerPort());
+		json.put(ConfigDirectives.CAMERA_VIEW_HOST_DIRECTIVE, this.getCameraViewerHost());
+		json.put(ConfigDirectives.CAMERA_VIEW_PORT_DIRECTIVE, this.getCameraViewerPort());
 
 		//camera stream
-		json.append(ConfigDirectives.CAMERA_STREAM_HOST_DIRECTIVE, this.getCameraStreamHost());
-		json.append(ConfigDirectives.CAMERA_STREAM_PORT_DIRECTIVE, this.getCameraStreamPort());
+		json.put(ConfigDirectives.CAMERA_STREAM_HOST_DIRECTIVE, this.getCameraStreamHost());
+		json.put(ConfigDirectives.CAMERA_STREAM_PORT_DIRECTIVE, this.getCameraStreamPort());
 		
 		//sshd
-		json.append(ConfigDirectives.SSHD_PORT_DIRECTIVE, this.getSshdPort());
-		json.append(ConfigDirectives.SSHD_USER_DIRECTIVE, this.getSshdUser());
-		json.append(ConfigDirectives.SSHD_PASS_DIRECTIVE, this.getSshdPass());
-		json.append(ConfigDirectives.SSHD_HOME_DIR_DIRECTIVE, this.getSshdHomeDir());
+		json.put(ConfigDirectives.SSHD_PORT_DIRECTIVE, this.getSshdPort());
+		json.put(ConfigDirectives.SSHD_USER_DIRECTIVE, this.getSshdUser());
+		json.put(ConfigDirectives.SSHD_PASS_DIRECTIVE, this.getSshdPass());
+		json.put(ConfigDirectives.SSHD_HOME_DIR_DIRECTIVE, this.getSshdHomeDir());
 
-		json.append(ConfigDirectives.FLIGHT_PLAN_DIRECTIVE, this.getFlightPlanName());
+		//flightplan
+		json.put(ConfigDirectives.FLIGHT_PLAN_DIRECTIVE, this.getFlightPlanName());
+		
+		//aircraft name
+		json.put(ConfigDirectives.AIRCRAFT_NAME_DIRECTIVE, this.getAircraftName());
 		
 		return json.toString();
 	}

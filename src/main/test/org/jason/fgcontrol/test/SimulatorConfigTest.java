@@ -31,7 +31,7 @@ public class SimulatorConfigTest {
     	
     	Assert.assertNull(config.getFlightPlanName());
     	
-    	
+    	Assert.assertEquals(config.getAircraftName(), SimulatorConfig.DEFAULT_AIRCRAFT_NAME);
     }
     
     @Test
@@ -52,6 +52,7 @@ public class SimulatorConfigTest {
 		
 		Assert.assertEquals(simConfig.getTelemetryOutputPort(), 5000);
 	
+		Assert.assertEquals(simConfig.getAircraftName(), "C172P_Alpha");
     }
     
     @Test
@@ -75,6 +76,8 @@ public class SimulatorConfigTest {
 		
 		SimulatorConfig simConfig = new SimulatorConfig(simProperties);
 		
+		Assert.assertEquals(simConfig.getAircraftName(), "C172P_Alpha");
+		
 		//bad value doesn't appear in json
 		Assert.assertFalse( new JSONObject(simConfig.toJSON()).has(badConfigDirective));
     }
@@ -93,12 +96,16 @@ public class SimulatorConfigTest {
 		
 		SimulatorConfig simConfig1 = new SimulatorConfig(simProperties);	
 		
+		Assert.assertEquals(simConfig1.getAircraftName(), "C172P_Alpha");
+		
 		String configJson1 = simConfig1.toJSON();
 		
 		Assert.assertNotNull(configJson1);
 		Assert.assertFalse(StringUtils.isEmpty(configJson1));
 		
 		SimulatorConfig simConfig2 = new SimulatorConfig(configJson1);
+		
+		Assert.assertEquals(simConfig2.getAircraftName(), "C172P_Alpha");
 		
 		Assert.assertEquals(simConfig2.getTelemetryOutputPort(), 5000);
     }
@@ -124,6 +131,8 @@ public class SimulatorConfigTest {
 		configJson.append(badConfigDirective, "badValue");
 		
 		SimulatorConfig simConfig2 = new SimulatorConfig(configJson.toString());
+		
+		Assert.assertEquals(simConfig2.getAircraftName(), "C172P_Alpha");
 		
 		//good value appears in config
 		Assert.assertEquals(simConfig2.getTelemetryOutputPort(), 5000);

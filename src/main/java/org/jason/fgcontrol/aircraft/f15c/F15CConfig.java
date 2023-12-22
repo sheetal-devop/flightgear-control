@@ -36,11 +36,12 @@ public class F15CConfig extends SimulatorConfig {
     	super(configProperties);
     	
     	//any f15c-specific config processing happens here
+    	//set default f15c aircraft name to override generic name in SimulatorConfig
     	if(configProperties.containsKey(ConfigDirectives.AIRCRAFT_NAME_DIRECTIVE)) {
-    		aircraftName = configProperties.getProperty(ConfigDirectives.AIRCRAFT_NAME_DIRECTIVE);
+    		setAircraftName(configProperties.getProperty(ConfigDirectives.AIRCRAFT_NAME_DIRECTIVE));
     	} 
     	else {
-    		aircraftName = DEFAULT_AIRCRAFT_NAME;
+    		setAircraftName(DEFAULT_AIRCRAFT_NAME);
     	}
     }
     
