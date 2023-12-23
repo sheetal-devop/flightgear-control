@@ -60,6 +60,13 @@ sourceSets {
         java {
             srcDir 'src/main/java'
         }
+        resources {
+            exclude (
+                "users.template.properties", 
+                "logback-app.xml", 
+                "conf/*/demo/**"
+            )
+        }
     }
     test {
         java {
@@ -154,6 +161,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     //exclude mains
     exclude(
             "org/jason/fgcontrol/aircraft/c172p/app/**",
+            "org/jason/fgcontrol/aircraft/config/app/**",
             "org/jason/fgcontrol/aircraft/f15c/app/**",
             "org/jason/fgcontrol/connection/sockets/app/**",
             "org/jason/fgcontrol/connection/rest/app/**",
@@ -206,6 +214,8 @@ task appJar(type: Jar) {
 bootJar {
     archiveVersion = fgControlVersion
     classifier = 'gateway'
+    
+    //TODO: check for users.properties, fail with message if absent
     
     //test
     //            'Start-Class': 'org.jason.fgcontrol.gateway.app.poc.HelloWorld'
