@@ -178,6 +178,40 @@ public class C172PService {
 		}
 	}
 	
+	public void stopC172P(String name) throws FlightGearSetupException {
+		
+		//TODO: return a result object with success/failure message. ie if we're trying to doubly-build planes, return error message
+		//TODO: only build if we're beneath a maximum. possibly value read from application.properties 
+		
+		//vvvv these maps are null for some reason despite being initialized above
+		
+		//check that we arent running this aircraft already
+		if(activeAircraft.containsKey(name)) {
+			
+			//check that this is a known aircraft
+			if(availableAircraft.containsKey(name)) {
+							
+				//shutdown aircraft
+				C172P aircraft = activeAircraft.get(name);
+				if(aircraft != null) {
+					aircraft.shutdown();
+					LOGGER.info("Aircraft {} has been shut down", name);
+				} else {
+					LOGGER.error("Error: found a null aircraft when attempting shutdown: {}", name);
+				}
+	
+				//build the aircraft. started later by a specific action
+				activeAircraft.remove(name);
+			}
+			else {
+				LOGGER.error("Error: Unknown Aircraft name {}", name);
+			}
+		}
+		else {
+			LOGGER.error("Error: Active aircraft with name {} does not exist", name);
+		}
+	}
+	
 	public void runWaypointFlightPlan(String name) throws IOException {
 		
 		//TODO: prevent doubly-running aircraft. likely resolved with a better executor for flightplans
@@ -306,6 +340,22 @@ public class C172PService {
 				LOGGER.error("InvalidTelnetOptionException: Resetting simulator for c172p {}", name, e);
 			}
 			LOGGER.debug("Reset simulator for c172p {}", name);
+		}
+		else {
+			LOGGER.error("Error: Active Aircraft with name {} does not exist", name);
+		}
+	}
+	
+	public void terminateSimulator(String name) {
+		if(activeAircraft.containsKey(name)) {
+			try {
+				activeAircraft.get(name).terminateSimulator();;
+			} catch (IOException e) {
+				LOGGER.error("IOException: Terminating simulator for c172p {}", name, e);
+			} catch (InvalidTelnetOptionException e) {
+				LOGGER.error("InvalidTelnetOptionException: Terminating simulator for c172p {}", name, e);
+			}
+			LOGGER.debug("Terminating simulator for c172p {}", name);
 		}
 		else {
 			LOGGER.error("Error: Active Aircraft with name {} does not exist", name);

@@ -3,7 +3,7 @@ package org.jason.fgcontrol.gateway;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-import org.apache.groovy.parser.antlr4.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jason.fgcontrol.exceptions.FlightGearSetupException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -39,63 +39,7 @@ public class C172PController {
 	
     ///////////////////////////////
     //endpoints
-    
-    /**
-     * 
-     * 
-     * @param jsonConfigStr	A String representation of simulator properties
-     * @return
-     */
-    /*
-    @PostMapping("/fgctl/c172p/build")
-    @RequestMapping(
-    	value = "/fgctl/c172p/build", 
-    	method = RequestMethod.POST, 
-    	consumes = MediaType.APPLICATION_JSON_VALUE,
-    	produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<String> build(@RequestBody String jsonConfigStr) {
-    	HttpStatus responseCode = HttpStatus.INTERNAL_SERVER_ERROR;
-    	    	
-    	JSONObject responseJSON = new JSONObject();
-    	
-    	String message = "None";
-    	
-    	C172PManager c172pConfig = null;
-    	try {
-	    	//Properties simProperties = new Properties();
-	    	
-	    	//TODO: safety check config input string
-    		//length, 
-	    	
-    		LOGGER.info("RECEIVED: {}" + jsonConfigStr);
-    		
-			c172pConfig = new C172PManager(jsonConfigStr);
-	    	
-	    	responseJSON.append("message", message);
-	    	
-	    	String name = c172pConfig.getAircraftName();
-	    	
-	    	LOGGER.info("Building c172p aircraft {}", name);
-	    	
-	    	LOGGER.info("Using config:\n{}", c172pConfig.toString());
-	    	
-	    	c172pService.buildC172P(c172pConfig);
-	    	
-	    	responseCode = HttpStatus.OK;
-	    	message = "C172P built";
-	    	responseJSON.append("aircraftName", name);
-		} catch (FlightGearSetupException e) {
-			LOGGER.error("FlightGearSetupException building C172P", e);
-		}
-    	
-    	responseJSON.put("response", responseCode);
-    	responseJSON.put("message", message);
-    	
-		return new ResponseEntity<String>(responseJSON.toString(), responseCode);
-    }
-    */
-    
+        
     @GetMapping("/fgctl/c172p/build")
     @RequestMapping(
     	value = "/fgctl/c172p/build", 
@@ -115,7 +59,8 @@ public class C172PController {
 				message = "C172P built with name: " + name;
 				responseCode = HttpStatus.OK;
 			} catch (FlightGearSetupException e) {
-				LOGGER.error("FlightGearSetupException building C172P", e);
+	    		message = "FlightGearSetupException building C172P: " + name;
+	    		LOGGER.error(message, e);
 			}
     	}
     	else {
@@ -127,6 +72,31 @@ public class C172PController {
     	
 		return new ResponseEntity<String>(responseJSON.toString(), responseCode);
     }
+    
+    @GetMapping("/fgctl/c172p/stop")
+    @RequestMapping(value = "/fgctl/c172p/stop", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> stop(@RequestParam("name") String name) {  
+    	
+    	JSONObject responseJSON = new JSONObject();
+    	HttpStatus responseCode = HttpStatus.INTERNAL_SERVER_ERROR;
+    	String message = "";
+    	
+    	try {
+    		c172pService.stopC172P(name);
+    		message = "C172P stopped with name: " + name;
+    		responseCode = HttpStatus.OK;
+    	} catch (FlightGearSetupException e) {
+    		message = "FlightGearSetupException stopping C172P: " + name;
+    		LOGGER.error(message, e);
+		} 
+    	
+    	responseJSON.put("message", message);
+    	
+    	return new ResponseEntity<String>(responseJSON.toString(), responseCode);
+    }
+    
+    ////////
+    // flightplans
     
     @GetMapping("/fgctl/c172p/runFlightPlan")
     @RequestMapping(
@@ -149,6 +119,10 @@ public class C172PController {
     	
 		return new ResponseEntity<String>(responseJSON.toString(), responseCode);
     }
+    
+    
+    //////////
+    // info
     
     @GetMapping("/fgctl/c172p/whoami")
     @RequestMapping(value = "/fgctl/c172p/whoami", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -216,14 +190,35 @@ public class C172PController {
     	return new ResponseEntity<String>(responseBody, responseCode);
     }
     
+    ////////////
+    //simulator management
+    
     @GetMapping("/fgctl/c172p/resetSimulator")
     @RequestMapping(value = "/fgctl/c172p/resetSimulator", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> resetSimulator() {  
+    public ResponseEntity<String> resetSimulator(@RequestParam("name") String name) {  
     	
     	JSONObject responseJSON = new JSONObject();
     	HttpStatus responseCode = HttpStatus.INTERNAL_SERVER_ERROR;
     	
+    	try {
+    		c172pService.resetSimulator(name);
+    		responseCode = HttpStatus.OK;
+    	} finally {}
     	
+    	return new ResponseEntity<String>(responseJSON.toString(), responseCode);
+    }
+    
+    @GetMapping("/fgctl/c172p/terminateSimulator")
+    @RequestMapping(value = "/fgctl/c172p/terminateSimulator", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> terminateSimulator(@RequestParam("name") String name) {  
+    	
+    	JSONObject responseJSON = new JSONObject();
+    	HttpStatus responseCode = HttpStatus.INTERNAL_SERVER_ERROR;
+    	
+    	try {
+    		c172pService.terminateSimulator(name);
+    		responseCode = HttpStatus.OK;
+    	} finally {}
     	
     	return new ResponseEntity<String>(responseJSON.toString(), responseCode);
     }
