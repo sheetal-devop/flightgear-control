@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -26,6 +24,7 @@ import org.jason.fgcontrol.flight.position.KnownRoutes;
 import org.jason.fgcontrol.flight.position.WaypointPosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -37,7 +36,9 @@ public class C172PService {
 	//for now, package-private and inline initialized is the only way to guarantee initialization
 	HashMap<String, C172P> activeAircraft = new HashMap<String, C172P>();
 	HashMap<String, Properties> availableAircraft = new HashMap<String, Properties>();
-	ExecutorService planExecutor = Executors.newFixedThreadPool(10);
+	
+	@Autowired
+	FlightPlanExecutor flightplanExecutor;
 
 	private final static long SHUTDOWN_SLEEP = 4 * 1000L;
 	
@@ -97,8 +98,6 @@ public class C172PService {
     		LOGGER.debug("Available Aircraft: {}", iAircraftName);
     	}
     	
-    	//set up our executor
-    	//planExecutor = 
 	}
 	
     @PreDestroy
@@ -122,7 +121,7 @@ public class C172PService {
 		}
     	
     	//shutdown our plan executor running flightplans
-    	planExecutor.shutdownNow();
+    	flightplanExecutor.shutdown();
     	
     	try {
 			Thread.sleep(SHUTDOWN_SLEEP);
@@ -144,10 +143,13 @@ public class C172PService {
 	/**
 	 * 
 	 * @param name	The name of the aircraft. Must be a known aircraft name and not running
+	 * @return 
 	 * 
 	 * @throws FlightGearSetupException		If an exception occurs during aircraft setup 
 	 */
-	public void buildC172P(String name) throws FlightGearSetupException {
+	public boolean buildC172P(String name) throws FlightGearSetupException {
+		
+		boolean success = false;
 		
 		//TODO: return a result object with success/failure message. ie if we're trying to doubly-build planes, return error message
 		//TODO: only build if we're beneath a maximum. possibly value read from application.properties 
@@ -168,6 +170,8 @@ public class C172PService {
 				
 				//build the aircraft. started later by a specific action
 				activeAircraft.put(name, new C172P(config));
+				
+				success = true;
 			}
 			else {
 				LOGGER.error("Error: Unknown Aircraft name {}", name);
@@ -176,6 +180,8 @@ public class C172PService {
 		else {
 			LOGGER.error("Error: Active aircraft with name {} already exists", name);
 		}
+		
+		return success;
 	}
 	
 	public void stopC172P(String name) throws FlightGearSetupException {
@@ -192,13 +198,17 @@ public class C172PService {
 			if(availableAircraft.containsKey(name)) {
 							
 				//shutdown aircraft
-				C172P aircraft = activeAircraft.get(name);
-				if(aircraft != null) {
-					aircraft.shutdown();
+				//C172P aircraft = activeAircraft.get(name);
+				//if(aircraft != null) {
+					
 					LOGGER.info("Aircraft {} has been shut down", name);
-				} else {
-					LOGGER.error("Error: found a null aircraft when attempting shutdown: {}", name);
-				}
+					
+					//executor invokes FlightGearAircraft.shutdown on the runnable
+					flightplanExecutor.stop(name);
+					
+				//} else {
+				//	LOGGER.error("Error: found a null aircraft when attempting shutdown: {}", name);
+				//}
 	
 				//build the aircraft. started later by a specific action
 				activeAircraft.remove(name);
@@ -229,26 +239,36 @@ public class C172PService {
 	public void runRunwayPlan(String name) {
 		if(activeAircraft.containsKey(name)) {
 			
-			planExecutor.execute(
-				new Thread() {
-					public void run() {
-						try {
-							LOGGER.debug("Executing flightplan for {}", name);
-							RunwayBurnoutFlightExecutor.runFlight(activeAircraft.get(name));
-							LOGGER.debug("Completed flightplan for {}", name);
-						} catch (IOException | AircraftStartupException | InterruptedException e) {
-							LOGGER.error("Exeception operating aircraft {}", name, e);
-						}
-						finally {
-							
-							LOGGER.debug("Removing aircraft {} from active status", name);
-							
-							//no longer active
-							activeAircraft.remove(name);
-						}
+			FlightPlanRunnable myRunnable = new FlightPlanRunnable() {
+				public void run() {
+					try {
+						LOGGER.debug("Executing flightplan for {}", name);
+						RunwayBurnoutFlightExecutor.runFlight(activeAircraft.get(name));
+						LOGGER.debug("Completed flightplan for {}", name);
+					} catch (IOException | AircraftStartupException | InterruptedException e) {
+						LOGGER.error("Exeception operating aircraft {}", name, e);
+					}
+					finally {
+						
+						LOGGER.debug("Removing aircraft {} from active status", name);
+						
+						//no longer active
+						activeAircraft.remove(name);
 					}
 				}
-			);
+
+				@Override
+				protected void shutdownFlightPlan() {
+					activeAircraft.get(name).shutdown();
+					
+					//remove from active
+					activeAircraft.remove(name);
+				}
+			};
+			
+			myRunnable.setName(name);
+			
+			flightplanExecutor.run(myRunnable);
 		}
 		else {
 			LOGGER.error("Error: Aircraft {} is not active", name);

@@ -55,9 +55,13 @@ public class C172PController {
     	if(name != null && !StringUtils.isEmpty(name)) {
     	
 	    	try {
-				c172pService.buildC172P(name);
-				message = "C172P built with name: " + name;
-				responseCode = HttpStatus.OK;
+				if (c172pService.buildC172P(name) ) {
+					message = "C172P built with name: " + name;
+					responseCode = HttpStatus.OK;
+				} else {
+					message = "C172P could not be built with name: " + name;
+					responseCode = HttpStatus.OK;
+				}
 			} catch (FlightGearSetupException e) {
 	    		message = "FlightGearSetupException building C172P: " + name;
 	    		LOGGER.error(message, e);
@@ -146,7 +150,6 @@ public class C172PController {
     	HttpStatus responseCode = HttpStatus.INTERNAL_SERVER_ERROR;
     	
     	try {
-    		//TODO: telemetry : { [actual telem] }
     		telemJSON = new JSONObject(c172pService.getTelemetry(name)).toString();
     		responseCode = HttpStatus.OK;
     		message = "None";
