@@ -79,7 +79,9 @@ public abstract class FlightGearAircraft {
 	protected boolean enabledSSHDServer;
 	private SSHDServer sshdServer;
 
-    public FlightGearAircraft() {
+	private String aircraftName;
+
+	public FlightGearAircraft() {
         this(new SimulatorConfig());
     }
     
@@ -159,6 +161,8 @@ public abstract class FlightGearAircraft {
         	LOGGER.info("Proceeding with SSHD disabled");
         }
         
+        this.aircraftName = simulatorConfig.getAircraftName();
+        
         //no caltrops client, handled by application
         //config comes from the app, so directives are available there
         ///////////////
@@ -175,7 +179,7 @@ public abstract class FlightGearAircraft {
      * 
      * Minimally initialize an empty waypoint manager. See if the simulator config has a defined flightplan, and 
      * attempt to resolve a route from the map of known routes. If there's no defined flightplan, or a route cannot
-     * be resolved by the provided name, then waypoints can be added manually.
+     * be resolved by the provided aircraftName, then waypoints can be added manually.
      */
     protected void initWaypointManager() {
     	waypointManager = new WaypointManager();
@@ -189,11 +193,11 @@ public abstract class FlightGearAircraft {
     		ArrayList<WaypointPosition> resolvedRoute = KnownRoutes.lookupKnownRoute(flightPlanName);
     		
     		if(resolvedRoute != null) {
-    			LOGGER.info("Resolved a flight plan for name: {}", flightPlanName);
+    			LOGGER.info("Resolved a flight plan for aircraftName: {}", flightPlanName);
     			waypointManager.setWaypoints(resolvedRoute);
     		}
     		else {
-    			LOGGER.error("Failed to resolve a flight plan for name: {}", flightPlanName);
+    			LOGGER.error("Failed to resolve a flight plan for aircraftName: {}", flightPlanName);
 
     			//just report the error. it's possible a flightplan is set later on.
     		}
@@ -504,7 +508,7 @@ public abstract class FlightGearAircraft {
     /**
      * Get a single telemetry field
      * 
-     * @param fieldName    Field name to lookup
+     * @param fieldName    Field aircraftName to lookup
      * @return    value of the field, null if it isn't in the map
      */
     public synchronized String getTelemetryField(String fieldName) {
@@ -1245,6 +1249,7 @@ public abstract class FlightGearAircraft {
     
     ///////////////////
     //velocities
+    
     public double getAirSpeed() {
         return Double.parseDouble(getTelemetryField(FlightGearFields.AIRSPEED_FIELD));
     }
@@ -1268,4 +1273,13 @@ public abstract class FlightGearAircraft {
     public double getWBodySpeed() {
         return Double.parseDouble(getTelemetryField(FlightGearFields.W_BODY_FIELD));
     }
+    
+    /////////////////////
+    //name
+    
+    public String getAircraftName() {
+		return aircraftName;
+	}
+    
+    /////////////////////
 }
