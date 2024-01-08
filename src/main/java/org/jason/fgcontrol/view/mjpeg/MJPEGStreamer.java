@@ -100,6 +100,7 @@ public class MJPEGStreamer {
 		
 		LOGGER.info("MJPEGStreamer server stopping");
 		
+		//TODO: seeing java.lang.IllegalArgumentException occasionally on double shutdowns of FlightGearAircraft
 		server.removeContext(CAMERA_VIEW_HTTP_ENDPOINT);
 		server.removeContext(STREAM_HTTP_ENDPOINT);
 		
