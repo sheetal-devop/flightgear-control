@@ -28,6 +28,7 @@ public class SSHDServer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SSHDServer.class);
 
+    // default listen to everything
 	private final static String DEFAULT_BIND_ADDR = "0.0.0.0";
 	
 	private String bindAddress;
