@@ -115,7 +115,7 @@ public class C172PController {
     	JSONObject responseJSON = new JSONObject();
     	
     	//TODO: get result
-    	c172pService.runRunwayPlan(name);
+    	c172pService.runFlightPlan(name);
 		
 		responseCode = HttpStatus.OK;
     	
@@ -124,6 +124,27 @@ public class C172PController {
 		return new ResponseEntity<String>(responseJSON.toString(), responseCode);
     }
     
+    @GetMapping("/fgctl/c172p/runRunwayPlan")
+    @RequestMapping(
+    	value = "/fgctl/c172p/runRunwayPlan", 
+    	method = RequestMethod.GET, 
+    	produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<String> runRunwayPlan(@RequestParam("name") String name) {   	
+    	
+    	String message = "None";
+    	HttpStatus responseCode = HttpStatus.INTERNAL_SERVER_ERROR;
+    	JSONObject responseJSON = new JSONObject();
+    	
+    	//TODO: get result
+    	c172pService.runRunwayPlan(name);
+		
+		responseCode = HttpStatus.OK;
+    	
+    	responseJSON.put("message", message);
+    	
+		return new ResponseEntity<String>(responseJSON.toString(), responseCode);
+    }
     
     //////////
     // info

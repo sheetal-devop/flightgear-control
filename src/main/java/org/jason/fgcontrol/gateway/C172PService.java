@@ -222,14 +222,43 @@ public class C172PService {
 		}
 	}
 	
-	public void runWaypointFlightPlan(String name) throws IOException {
+	public void runFlightPlan(String name) {
 		
-		//TODO: prevent doubly-running aircraft. likely resolved with a better executor for flightplans
 		//TODO: supply user-defined FlightParameters to flightexecutor
-		//TODO: manage flight vs runway operation
+		//TODO: prevent doubly-running aircraft. likely resolved with a better executor for flightplans
 		
 		if(activeAircraft.containsKey(name)) {
-			C172PWaypointFlightExecutor.runFlight(activeAircraft.get(name));
+			
+			FlightPlanRunnable myRunnable = new FlightPlanRunnable() {
+				public void run() {
+					try {
+						LOGGER.debug("Executing flightplan for {}", name);
+						C172PWaypointFlightExecutor.runFlight(activeAircraft.get(name));
+						LOGGER.debug("Completed flightplan for {}", name);
+					} catch (IOException e) {
+						LOGGER.error("Exeception operating aircraft {}", name, e);
+					}
+					finally {
+						
+						LOGGER.debug("Removing aircraft {} from active status", name);
+						
+						//no longer active
+						activeAircraft.remove(name);
+					}
+				}
+
+				@Override
+				protected void shutdownFlightPlan() {
+					activeAircraft.get(name).shutdown();
+					
+					//remove from active
+					activeAircraft.remove(name);
+				}
+			};
+			
+			myRunnable.setName(name);
+			
+			flightplanExecutor.run(myRunnable);
 		}
 		else {
 			LOGGER.error("Error: Aircraft {} is not active", name);
@@ -237,6 +266,10 @@ public class C172PService {
 	}
 	
 	public void runRunwayPlan(String name) {
+		
+		//TODO: supply user-defined FlightParameters to flightexecutor
+		//TODO: prevent doubly-running aircraft. likely resolved with a better executor for flightplans
+		
 		if(activeAircraft.containsKey(name)) {
 			
 			FlightPlanRunnable myRunnable = new FlightPlanRunnable() {
