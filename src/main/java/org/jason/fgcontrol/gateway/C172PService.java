@@ -231,6 +231,10 @@ public class C172PService {
 			
 			FlightPlanRunnable myRunnable = new FlightPlanRunnable() {
 				public void run() {
+					
+					//TODO: hardcode for now, make dynamic later
+					activeAircraft.get(name).setWaypoints( KnownRoutes.VANCOUVER_NORTH_SHORE_DEMO );
+					
 					try {
 						LOGGER.debug("Executing flightplan for {}", name);
 						C172PWaypointFlightExecutor.runFlight(activeAircraft.get(name));
@@ -239,6 +243,14 @@ public class C172PService {
 						LOGGER.error("Exeception operating aircraft {}", name, e);
 					}
 					finally {
+						
+						
+						// flight plan done - pause simulator so the plane doesn't drift off
+						try {
+							activeAircraft.get(name).setPause(true);
+						} catch (IOException e) {
+							LOGGER.error("IOException pausing simulator after flightplan was complete: {}", name, e);
+						}
 						
 						LOGGER.debug("Removing aircraft {} from active status", name);
 						
