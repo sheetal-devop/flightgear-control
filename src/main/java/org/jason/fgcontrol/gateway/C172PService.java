@@ -45,6 +45,7 @@ public class C172PService {
 	private final static int MAX_AIRCRAFT_NAME_LEN = 20;
 	
 	//need the relative paths for the classloader
+	//TODO: directory
 	private final static String[] KNOWN_AIRCRAFT_CONF_FILES = {
 		"conf/c172p/c172p_alpha_flight.properties",
 		"conf/c172p/c172p_alpha_runway.properties",
@@ -152,10 +153,9 @@ public class C172PService {
 		boolean success = false;
 		
 		//TODO: return a result object with success/failure message. ie if we're trying to doubly-build planes, return error message
-		//TODO: only build if we're beneath a maximum. possibly value read from application.properties 
-		
-		//vvvv these maps are null for some reason despite being initialized above
-		
+		//TODO: only build if we're beneath a maximum. not all hardware can run many simulator instances. 
+		// possibly value read from application.properties 
+				
 		//check that we arent running this aircraft already
 		if(!activeAircraft.containsKey(name)) {
 			
